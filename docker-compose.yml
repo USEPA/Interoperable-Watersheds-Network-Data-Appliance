@@ -1,0 +1,8 @@
+api:
+  build: .
+  container_name: api
+  command : bash -c "gunicorn --bind 0.0.0.0:8000 app"
+  ports:
+    - "8000:8000"  
+  volumes:
+    - ./api:/code

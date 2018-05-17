@@ -1,0 +1,6 @@
+{
+  "python.pythonPath": "C:\\Users\\adamshelton\\.virtualenvs\\ingest-TwIMfCR6\\scripts\\python.exe",
+  "python.linting.enabled": true,
+  "python.linting.lintOnSave": true,
+  "python.linting.pylintEnabled": true
+}
