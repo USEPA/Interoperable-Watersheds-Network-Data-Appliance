@@ -1,8 +1,18 @@
-api:
-  build: .
-  container_name: api
-  command : bash -c "gunicorn --bind 0.0.0.0:8000 app"
-  ports:
-    - "8000:8000"  
-  volumes:
-    - ./api:/code
+version: "3.6"
+services:
+  api:
+    build: .
+    container_name: api
+    command : bash -c "gunicorn --bind 0.0.0.0:8000 app"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./api:/code
+  database:
+    build: ./db
+    volumes:
+      - datavol:/var/lib/postgresql/data
+      - "./db/scripts/installpgcron.sh:/docker-entrypoint-initdb.d/zzpgcron.sh"
+    container_name: data
+volumes:
+  datavol:
