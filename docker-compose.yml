@@ -10,9 +10,14 @@ services:
       - ./api:/code
   database:
     build: ./db
+    restart: always
     volumes:
       - datavol:/var/lib/postgresql/data
-      - "./db/scripts/installpgcron.sh:/docker-entrypoint-initdb.d/zzpgcron.sh"
+      - "./db/scripts/installpgcron.sh:/docker-entrypoint-initdb.d/1pgcron.sh"
+      - "./db/scripts/init.sql:/docker-entrypoint-initdb.d/2init.sql"
+      - "./db/scripts/tables.sql:/docker-entrypoint-initdb.d/3tables.sql"
+      - "./db/scripts/data.sql:/docker-entrypoint-initdb.d/4data.sql"
+      - "./db/scripts/indexes.sql:/docker-entrypoint-initdb.d/5indexes.sql"
     container_name: data
 volumes:
   datavol:
