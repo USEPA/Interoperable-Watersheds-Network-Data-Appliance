@@ -19,12 +19,15 @@ services:
       - "./db/scripts/data.sql:/docker-entrypoint-initdb.d/4data.sql"
       - "./db/scripts/indexes.sql:/docker-entrypoint-initdb.d/5indexes.sql"
       - "./sos/sos.sql:/docker-entrypoint-initdb.d/6sos.sql"
+      - "./input/:/opt/ingest"
     container_name: data
   sos:
     image: 52north/sos:4.3.8
     ports:
       - 8080:8080
     container_name: sos
+    depends_on: 
+      - database
     volumes:
       - "./sos/configuration.db:/usr/local/tomcat/webapps/52n-sos-webapp/configuration.db"
       - "./sos/datasource.properties:/usr/local/tomcat/webapps/52n-sos-webapp/WEB-INF/datasource.properties"
