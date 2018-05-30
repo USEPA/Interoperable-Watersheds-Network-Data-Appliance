@@ -11,14 +11,16 @@ services:
   database:
     build: ./db
     restart: always
+    ports:
+      - "5432:5432"
     volumes:
       - datavol:/var/lib/postgresql/data
-      - "./db/scripts/installpgcron.sh:/docker-entrypoint-initdb.d/1pgcron.sh"
       - "./db/scripts/init.sql:/docker-entrypoint-initdb.d/2init.sql"
       - "./db/scripts/tables.sql:/docker-entrypoint-initdb.d/3tables.sql"
       - "./db/scripts/data.sql:/docker-entrypoint-initdb.d/4data.sql"
       - "./db/scripts/indexes.sql:/docker-entrypoint-initdb.d/5indexes.sql"
-      - "./sos/sos.sql:/docker-entrypoint-initdb.d/6sos.sql"
+      - "./db/scripts/r10.sql:/docker-entrypoint-initdb.d/6r10.sql"
+      - "./sos/sos.sql:/docker-entrypoint-initdb.d/7sos.sql"
       - "./input/:/opt/ingest"
     container_name: data
   sos:
@@ -26,8 +28,6 @@ services:
     ports:
       - 8080:8080
     container_name: sos
-    depends_on: 
-      - database
     volumes:
       - "./sos/configuration.db:/usr/local/tomcat/webapps/52n-sos-webapp/configuration.db"
       - "./sos/datasource.properties:/usr/local/tomcat/webapps/52n-sos-webapp/WEB-INF/datasource.properties"
