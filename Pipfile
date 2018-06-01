@@ -10,6 +10,7 @@ gunicorn = "*"
 python-dateutil = "*"
 "psycopg2" = "*"
 records = "*"
+python-crontab = "*"
 
 [dev-packages]
 pylint = "*"
