@@ -26,6 +26,13 @@ VERBOSE = False
 #url = 'http://niagara.rtp.rti.org:8080/52n-sos-webapp/service' #local niagara 52N
 url = 'http://havasu.rtp.rti.org:8080/52n-sos-webapp/service' #local 52N
 debugprint = True
+connstring = 'postgres://sos:sensors@havasu.rtp.rti.org:5433/ingest'
+db = records.Database(connstring)
+station_meta_rows = db.query("select org_sensor_id, short_name, long_name, \
+longitude::text, latitude::text, altitude, o.name, o.url, \
+o.contact_name || ':' || o.contact_email as contact, \
+'River/Stream', o.parent_organization_id, o.organization_id \
+from sos.sensors s, sos.organizations o where s.organization_id = o.organization_id")
 station_meta_path="metadata_station.csv"
 parameter_meta_path="metadata_parameter.csv"
 station_meta_template="station_template.txt"
@@ -165,17 +172,15 @@ def pull_capability_data(offer_list):
 def read_station_meta(station_meta_path,metadata_headers):
     log_entry("-","Read metadata from {}".format(station_meta_path))
     stationdata_l = []
-    with open(station_meta_path) as fr:
-        stat_reader = csv.reader(fr)
-        for i,row in enumerate(stat_reader):
-            if i == 0:
-                continue #skip header row
-            else: 
-                try:
-                    dict_l = dict(zip(metadata_headers,row))
-                except:
-                    print("metadata - header mismatch")
-                stationdata_l.append(dict_l)
+	for i,row in enumerate(station_meta_path):
+		if i == 0:
+			continue #skip header row
+		else: 
+			try:
+				dict_l = dict(zip(metadata_headers,row))
+			except:
+				print("metadata - header mismatch")
+			stationdata_l.append(dict_l)
     return stationdata_l
 
 def read_parameter_meta(parameter_meta_path,parameter_headers):
