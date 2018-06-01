@@ -28,12 +28,12 @@ url = 'http://havasu.rtp.rti.org:8080/52n-sos-webapp/service' #local 52N
 debugprint = True
 connstring = 'postgres://sos:sensors@havasu.rtp.rti.org:5433/ingest'
 db = records.Database(connstring)
-station_meta_rows = db.query("select org_sensor_id, short_name, long_name, \
+station_meta_path = db.query("select org_sensor_id, short_name, long_name, \
 longitude::text, latitude::text, altitude, o.name, o.url, \
 o.contact_name || ':' || o.contact_email as contact, \
 'River/Stream', o.parent_organization_id, o.organization_id \
 from sos.sensors s, sos.organizations o where s.organization_id = o.organization_id")
-station_meta_path="metadata_station.csv"
+#station_meta_path="metadata_station.csv"
 parameter_meta_path="metadata_parameter.csv"
 station_meta_template="station_template.txt"
 sensor_meta_template="sensor_template.txt"
