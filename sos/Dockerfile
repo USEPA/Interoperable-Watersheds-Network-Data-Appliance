@@ -1,5 +1,5 @@
 FROM 52north/sos:4.3.8
-#RUN apt-get install -y sqlite3
+RUN apt-get install -y sqlite3
 COPY ./updateconfig.sh /tmp/updateconfig.sh
 COPY ./configuration.db /tmp/configuration.db
 COPY ./configuration.csv /tmp/configuration.csv
