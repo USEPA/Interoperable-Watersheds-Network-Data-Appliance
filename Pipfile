@@ -8,6 +8,8 @@ flask = "*"
 flask-restplus = "*"
 gunicorn = "*"
 python-dateutil = "*"
+"psycopg2" = "*"
+records = "*"
 
 [dev-packages]
 pylint = "*"
