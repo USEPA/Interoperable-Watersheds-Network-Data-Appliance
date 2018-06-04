@@ -1,13 +1,10 @@
 from flask import Flask
-from flask_restplus import Resource, Api
+from flask_restplus import Api
+from factory import create_app, create_api
 
-application = Flask(__name__)
-api = Api(application)
+application = create_app('dev')
+api = create_api(application)
 
-@api.route('/hello')
-class HelloWorld(Resource):
-    def get(self):
-        return {'hello': 'world'}
 
 if __name__ == '__main__':
     application.run(host='0.0.0.0')
