@@ -12,6 +12,7 @@ import dataconvert
 import os
 from glob import glob
 import argparse
+import records
 #*****************
 # Global variables
 #*****************
@@ -23,13 +24,16 @@ VERBOSE = False
 #url = 'http://52.6.7.23/52n-sos-webapp/service #deprecated link'
 #url = 'http://bean.rtp.rti.org:8080/52n-sos-webapp/service' #local bean52N instance
 
+
 #url = 'http://niagara.rtp.rti.org:8080/52n-sos-webapp/service' #local niagara 52N
+url = 'http://niagara.rtp.rti.org:8080/52n-sos-webapp/service' #local niagara 52N
 url = 'http://havasu.rtp.rti.org:8080/52n-sos-webapp/service' #local 52N
+
 debugprint = True
 connstring = 'postgres://sos:sensors@havasu.rtp.rti.org:5433/ingest'
 db = records.Database(connstring)
 station_meta_path = db.query("select org_sensor_id, short_name, long_name, \
-longitude::text, latitude::text, altitude, o.name, o.url, \
+longitude::text, latitude::text, altitude::text, o.name, o.url, \
 o.contact_name || ':' || o.contact_email as contact, \
 'River/Stream', o.parent_organization_id, o.organization_id \
 from sos.sensors s, sos.organizations o where s.organization_id = o.organization_id")
@@ -172,15 +176,15 @@ def pull_capability_data(offer_list):
 def read_station_meta(station_meta_path,metadata_headers):
     log_entry("-","Read metadata from {}".format(station_meta_path))
     stationdata_l = []
-	for i,row in enumerate(station_meta_path):
-		if i == 0:
-			continue #skip header row
-		else: 
-			try:
-				dict_l = dict(zip(metadata_headers,row))
-			except:
-				print("metadata - header mismatch")
-			stationdata_l.append(dict_l)
+    for i,row in enumerate(station_meta_path):
+        if i == 0:
+            continue #skip header row
+        else: 
+            try:
+                dict_l = dict(zip(metadata_headers,row))
+            except:
+                print("metadata - header mismatch")
+            stationdata_l.append(dict_l)
     return stationdata_l
 
 def read_parameter_meta(parameter_meta_path,parameter_headers):
@@ -601,6 +605,5 @@ if __name__ == "__main__":
             log_entry("-","Results for {} pushed with response {}".format(k,response.readlines()))
     log_entry("*","*************")
     log_entry("*","End Program")
-    log_entry("*","*************")    
+    log_entry("*","*************")
     
-
