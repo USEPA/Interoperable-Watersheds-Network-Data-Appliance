@@ -12,28 +12,16 @@ import dataconvert
 import os
 from glob import glob
 import argparse
+import records
 #*****************
 # Global variables
 #*****************
 VERBOSE = False
-#url = "http://ec2-52-43-146-68.us-west-2.compute.amazonaws.com:8080/52b-sos-webapp-437/service"
-#url = "http://45.55.86.218:8080/52n-sos-webapp/service"
-#url = "http://localhost:8080/52n-sos-webapp/service"
-
-#url = 'http://52.6.7.23/52n-sos-webapp/service #deprecated link'
-#url = 'http://bean.rtp.rti.org:8080/52n-sos-webapp/service' #local bean52N instance
-
-#url = 'http://niagara.rtp.rti.org:8080/52n-sos-webapp/service' #local niagara 52N
-url = 'http://havasu.rtp.rti.org:8080/52n-sos-webapp/service' #local 52N
 debugprint = True
 connstring = 'postgres://sos:sensors@havasu.rtp.rti.org:5433/ingest'
 db = records.Database(connstring)
-station_meta_path = db.query("select org_sensor_id, short_name, long_name, \
-longitude::text, latitude::text, altitude, o.name, o.url, \
-o.contact_name || ':' || o.contact_email as contact, \
-'River/Stream', o.parent_organization_id, o.organization_id \
-from sos.sensors s, sos.organizations o where s.organization_id = o.organization_id")
-#station_meta_path="metadata_station.csv"
+url = ''
+station_meta_path="metadata_station.csv"
 parameter_meta_path="metadata_parameter.csv"
 station_meta_template="station_template.txt"
 sensor_meta_template="sensor_template.txt"
@@ -45,23 +33,16 @@ DATA_VALUES1 ="tempdata.csv"
 DEFAULT_DATE = datetime(2999,1,1)
 
 metadata_headers=[
-    #'Sequence',
     'stationid',
     'shortName',
     'longName',
     'easting',
     'northing',
     'altitude',
-    #'parameter',
-    #'parameterName',
-    #'parameterUnit',
-    #'fieldName',
     'organizationName',
     'organizationURL',
     'contact',
     'waterbodyType',
-    #'publisher',
-    #'status',
     'urn-org',
     'suborg']
 
@@ -168,19 +149,34 @@ def pull_capability_data(offer_list):
             except ValueError:
                 unique_offers.append((stationid,parameter,datetime(1950,1,1).isoformat()))
     return unique_offers
-        
-def read_station_meta(station_meta_path,metadata_headers):
-    log_entry("-","Read metadata from {}".format(station_meta_path))
+
+def getURL(sensorId):
+    global url
+    rows = db.query('''
+        select o.sos_url from sensors s, organizations o
+        where s.organization_id = o.organization_id
+        and sensor_id = :id''', id=sensorId)
+    url = rows[0].sos_url
+
+def getStation(sensorId):
+    station = db.query('''select org_sensor_id as stationid, short_name as "shortName", 
+        long_name as "longName", longitude::text as easting, latitude::text as northing, 
+        coalesce(altitude,0)::text as altitude, o.name as "organizationName", o.url as "organizationURL", 
+        o.contact_name || ':' || o.contact_email as contact, 
+        'River/Stream' as "waterbodyType", o.parent_organization_id as "urn-org", o.organization_id as suborg 
+        from sos.sensors s, sos.organizations o 
+        where s.organization_id = o.organization_id and s.sensor_id = :id''', id=sensorId)
+    return station.as_dict()
+
+def read_station_meta():
     stationdata_l = []
-	for i,row in enumerate(station_meta_path):
-		if i == 0:
-			continue #skip header row
-		else: 
-			try:
-				dict_l = dict(zip(metadata_headers,row))
-			except:
-				print("metadata - header mismatch")
-			stationdata_l.append(dict_l)
+    with open(station_meta_path) as fr:
+        stat_reader = csv.reader(fr)
+        for i,row in enumerate(stat_reader):
+            if i == 0:
+                continue #skip header row
+            dict_l = dict(zip(metadata_headers,row))
+            stationdata_l.append(dict_l)
     return stationdata_l
 
 def read_parameter_meta(parameter_meta_path,parameter_headers):
@@ -192,6 +188,9 @@ def read_parameter_meta(parameter_meta_path,parameter_headers):
             if i == 0:
                 continue #skip header row
             else:
+                print(row)
+                #print(len(parameter_headers))
+                #print(len(row[1:]))
                 assert (len(parameter_headers) == len(row[1:])),"Parameter Metadata Header and Row mismatch."
                 dict_l = dict(zip(parameter_headers,row[1:]))
                 parameterdata_l.append(dict_l)
@@ -516,8 +515,7 @@ def push_new_templates(data,last_record,date_filter,stationmeta,parameta):
                     log_entry("+","Result {} {} template pushed with response {}".format(station, parameter, response.readlines()))
                     alreadyprocessed.append(last_record[j])
 
-
-if __name__ == "__main__":
+def do():
     #Parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("d", help="data file relative location")
@@ -602,5 +600,10 @@ if __name__ == "__main__":
     log_entry("*","*************")
     log_entry("*","End Program")
     log_entry("*","*************")    
-    
-
+   
+if __name__ == "__main__":
+    getURL(1)
+    print(url)
+    print(getStation(1))
+    print(read_station_meta())
+    print(read_parameter_meta(parameter_meta_path,parameter_headers))
