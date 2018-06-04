@@ -34,6 +34,7 @@ connstring = 'postgres://sos:sensors@havasu.rtp.rti.org:5433/ingest'
 db = records.Database(connstring)
 station_meta_path = db.query("select org_sensor_id, short_name, long_name, \
 longitude::text, latitude::text, altitude::text, o.name, o.url, \
+longitude::text, latitude::text, altitude, o.name, o.url, \
 o.contact_name || ':' || o.contact_email as contact, \
 'River/Stream', o.parent_organization_id, o.organization_id \
 from sos.sensors s, sos.organizations o where s.organization_id = o.organization_id")
@@ -176,6 +177,10 @@ def pull_capability_data(offer_list):
 def read_station_meta(station_meta_path,metadata_headers):
     log_entry("-","Read metadata from {}".format(station_meta_path))
     stationdata_l = []
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> aa16bd5f2c1d7a2aeea187339dd1e006ef1b1ba3
     for i,row in enumerate(station_meta_path):
         if i == 0:
             continue #skip header row
@@ -185,6 +190,20 @@ def read_station_meta(station_meta_path,metadata_headers):
             except:
                 print("metadata - header mismatch")
             stationdata_l.append(dict_l)
+<<<<<<< HEAD
+=======
+=======
+	for i,row in enumerate(station_meta_path):
+		if i == 0:
+			continue #skip header row
+		else: 
+			try:
+				dict_l = dict(zip(metadata_headers,row))
+			except:
+				print("metadata - header mismatch")
+			stationdata_l.append(dict_l)
+>>>>>>> c9b6417e8834a7d23c39485f1e6897ec15eb4eb9
+>>>>>>> aa16bd5f2c1d7a2aeea187339dd1e006ef1b1ba3
     return stationdata_l
 
 def read_parameter_meta(parameter_meta_path,parameter_headers):
@@ -606,4 +625,8 @@ if __name__ == "__main__":
     log_entry("*","*************")
     log_entry("*","End Program")
     log_entry("*","*************")
+<<<<<<< HEAD
     
+=======
+    
+>>>>>>> aa16bd5f2c1d7a2aeea187339dd1e006ef1b1ba3

@@ -37,6 +37,32 @@ WITH (
 ALTER TABLE sos.data_qualifiers
   OWNER TO sos;
 
+CREATE TABLE sos.units
+(
+  unit_id serial NOT NULL,
+  unit_name text NOT NULL,
+  CONSTRAINT units_pkey PRIMARY KEY (unit_id),
+  CONSTRAINT units_unit_name_key UNIQUE (unit_name)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE sos.units
+  OWNER TO sos;
+
+CREATE TABLE sos.medium_types
+(
+  medium_type_id serial NOT NULL,
+  medium_type_name text NOT NULL,
+  CONSTRAINT medium_types_pkey PRIMARY KEY (medium_type_id),
+  CONSTRAINT medium_types_medium_type_name_key UNIQUE (medium_type_name)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE sos.medium_types
+  OWNER TO sos;
+
 CREATE TABLE sos.parameters
 (
   parameter_id integer NOT NULL,
@@ -49,8 +75,6 @@ WITH (
 );
 ALTER TABLE sos.parameters
   OWNER TO sos;
-
-
 
 CREATE TABLE sos.organizations
 (
@@ -75,6 +99,7 @@ CREATE TABLE sos.sensors
   organization_id character varying(8) NOT NULL,
   org_sensor_id text NOT NULL,
   data_qualifier_id integer NOT NULL,
+  medium_type_id integer NOT NULL,
   short_name text NOT NULL,
   long_name text NOT NULL,
   latitude numeric,
@@ -96,6 +121,9 @@ CREATE TABLE sos.sensors
       ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT sensors_qualifier_id_fkey FOREIGN KEY (data_qualifier_id)
       REFERENCES sos.data_qualifiers (data_qualifier_id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT sensors_medium_type_id_fkey FOREIGN KEY (medium_type_id)
+      REFERENCES sos.medium_types (medium_type_id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION
 )
 WITH (
@@ -108,11 +136,15 @@ CREATE TABLE sos.sensor_parameters
 (
   sensor_id integer NOT NULL,
   parameter_id integer NOT NULL,
+  unit_id integer NOT NULL,
   parameter_column_id integer NOT NULL,
   CONSTRAINT sensor_parameters_pkey PRIMARY KEY (sensor_id, parameter_id),
   CONSTRAINT sensor_parameters_parameter_id_fkey FOREIGN KEY (parameter_id)
       REFERENCES sos.parameters (parameter_id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT sensor_units_unit_id_fkey FOREIGN KEY (unit_id)
+      REFERENCES sos.units (unit_id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,      
   CONSTRAINT sensor_parameters_sensor_id_fkey FOREIGN KEY (sensor_id)
       REFERENCES sos.sensors (sensor_id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION

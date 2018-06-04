@@ -2,7 +2,7 @@ version: "3.6"
 services:
   api:
     build: .
-    container_name: api
+    container_name: ingest_api
     command : bash -c "gunicorn --bind 0.0.0.0:8000 app"
     ports:
       - "8000:8000"
@@ -11,18 +11,15 @@ services:
   database:
     build: ./db
     restart: always
-    ports:
-      - "5432:5432"
+    #ports:
+    #  - "5432:5432"
     volumes:
       - datavol:/var/lib/postgresql/data
-    container_name: data
+    container_name: ingest_data
   sos:
-    image: 52north/sos:4.3.8
+    build: ./sos
     ports:
       - 8080:8080
-    container_name: sos
-    volumes:
-      - "./sos/configuration.db:/usr/local/tomcat/webapps/52n-sos-webapp/configuration.db"
-      - "./sos/datasource.properties:/usr/local/tomcat/webapps/52n-sos-webapp/WEB-INF/datasource.properties"
+    container_name: ingest_sos
 volumes:
   datavol:
