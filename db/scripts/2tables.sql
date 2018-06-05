@@ -198,3 +198,28 @@ WITH (
 ;
 ALTER TABLE sos.ingestions
   OWNER TO sos;  
+
+CREATE VIEW sos.all_sensors AS
+   select sensor_id, org_sensor_id as stationid, short_name as "shortName", 
+      long_name as "longName", longitude::text as easting, latitude::text as northing, 
+      coalesce(altitude,0)::text as altitude, o.name as "organizationName", o.url as "organizationURL", 
+      o.contact_name || ':' || o.contact_email as contact, 
+      medium_type_name as "waterbodyType", o.parent_organization_id as "urn-org", o.organization_id as suborg 
+   from sos.sensors s, sos.organizations o, medium_types m
+   where s.organization_id = o.organization_id 
+   and s.medium_type_id = m.medium_type_id;
+
+ALTER VIEW sos.all_sensors
+   OWNER TO sos;
+
+CREATE VIEW sos.all_sensor_parameters AS
+   select s.sensor_id, parameter_name, data_qualifier_name, u.unit_name, sp.parameter_column_id
+   from sensors s, sensor_parameters sp, parameters p, data_qualifiers d, units u
+   where s.sensor_id = sp.sensor_id
+   and sp.parameter_id = p.parameter_id
+   and s.data_qualifier_id = d.data_qualifier_id
+   and u.unit_id = sp.unit_id;
+
+ALTER VIEW sos.all_sensor_parameters 
+   OWNER TO sos;
+
