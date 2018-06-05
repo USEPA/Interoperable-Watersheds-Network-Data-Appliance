@@ -596,12 +596,18 @@ def pivot(sensorid,conf_file,data_file,param=None, maxval=9999999999999):
                         early_break = True
                         break
 
+def update_status(sensorid, status):
+    db.query("update sensors set ingest_status = :st where sensor_id = :id", st=status, id=sensorid)
+    if status == 'ingested':
+        db.query("update sensors set last_ingest = now(), next_ingest = now() + (20 * interval '1 minute') where sensor_id = :id", id=sensorid)
+
 if __name__ == "__main__":
     #Parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("sensorid", help="system sensor id")
     args = parser.parse_args()
     sensorid = args.sensorid
+    update_status(sensorid,'running')
     get_url(sensorid)
     #print(url) 
     log_entry("*","*************")
@@ -680,3 +686,4 @@ if __name__ == "__main__":
     log_entry("*","*************")
     log_entry("*","End Program")
     log_entry("*","*************")    
+    update_status(sensorid, 'ingested')
