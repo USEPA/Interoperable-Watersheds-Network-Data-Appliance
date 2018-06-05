@@ -8,11 +8,12 @@ from pprint import pprint
 import csv
 from datetime import datetime
 import dateutil.parser
-import dataconvert
 import os
 from glob import glob
 import argparse
 import records
+import json
+import operator as op
 #*****************
 # Global variables
 #*****************
@@ -21,14 +22,11 @@ debugprint = True
 connstring = 'postgres://sos:sensors@havasu.rtp.rti.org:5433/ingest'
 db = records.Database(connstring)
 url = None
-stationId = None
 station_meta_template="templates/station_template.txt"
 sensor_meta_template="templates/sensor_template.txt"
 result_meta_template="templates/result_template.txt"
 data_template="templates/data_template.txt"
 LOG_FILE="log/log.txt"
-#DATA_VALUES1 ="tempdata.csv"
-DEFAULT_DATE = datetime(2999,1,1)
 
 metadata_headers=[
     'stationid',
@@ -357,7 +355,6 @@ def accumulate_data(unique_station_sensor,data,date_filter):
     return rolled_up_data
 
 def create_data_request(data_template, k,v,status,urnorg,suborg):
-    
     stationid = k[0]
     parameter = k[1]
     #print(parameter)
@@ -525,6 +522,80 @@ def push_new_templates(data,last_record,date_filter,stationmeta,parameta):
                     log_entry("+","Result {} {} template pushed with response {}".format(station, parameter, response.readlines()))
                     alreadyprocessed.append(last_record[j])
 
+def pivot(sensorid,conf_file,data_file,param=None, maxval=9999999999999):
+    CSVCHUNK = 1000
+    add=op.add
+    subtract=op.sub
+    multiply=op.mul
+    divide=op.truediv
+
+    with open(conf_file,'r') as fi:
+        conf_str = fi.read()
+        config = json.loads(conf_str)
+    with open(data_file,'r') as fi:
+        with open('temp/' + sensorid + '_all_data.csv','w', newline="") as fo:
+            r = csv.reader(fi)
+            w = csv.writer(fo)
+            w.writerow(["station","date","time","parameter","value"])
+            columns = config['columns']
+            station = config['station']
+            datetimecol = columns.index("datetime")
+            header = config['header']
+
+            for i,ncol in enumerate(columns):
+                #print(ncol)
+                #if ncol=="ph":
+                    #print('hihihi')
+                if ncol == "datetime":
+                    #print("datesdfsdf")
+                    continue
+                elif ncol == "id":
+                    #print("timelkjsdf")
+                    continue
+                else:
+                    for j,nrow in enumerate(r):
+                        if j < header:
+                            continue
+                        else:
+                            newrow = []
+                            dateX, timeX = nrow[datetimecol].split(' ',1)
+                            newrow.append(station) #station
+                            newrow.append(dateX) #date
+                            newrow.append(timeX) #time
+                            newrow.append(ncol) #parameter
+                            if param and param[0] == ncol[0]:
+                                new_value = oper(nrow[i],val) # modified value
+                                newrow.append(new_value)
+                            else:
+                                newrow.append(nrow[i]) # raw value
+                            w.writerow(newrow)
+                    fi.seek(0)
+    with open('temp/' + sensorid + '_all_data.csv','r') as fi:
+        r = csv.reader(fi)
+        filecount = 1
+        counter = 1
+        eof = False
+        next(fi)
+        while eof == False:
+            eof = True
+            filename = "temp/" + sensorid + "_PART_{}.csv".format(filecount)
+            filecount += 1
+            with open(filename,'w',newline="") as fo:
+                w = csv.writer(fo)
+                w.writerow(["station","date","time","parameter","value"])
+
+                for i,line in enumerate(r):
+                    # if i < counter:
+                    #     continue
+                    # else:
+                        #print(counter)
+                    counter += 1
+                    w.writerow(line)
+                    eof = False
+                    if counter % CSVCHUNK == 0:
+                        early_break = True
+                        break
+
 if __name__ == "__main__":
     #Parse arguments
     parser = argparse.ArgumentParser()
@@ -541,7 +612,7 @@ if __name__ == "__main__":
         os.remove(nfile)
     station = get_data(sensorid)    
     write_config(sensorid, station, get_header(sensorid))
-    dataconvert.parse(sensorid, 'config/' + sensorid + '.json', 'data/' + sensorid + '.csv')
+    pivot(sensorid, 'config/' + sensorid + '.json', 'data/' + sensorid + '.csv')
     filelist = glob("temp/" + sensorid + "_PART_*.csv")
     total_files = len(filelist)
     #loop over chopped-up data files in temp folder
@@ -609,13 +680,3 @@ if __name__ == "__main__":
     log_entry("*","*************")
     log_entry("*","End Program")
     log_entry("*","*************")    
-'''
-if __name__ == "__main__":
-    getURL(2)
-    #print(url)
-    #writeConfig(2, getHeader(2))
-    #print(getStation(1))
-    #print(read_station_meta())
-    print(read_parameter_meta(parameter_meta_path,parameter_headers))
-    print(getParameter(2, getHeader(2)))
-'''
