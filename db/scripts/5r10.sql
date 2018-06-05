@@ -2,7 +2,7 @@ INSERT INTO sos.organizations (organization_id, parent_organization_id, name, ur
 VALUES('epa', '', 'U.S. EPA', 'www.epa.gov', 'Dwane Young', 'Young.Dwane@epa.gov', '');
 
 INSERT INTO sos.organizations (organization_id, parent_organization_id, name, url, contact_name, contact_email, sos_url)
-VALUES('epar10', 'epa', 'U.S. EPA Region 10', 'https://www.epa.gov/aboutepa/epa-region-10-pacific-northwest', 'Anne Dalrymple', 'dalrymple.anne@epa.gov', 'http://localhost:8080/52n-sos-webapp/service');
+VALUES('epar10', 'epa', 'U.S. EPA Region 10', 'https://www.epa.gov/aboutepa/epa-region-10-pacific-northwest', 'Anne Dalrymple', 'dalrymple.anne@epa.gov', 'http://ingest_sos:8080/52n-sos-webapp/service');
 
 INSERT INTO sos.sensors (organization_id, org_sensor_id, data_qualifier_id, medium_type_id, short_name, long_name, latitude, longitude, altitude, timezone, ingest_frequency, ingest_status, last_ingest, next_ingest, data_url, data_format, timestamp_column_id, qc_rules_apply, active)
 VALUES('epar10', '213204', 1, 1, 'Nooksack@Ferndale', 'Nooksack@Ferndale', 48.838672, -122.592769, 0, '(GMT-08:00) Pacific Time (US & Canada)', 10, 'unknown', null, now(), 'http://cdn.zapstechnologies.com/region10/213204-nooksack_at_ferndale.csv', 1, 2, false, true);

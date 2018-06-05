@@ -19,7 +19,7 @@ import operator as op
 #*****************
 VERBOSE = False
 debugprint = True
-connstring = 'postgres://sos:sensors@havasu.rtp.rti.org:5433/ingest'
+connstring = 'postgres://sos:sensors@ingest_data:5432/ingest'
 db = records.Database(connstring)
 url = None
 station_meta_template="templates/station_template.txt"
@@ -609,7 +609,7 @@ if __name__ == "__main__":
     sensorid = args.sensorid
     update_status(sensorid,'running')
     get_url(sensorid)
-    #print(url) 
+    print(url) 
     log_entry("*","*************")
     log_entry("*","Start Program")
     log_entry("*","*************")
