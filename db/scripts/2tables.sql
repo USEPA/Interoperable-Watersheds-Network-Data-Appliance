@@ -107,7 +107,7 @@ CREATE TABLE sos.sensors
   altitude numeric,
   timezone text,
   ingest_frequency integer NOT NULL,
-  ingest_status character varying(8) NOT NULL,
+  ingest_status character varying(8) NOT NULL DEFAULT 'unknown'::character varying,
   last_ingest timestamp without time zone,
   next_ingest timestamp without time zone,  
   data_url text NOT NULL,
