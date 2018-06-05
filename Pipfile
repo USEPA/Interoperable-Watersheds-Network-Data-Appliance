@@ -11,6 +11,7 @@ python-dateutil = "*"
 "psycopg2" = "*"
 records = "*"
 python-crontab = "*"
+flask-cors = "*"
 
 [dev-packages]
 pylint = "*"

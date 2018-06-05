@@ -2,9 +2,11 @@ from flask import Flask, jsonify
 from flask_restplus import Api, Resource, fields
 from factory import create_app
 from util import execute_query
+from flask_cors import CORS
 import queries
 
 application = create_app('dev')
+CORS(application)
 api = Api(application)
 
 sensors = api.namespace('sensors','Modify Sensors')
