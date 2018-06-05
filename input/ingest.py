@@ -20,16 +20,14 @@ VERBOSE = False
 debugprint = True
 connstring = 'postgres://sos:sensors@havasu.rtp.rti.org:5433/ingest'
 db = records.Database(connstring)
-url = ''
-station_meta_path="metadata_station.csv"
-parameter_meta_path="metadata_parameter.csv"
-station_meta_template="station_template.txt"
-sensor_meta_template="sensor_template.txt"
-result_meta_template="result_template.txt"
-data_template="data_template.txt"
-LOG_FILE="log.txt"
-#DATA_VALUES1="input/data_text.csv"
-DATA_VALUES1 ="tempdata.csv"
+url = None
+stationId = None
+station_meta_template="templates/station_template.txt"
+sensor_meta_template="templates/sensor_template.txt"
+result_meta_template="templates/result_template.txt"
+data_template="templates/data_template.txt"
+LOG_FILE="log/log.txt"
+#DATA_VALUES1 ="tempdata.csv"
 DEFAULT_DATE = datetime(2999,1,1)
 
 metadata_headers=[
@@ -94,6 +92,7 @@ def create_offer_dict(noff):
     return off_d
 
 def parse_capabilities(url):
+    #print(url+"?service=SOS&request=GetCapabilities")
     r = ur.urlopen(url+"?service=SOS&request=GetCapabilities")
     tree = ET.parse(r)
     with open('debug/capabilities.xml','wb') as of:
@@ -150,51 +149,53 @@ def pull_capability_data(offer_list):
                 unique_offers.append((stationid,parameter,datetime(1950,1,1).isoformat()))
     return unique_offers
 
-def getURL(sensorId):
+def get_url(sensor_id):
     global url
     rows = db.query('''
         select o.sos_url from sensors s, organizations o
         where s.organization_id = o.organization_id
-        and sensor_id = :id''', id=sensorId)
+        and sensor_id = :id''', id=sensor_id)
     url = rows[0].sos_url
 
-def getStation(sensorId):
-    station = db.query('''select org_sensor_id as stationid, short_name as "shortName", 
-        long_name as "longName", longitude::text as easting, latitude::text as northing, 
-        coalesce(altitude,0)::text as altitude, o.name as "organizationName", o.url as "organizationURL", 
-        o.contact_name || ':' || o.contact_email as contact, 
-        'River/Stream' as "waterbodyType", o.parent_organization_id as "urn-org", o.organization_id as suborg 
-        from sos.sensors s, sos.organizations o 
-        where s.organization_id = o.organization_id and s.sensor_id = :id''', id=sensorId)
+def get_data(sensor_id):
+    q = db.query('select org_sensor_id, data_url from sensors where sensor_id = :id', id=sensor_id)
+    url = q[0].data_url
+    r = urllib.request.urlopen(url)
+    open('data/' + str(sensor_id) + '.csv', 'wb').write(r.read())
+    org_sensor_id = q[0].org_sensor_id
+    return org_sensor_id
+
+def get_header(sensor_id):
+    fieldnames = None
+    with open('data/' + str(sensor_id) + '.csv') as csvfile:
+        f = csv.DictReader(csvfile)
+        fieldnames = f.fieldnames
+    return fieldnames
+
+def write_config(sensor_id, org_sensor_id, fields):
+    json = '{"type":1,"columns":['
+    for n in fields:
+        json = json + '"' + n + '",'
+    json = json[:-1] + '],"station":"' + org_sensor_id + '","header":1}'
+    open('config/' + str(sensor_id) + '.json', 'w').write(json)
+
+def get_station_metadata(sensor_id):
+    station = db.query('''
+        select stationid, "shortName", "longName", easting, northing, altitude, 
+        "organizationName", "organizationURL",
+	contact, "waterbodyType", "urn-org", suborg
+        from sos.all_sensors s where sensor_id = :id''', id=sensor_id)
     return station.as_dict()
 
-def read_station_meta():
-    stationdata_l = []
-    with open(station_meta_path) as fr:
-        stat_reader = csv.reader(fr)
-        for i,row in enumerate(stat_reader):
-            if i == 0:
-                continue #skip header row
-            dict_l = dict(zip(metadata_headers,row))
-            stationdata_l.append(dict_l)
-    return stationdata_l
-
-def read_parameter_meta(parameter_meta_path,parameter_headers):
-    log_entry("-","read metadata from {}".format(parameter_meta_path))
-    parameterdata_l = []
-    with open(parameter_meta_path) as fr:
-        par_reader = csv.reader(fr)
-        for i,row in enumerate(par_reader):
-            if i == 0:
-                continue #skip header row
-            else:
-                print(row)
-                #print(len(parameter_headers))
-                #print(len(row[1:]))
-                assert (len(parameter_headers) == len(row[1:])),"Parameter Metadata Header and Row mismatch."
-                dict_l = dict(zip(parameter_headers,row[1:]))
-                parameterdata_l.append(dict_l)
-    return parameterdata_l
+def get_parameter_metadata(sensor_id, fields):
+    params = [] 
+    parameter = db.query('''
+        select parameter_name, unit_name, parameter_column_id, 
+        lower(data_qualifier_name) as status from all_sensor_parameters where sensor_id = :id''', id=sensor_id)
+    for r in parameter:
+        d = {'parameter':r.parameter_name,'parameterName':r.parameter_name,'parameterUnit':r.unit_name,'fieldName':fields[r.parameter_column_id - 1],'status':r.status}
+        params.append(d.copy())
+    return params
 
 def create_station_request(template, stationmeta, parammeta):
     """
@@ -211,7 +212,7 @@ def create_station_request(template, stationmeta, parammeta):
             'easting':stationmeta['easting'].lower(),
             'northing':stationmeta['northing'].lower(),
             'altitude':stationmeta['altitude'].lower(),
-            'parameter':parammeta['parameter'].lower(),
+            'parameter':parammeta['fieldName'].lower(),
             'parameterName':parammeta['parameterName'],
             'parameterUnit':parammeta['parameterUnit'],
             'fieldName':parammeta['fieldName'],
@@ -301,6 +302,7 @@ def get_unique_station_sensor(data_file,date_filter):
                 j = i-1
                 stationid = row[0]
                 parameter = row[3]
+                #print(parameter)
                 if not date_filter[j]:
                     continue #or do something with it
                 else:
@@ -358,6 +360,7 @@ def create_data_request(data_template, k,v,status,urnorg,suborg):
     
     stationid = k[0]
     parameter = k[1]
+    #print(parameter)
     # status = "final"
     # suborg = "python"
     count = str(v['count'])
@@ -380,6 +383,7 @@ def create_data_request(data_template, k,v,status,urnorg,suborg):
                                             suborg=suborg,
                                             urnorg=urnorg,
                                             data=data)
+    #print(new_data_meta_str)
     return new_data_meta_str
 
 def push_new_templates(data,last_record,date_filter,stationmeta,parameta):
@@ -425,14 +429,15 @@ def push_new_templates(data,last_record,date_filter,stationmeta,parameta):
                                 sensor_record = record
                                 break
                     for record in parammeta:
-                        if record['parameter'] == parameter:
+                        #print(record)
+                        if record['fieldName'] == parameter:
                                 sensor_param_record = record
                                 break
                     if sensor_record == None:
                         print("sensor metadata not found for {}".format(station))
                         continue #OR DO SOMETHING else
                     if sensor_param_record == None:
-                        print("parameter metadata not found {}".format(parameter))
+                        print("1parameter metadata not found {}".format(parameter))
                         continue
                     #Create sensor str
                     sensor_str = create_station_request(sensor_meta_template,sensor_record,sensor_param_record)
@@ -448,14 +453,14 @@ def push_new_templates(data,last_record,date_filter,stationmeta,parameta):
                                 result_record = record
                                 break
                     for record in parammeta:
-                        if record['parameter'] == parameter:
+                        if record['fieldName'] == parameter:
                                 result_param_record = record
                                 break
                     if result_record == None:
                         print("sensor metadata not found for {}".format(station))
                         continue #OR DO SOMETHING else
                     if result_param_record == None:
-                        print("parameter metadata not found {}".format(parameter))
+                        print("2parameter metadata not found {}".format(parameter))
                         continue
                     #Create sensor str
                     result_str = create_station_request(result_meta_template,result_record,result_param_record)
@@ -466,6 +471,7 @@ def push_new_templates(data,last_record,date_filter,stationmeta,parameta):
                 elif status == 'sensor':
                     station = last_record[j][1][0]
                     parameter = last_record[j][1][1]
+                    #print(parameter)
                     #lookup station parameter in metadata_headers
                     #
                     # PROCESS SENSOR TEMPLATE
@@ -477,14 +483,16 @@ def push_new_templates(data,last_record,date_filter,stationmeta,parameta):
                                 sensor_record = record
                                 break
                     for record in parammeta:
-                        if record['parameter'] == parameter:
+                        #print(record['fieldName'])
+                        #print(parameter)
+                        if record['fieldName'] == parameter:
                                 sensor_param_record = record
                                 break
                     if sensor_record == None:
                         print("sensor metadata not found for {}".format(station))
                         continue #OR DO SOMETHING else
                     if sensor_param_record == None:
-                        print("parameter metadata not found {}".format(parameter))
+                        print("3parameter metadata not found {}".format(parameter))
                         continue
                     #Create sensor str
                     sensor_str = create_station_request(sensor_meta_template,sensor_record,sensor_param_record)
@@ -500,38 +508,41 @@ def push_new_templates(data,last_record,date_filter,stationmeta,parameta):
                                 result_record = record
                                 break
                     for record in parammeta:
-                        if record['parameter'] == parameter:
+                        if record['fieldName'] == parameter:
                                 result_param_record = record
                                 break
                     if result_record == None:
                         print("sensor metadata not found for {}".format(station))
                         continue #OR DO SOMETHING else
                     if result_param_record == None:
-                        print("parameter metadata not found {}".format(parameter))
+                        print("4parameter metadata not found {}".format(parameter))
                         continue
                     #Create sensor str
                     result_str = create_station_request(result_meta_template,result_record,result_param_record)
+                    #print(result_str)
                     response = push_template(result_str, url)
+                    
                     log_entry("+","Result {} {} template pushed with response {}".format(station, parameter, response.readlines()))
                     alreadyprocessed.append(last_record[j])
 
-def do():
+if __name__ == "__main__":
     #Parse arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument("d", help="data file relative location")
-    parser.add_argument("c", help="config file relative location")
+    parser.add_argument("sensorid", help="system sensor id")
     args = parser.parse_args()
-
-
+    sensorid = args.sensorid
+    get_url(sensorid)
+    #print(url) 
     log_entry("*","*************")
     log_entry("*","Start Program")
     log_entry("*","*************")
-    filelist = glob("temp/PART_*.csv")
+    filelist = glob("temp/" + sensorid + "_PART_*.csv")
     for nfile in filelist:
         os.remove(nfile)
-    #dataconvert.parse("input/crbuoy.json","refs/crbuoy.csv")
-    dataconvert.parse(args.c,args.d)
-    filelist = glob("temp/PART_*.csv")
+    station = get_data(sensorid)    
+    write_config(sensorid, station, get_header(sensorid))
+    dataconvert.parse(sensorid, 'config/' + sensorid + '.json', 'data/' + sensorid + '.csv')
+    filelist = glob("temp/" + sensorid + "_PART_*.csv")
     total_files = len(filelist)
     #loop over chopped-up data files in temp folder
     for i,nfile in enumerate(filelist):
@@ -542,22 +553,19 @@ def do():
         #Read metadata 
         #------------------------
         #Read station metadata csv file
-        stationmeta = read_station_meta(station_meta_path, metadata_headers)
-        print(stationmeta)
+        stationmeta = get_station_metadata(sensorid)
+        #print(stationmeta)
         #Read parameter metadata csv file
-        parammeta = read_parameter_meta(parameter_meta_path,parameter_headers)
-        
+        parammeta = get_parameter_metadata(sensorid, get_header(sensorid))
+        #print(parammeta)
         #------------------------
         # Get existing information from server
         #------------------------
         #Request offering from server. Parse into a list of offerings.
         offer_dict = parse_capabilities(url)
         
-        
-        
         #Create a list of unique offerings (station, parameter, last measurement date/time)
         unique_offers = pull_capability_data(offer_dict)
-        
         
         #------------------------
         # Check data for missing templates
@@ -569,7 +577,7 @@ def do():
         #print('last record:',last_record)
         #create a list of which dates are before the offering date
         date_filter = check_dates(nfile, last_record) # could clean this up a bit
-        print('date_filter:',date_filter)
+        #print('date_filter:',date_filter)
         #push any new templates that are needed
         push_new_templates(nfile,last_record,date_filter,stationmeta,parammeta)
         #------------------------
@@ -580,14 +588,15 @@ def do():
         rolled_up_data = accumulate_data(unique_station_sensor,nfile,date_filter)
         #print('rolled_up_data:',rolled_up_data)
         for k,v in rolled_up_data.items():
-            print('k,v:',k,v)
+            #print('k,v:',k,v)
             for i in parammeta:
-                print('i:',i)
-                if k[1] == i['parameter']:
+                #print('i:',i)
+                if k[1] == i['fieldName']:
+                    #print(i['status'].lower())
                     status = i['status'].lower()
                     break
             for i in stationmeta:
-                print('i:',i)
+                #print('i:',i)
                 if k[0] == i['stationid']:
                     urnorg = i['urn-org'].lower()
                     suborg = i['suborg'].lower()
@@ -600,10 +609,13 @@ def do():
     log_entry("*","*************")
     log_entry("*","End Program")
     log_entry("*","*************")    
-   
+'''
 if __name__ == "__main__":
-    getURL(1)
-    print(url)
-    print(getStation(1))
-    print(read_station_meta())
+    getURL(2)
+    #print(url)
+    #writeConfig(2, getHeader(2))
+    #print(getStation(1))
+    #print(read_station_meta())
     print(read_parameter_meta(parameter_meta_path,parameter_headers))
+    print(getParameter(2, getHeader(2)))
+'''

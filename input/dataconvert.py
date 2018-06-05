@@ -10,16 +10,16 @@ subtract=op.sub
 multiply=op.mul
 divide=op.truediv
 
-def parse(conf_file,data_file):
+def parse(sensorid,conf_file,data_file):
     with open(conf_file,'r') as fi:
         conf_str = fi.read()
     config_f = json.loads(conf_str)
     if config_f['type']==1:
-        parse1(conf_file,data_file,config_f)
+        parse1(sensorid,conf_file,data_file,config_f)
 
-def parse1(conf_file,data_file,config, param=None, maxval=9999999999999):
+def parse1(sensorid,conf_file,data_file,config, param=None, maxval=9999999999999):
     with open(data_file,'r') as fi:
-        with open('temp/all_data.csv','w', newline="") as fo:
+        with open('temp/' + sensorid + '_all_data.csv','w', newline="") as fo:
             r = csv.reader(fi)
             w = csv.writer(fo)
             w.writerow(["station","date","time","parameter","value"])
@@ -56,7 +56,7 @@ def parse1(conf_file,data_file,config, param=None, maxval=9999999999999):
                                 newrow.append(nrow[i]) # raw value
                             w.writerow(newrow)
                     fi.seek(0)
-    with open('temp/all_data.csv','r') as fi:
+    with open('temp/' + sensorid + '_all_data.csv','r') as fi:
         r = csv.reader(fi)
         filecount = 1
         counter = 1
@@ -64,7 +64,7 @@ def parse1(conf_file,data_file,config, param=None, maxval=9999999999999):
         next(fi)
         while eof == False:
             eof = True    
-            filename = "temp/PART_{}.csv".format(filecount)
+            filename = "temp/" + sensorid + "_PART_{}.csv".format(filecount)
             filecount += 1
             with open(filename,'w',newline="") as fo:
                 w = csv.writer(fo)
@@ -86,5 +86,5 @@ def parse1(conf_file,data_file,config, param=None, maxval=9999999999999):
 
 
 if __name__ == "__main__":
-    parse("input/crbuoy.json","refs/crbuoy.csv")           
+    parse(2,"2.json","2.csv")           
 
