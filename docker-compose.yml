@@ -11,8 +11,8 @@ services:
   database:
     build: ./db
     restart: always
-    ports:
-     - "5432:5432"
+    # ports:
+    #  - "5432:5432"
     volumes:
       - datavol:/var/lib/postgresql/data
     container_name: ingest_data
