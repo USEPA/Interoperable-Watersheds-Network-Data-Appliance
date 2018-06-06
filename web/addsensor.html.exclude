@@ -1,0 +1,73 @@
+<html>
+    <head><title>Interoperable Watersheds Network (IWN) Add Sensor</title></head>
+<body>
+    <h1>Interoperable Watersheds Network</h1>
+    <h2>Add sensor</h2>
+<form>
+sensor id*:<input name="sensorId" type="text"><br>
+sensor name* (short):<input name="sensorNameShort" type="text"><br>
+sensor name* (long):<input name="sensorNameLong" type="text"><br>
+sensor latitude* (WGS84):<input name="sensorLatitude" type="text"><br>
+sensor longitude* (WGS84):<input name="sensorLongitude" type="text"><br>
+sensor altitude (optional):<input name="sensorAltitude" type="text"><br>
+sensor timezone*:<select name="sensorTimeZone">
+    <option value="">Choose</option>
+    <option value="Pacific/Honolulu">(GMT-10:00) Hawaii</option>
+    <option value="US/Alaska">(GMT-09:00) Alaska</option>
+    <option value="America/Los_Angeles">(GMT-08:00) Pacific Time (US & Canada)</option>
+    <option value="US/Mountain">(GMT-07:00) Mountain Time (US & Canada)</option>
+    <option value="US/Central">(GMT-06:00) Central Time (US & Canada)</option>
+    <option value="US/Eastern">(GMT-05:00) Eastern Time (US & Canada)</option>
+</select><br>
+ingest frequency (minutes)*:<input name="ingestFrequency" type="text"><br><br>
+data location (url)*:<input name="sensorURL" type="text"><br>
+data quality: <select name="sensorTimeZone">
+        <option value="">Choose</option>
+        <option value="raw">raw</option>
+        <option value="prelim">preliminary</option>
+        <option value="final">final</option>
+        </select><br>
+timestamp data column*:<input name="sensorResultTimeStamp" type="text"><br>
+<h2>parameters</h2><input type=button value="Add another"></button><br>
+parameter:<select name="sensorTimeZone">
+    <option value="">Choose</option>
+    <option value="79443">Barometric pressure</option>
+    <option value="42916">Chlorophyll</option>
+    <option value="80020">Colored dissolved organic matter (CDOM)</option>
+    <option value="79261">Conductivity</option>
+    <option value="79607">Depth</option>
+    <option value="78485">Dew point</option>
+    <option value="80050">Discharge</option>
+    <option value="101627">Dissolved Oxygen</option>
+    <option value="79586">Dissolved Oxygen Saturation</option>
+    <option value="79950">Escherichia coli</option>
+    <option value="79771">Flow</option>
+    <option value="79749">Flow, Total</option>
+    <option value="98309">Height, gage</option>
+    <option value="35904">Inorganic Nitrogen (Nitrate and Nitrite)</option>
+    <option value="80000">Lake or reservoir water surface elevation</option>
+    <option value="79002">Light, photosynthetic active radiation (PAR)</option>
+    <option value="79940">Nitrate as N</option>
+    <option value="79933">Oxidation Reduction Potential (ORP)</option>
+    <option value="79960">Petroleum Hydrocarbons</option>
+    <option value="78426">pH</option>
+    <option value="80010">Phosphate as P</option>
+    <option value="80040">Phosphate as PO4</option>
+    <option value="79970">Phycocyanin</option>
+    <option value="79912">Precipitation</option>
+    <option value="79436">Relative humidity</option>
+    <option value="79990">Reservoir storage</option>
+    <option value="79345">Salinity</option>
+    <option value="79373">Specific Conductance</option>
+    <option value="79287">Stream Velocity</option>
+    <option value="79246">Temperature, air</option>
+    <option value="79281">Temperature, Water</option>
+    <option value="79980">Total Suspended Solids</option>
+    <option value="79196">Turbidity</option>
+    <option value="79648">Wind direction</option>
+    <option value="78471">Wind gust, peak</option>
+    <option value="79645">Wind velocity</option>
+</select>column:<input name="parameterDataColumn1" type="text"><input name="parameterApplyQC1" type="checkbox" value="">Apply QC<br>
+</form>
+</body>
+</html>
