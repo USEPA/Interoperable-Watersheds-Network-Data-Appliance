@@ -2,7 +2,6 @@ from models import db
 
 class Sensors(db.Model):
     __table_name__ = 'sos.sensors'
-    
     sensor_id = db.Column(db.Integer, primary_key=True)
     organization_id = db.Column(db.String)
     org_sensor_id = db.Column(db.String)
