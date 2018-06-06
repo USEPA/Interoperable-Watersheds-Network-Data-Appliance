@@ -51,13 +51,14 @@
     },
     dateFormatter: function (value) {
         //bootstrap-table formatter for a date column
-        //converts date to en-US locale date/time string
+        //converts date to local date with timezone (uses moment.js)
 
         var formattedDate = " ";
         if (value != null) {
-            var rawDate = new Date(value);
+            var utcDate = value + "Z";
+            var localDate = new Date(utcDate);
             var tz = moment.tz.guess();
-            formattedDate = rawDate.toLocaleDateString("en-US", { timeZone: tz }) + " " + rawDate.toLocaleTimeString("en-US", { timeZone: tz }) + " " + moment.tz(tz).format("z");
+            formattedDate = localDate.toLocaleDateString("en-US") + " " + localDate.toLocaleTimeString("en-US") + " " + moment.tz(tz).format("z");
         }
         return formattedDate;
     },
