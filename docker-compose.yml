@@ -3,7 +3,7 @@ services:
   api:
     build: .
     container_name: ingest_api
-    command : bash -c "gunicorn --bind 0.0.0.0:8000 app"
+    command : bash -c "cron && gunicorn --bind 0.0.0.0:8000 app"
     environment:
       - FLASK_ENV=production
     ports:

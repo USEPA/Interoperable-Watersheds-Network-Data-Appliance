@@ -383,7 +383,7 @@ def create_data_request(data_template, k,v,status,urnorg,suborg):
     #print(new_data_meta_str)
     return new_data_meta_str
 
-def push_new_templates(data,last_record,date_filter,stationmeta,parameta):
+def push_new_templates(data,last_record,date_filter,stationmeta,parammeta):
     alreadyprocessed = []
     with open(data,'r') as fi:
         for i,row in enumerate(fi):
@@ -601,15 +601,10 @@ def update_status(sensorid, status):
     if status == 'ingested':
         db.query("update sensors set last_ingest = now(), next_ingest = now() + (20 * interval '1 minute') where sensor_id = :id", id=sensorid)
 
-if __name__ == "__main__":
-    #Parse arguments
-    parser = argparse.ArgumentParser()
-    parser.add_argument("sensorid", help="system sensor id")
-    args = parser.parse_args()
-    sensorid = args.sensorid
+def process(sensorid):
     update_status(sensorid,'running')
     get_url(sensorid)
-    print(url) 
+    #print(url) 
     log_entry("*","*************")
     log_entry("*","Start Program")
     log_entry("*","*************")
@@ -617,6 +612,7 @@ if __name__ == "__main__":
     for nfile in filelist:
         os.remove(nfile)
     station = get_data(sensorid)    
+    #TODO:only if already doesn't exist
     write_config(sensorid, station, get_header(sensorid))
     pivot(sensorid, 'config/' + sensorid + '.json', 'data/' + sensorid + '.csv')
     filelist = glob("temp/" + sensorid + "_PART_*.csv")
@@ -625,7 +621,6 @@ if __name__ == "__main__":
     for i,nfile in enumerate(filelist):
         print("Processing file {} of {}".format(i+1,total_files))
         log_entry("-","Processing file {} of {}".format(i+1,total_files))
-
         #------------------------
         #Read metadata 
         #------------------------
@@ -687,3 +682,13 @@ if __name__ == "__main__":
     log_entry("*","End Program")
     log_entry("*","*************")    
     update_status(sensorid, 'ingested')
+
+if __name__ == "__main__":
+    #Parse arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument("sensorid", help="system sensor id")
+    args = parser.parse_args()
+    try:
+        process(args.sensorid)
+    except:
+       update_status(args.sensorid, 'error') 
