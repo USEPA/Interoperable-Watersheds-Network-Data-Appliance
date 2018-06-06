@@ -56,7 +56,8 @@
         var formattedDate = " ";
         if (value != null) {
             var rawDate = new Date(value);
-            formattedDate = rawDate.toLocaleDateString("en-US") + " " + rawDate.toLocaleTimeString("en-US");
+            var tz = moment.tz.guess();
+            formattedDate = rawDate.toLocaleDateString("en-US", { timeZone: tz }) + " " + rawDate.toLocaleTimeString("en-US", { timeZone: tz }) + " " + moment.tz(tz).format("z");
         }
         return formattedDate;
     },
