@@ -1,2 +1,0 @@
-all_sensors = 'select * from sos.sensors'
-insert_sensor ='insert into sos.sensors (organization_id, org_sensor_id, data_qualifier_id, short_name, long_name, latitude, longitude, altitude, timezone, ingest_frequency, data_url, data_format, timestamp_column_id, qc_rules_apply, active) VALUES({0[organization_id]}, {0[org_sensor_id]},{0[data_qualifier_id]},{0[short_name]},{0[long_name]},{0[latitude]},{0[longitude]},{0[altitude]},"{0[timezone]}",{0[ingest_frequency]},"{0[data_url]}",{0[data_format]},{0[timestamp_column_id]},{0[qc_rules_apply]},{0[active]});'
