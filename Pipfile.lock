@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "d7432c8337167b89c3c41f4612649d1b80f132c33396dbd0359af11ffe1753f4"
+            "sha256": "4209aade21094415d7cd2085d91834ba9b316b8b2328fa9ebf25d8dd4a24ffd7"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -49,6 +49,14 @@
             ],
             "index": "pypi",
             "version": "==1.0.2"
+        },
+        "flask-cors": {
+            "hashes": [
+                "sha256:a1bb895b3e98b4325743149ebe0e3a0652537b8e37854f942bde7843f822f129",
+                "sha256:bec996f0603a0693c0ea63c8126e5f8e966bb679cf82e6104b254e9c7f3a7d08"
+            ],
+            "index": "pypi",
+            "version": "==3.0.4"
         },
         "flask-restplus": {
             "hashes": [
@@ -247,6 +255,14 @@
                 "sha256:dea42ae6e0b789b543f728ddae7ddb6740ba33a49fb52c4a4d9cb7bb4aa6ec09"
             ],
             "version": "==1.6.4"
+        },
+        "colorama": {
+            "hashes": [
+                "sha256:463f8483208e921368c9f306094eb6f725c6ca42b0f97e313cb5d5512459feda",
+                "sha256:48eb22f4f8461b1df5734a074b57042430fb06e1d61bd1e11b078c0fe6d7a1f1"
+            ],
+            "markers": "sys_platform == 'win32'",
+            "version": "==0.3.9"
         },
         "isort": {
             "hashes": [
