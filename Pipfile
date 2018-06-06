@@ -13,6 +13,7 @@ python-crontab = "*"
 flask-cors = "*"
 flask-sqlalchemy = "*"
 sqlalchemy = "*"
+records = "*"
 
 [dev-packages]
 "flake8" = "*"
