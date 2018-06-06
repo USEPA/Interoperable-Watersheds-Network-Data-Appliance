@@ -14,7 +14,7 @@ class DevConfig(AppConfig):
 
 class ProdConfig(AppConfig):
     Debug = False
-    SQLALCHEMY_DATABASE_URI = 'postgres://sos:sensors@ingest_database:5432/ingest'
+    SQLALCHEMY_DATABASE_URI = 'postgres://sos:sensors@database:5432/ingest'
     SQLALCHEMY_ECHO = False
 
 config_by_name = dict(

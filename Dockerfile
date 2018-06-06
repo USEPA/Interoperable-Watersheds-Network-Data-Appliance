@@ -1,4 +1,4 @@
 FROM kennethreitz/pipenv
 
-COPY ./api /app
+COPY ./app /app
 COPY ./input /app/ingest
