@@ -1,10 +1,11 @@
 import os
 
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 class AppConfig(object):
-    SCRET_KEY = 'add random secret key here'
+    SECRET_KEY = 'add random secret key here'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 
@@ -12,6 +13,12 @@ class DevConfig(AppConfig):
     Debug = True
     SQLALCHEMY_ECHO = True
     SQLALCHEMY_DATABASE_URI = 'postgres://sos:sensors@localhost:5433/ingest'
+
+
+class TestConfig(AppConfig):
+    TESTING = True
+    SQLALCHEMY_ECHO = False
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
 
 
 class ProdConfig(AppConfig):
@@ -22,6 +29,7 @@ class ProdConfig(AppConfig):
 
 config_by_name = dict(
     development=DevConfig,
+    test=TestConfig,
     production=ProdConfig
 )
 

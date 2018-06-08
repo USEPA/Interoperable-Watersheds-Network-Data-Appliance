@@ -1,4 +1,5 @@
-from models import db
+from . import db
+
 
 class Sensors(db.Model):
     __table_name__ = 'sos.sensors'
@@ -15,6 +16,7 @@ class Sensors(db.Model):
     ingest_frequency = db.Column(db.Integer)
     ingest_status = db.Column(db.String(8),default="Unknown")
     last_ingest = db.Column(db.DateTime)
+    next_ingest = db.Column(db.DateTime)
     data_url = db.Column(db.String)
     data_format = db.Column(db.Integer)
     timestamp_column_id = db.Column(db.Integer)

@@ -1,6 +1,6 @@
 from flask_restplus import Namespace, Resource, fields
-from models.sensors import Sensors
-from .dao import GenericModelDAO
+from app.models.sensors import Sensors
+from app.api.dao import GenericModelDAO
 
 api = Namespace('sensors', 'modify sensors')
 service = GenericModelDAO(Sensors, 'Sensor')
@@ -33,15 +33,16 @@ class SensorCollection(Resource):
     @api.doc('list_sensors')
     @api.marshal_list_with(sensor_model)
     def get(self):
-        '''Returns a list of sensors'''
+        """Returns a list of sensors"""
         return service.objects
 
     @api.doc('create_sensor')
     @api.expect(sensor_model)
     @api.marshal_with(sensor_model)
     def post(self):
-        '''Creates a sensor'''
+        """Creates a sensor"""
         return service.create(api.payload), 201
+
 
 @api.route('/<int:id>')
 @api.response(404, 'Sensor Not Found')
@@ -51,19 +52,19 @@ class Sensor(Resource):
     @api.doc('get_sensor')
     @api.marshal_with(sensor_model)
     def get(self, id):
-        ''' Fetch a sensor resource given its id'''
+        """ Fetch a sensor resource given its id"""
         return service.get(id)
 
     @api.doc('edit_sensor')
     @api.expect(sensor_model)
     @api.marshal_with(sensor_model)
     def put(self, id):
-        '''Update a sensors data given its id'''
+        """Update a sensors data given its id"""
         return service.update(id, api.payload)
 
     @api.doc('delete_sensor')
     def delete(self, id):
-        '''Deletes a sensor given its id'''
+        """Deletes a sensor given its id"""
         service.delete(id)
         return {}, 204
 
