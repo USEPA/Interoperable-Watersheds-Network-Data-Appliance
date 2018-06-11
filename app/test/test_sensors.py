@@ -40,6 +40,8 @@ class SensorsAPITest(unittest.TestCase):
             "active": True
         })
         self.assertEqual(result.status_code, 201, msg='Expected 201 Created')
+        result = self.client.get('sensors/4')
+        self.assertEqual(result.status_code,200, msg='Expected 200 OK')
 
 
     def test_get_one(self):
@@ -52,6 +54,8 @@ class SensorsAPITest(unittest.TestCase):
     def test_delete_one(self):
         result = self.client.delete('/sensors/1')
         self.assertEqual(result.status_code, 204, msg="Expected 204 Deleted")
+        result = self.client.get('/sensors/1')
+        self.assertEqual(result.status_code, 404, msg='Expected 404 Sensor Not Found')
         result = self.client.delete('/sensors/123098124')
         self.assertEqual(result.status_code, 404, msg='Expected 404 Sensor Not Found')
 
@@ -59,6 +63,7 @@ class SensorsAPITest(unittest.TestCase):
     def test_put_one(self):
         result = self.client.put('/sensors/1',json={"altitude": 15})
         self.assertEqual(result.status_code, 200, msg="Expected 200 OK")
+        result = self.client.get('/sensors/1')
         self.assertEqual(result.json['altitude'],15, msg="Expected updated altitude value to be 15")
         result = self.client.put('/sensors/123098124')
         self.assertEqual(result.status_code, 404, msg='Expected 404 Sensor Not Found')
