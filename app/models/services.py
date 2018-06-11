@@ -1,6 +1,7 @@
-from app.models import session
+from . import session
+from app.models.sensors import Sensors
 from flask_restplus import abort
-class GenericModelDAO(object):
+class GenericModelService(object):
     
     
     def __init__(self, model, name):
@@ -46,4 +47,4 @@ class GenericModelDAO(object):
         session.commit()
         
 
-
+sensors_service = GenericModelService(Sensors,'Sensor')

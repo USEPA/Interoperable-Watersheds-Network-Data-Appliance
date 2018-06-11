@@ -3,7 +3,6 @@ import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
-
 class AppConfig(object):
     SECRET_KEY = 'add random secret key here'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -32,4 +31,3 @@ config_by_name = dict(
     test=TestConfig,
     production=ProdConfig
 )
-

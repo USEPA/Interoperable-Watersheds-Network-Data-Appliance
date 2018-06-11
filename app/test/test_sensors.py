@@ -48,5 +48,17 @@ class SensorsAPITest(unittest.TestCase):
         result = self.client.get('/sensors/1239085123')
         self.assertEqual(result.status_code, 404, msg='Expected 404 Sensor Not Found')
 
-if __name__ == '__main__':
-    unittest.main()
+
+    def test_delete_one(self):
+        result = self.client.delete('/sensors/1')
+        self.assertEqual(result.status_code, 204, msg="Expected 204 Deleted")
+        result = self.client.delete('/sensors/123098124')
+        self.assertEqual(result.status_code, 404, msg='Expected 404 Sensor Not Found')
+
+    
+    def test_put_one(self):
+        result = self.client.put('/sensors/1',json={"altitude": 15})
+        self.assertEqual(result.status_code, 200, msg="Expected 200 OK")
+        self.assertEqual(result.json['altitude'],15, msg="Expected updated altitude value to be 15")
+        result = self.client.put('/sensors/123098124')
+        self.assertEqual(result.status_code, 404, msg='Expected 404 Sensor Not Found')

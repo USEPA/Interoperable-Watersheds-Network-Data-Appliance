@@ -1,9 +1,7 @@
 from flask_restplus import Namespace, Resource, fields
-from app.models.sensors import Sensors
-from app.api.dao import GenericModelDAO
+from app.models.services import sensors_service as service
 
 api = Namespace('sensors', 'modify sensors')
-service = GenericModelDAO(Sensors, 'Sensor')
 sensor_model = api.model('Sensor', {
     'sensor_id': fields.Integer(readonly=True),
     'organization_id': fields.String,
