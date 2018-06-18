@@ -1,5 +1,6 @@
 from . import session
 from app.models.sensors import Sensors
+from app.models import domains
 from flask_restplus import abort
 class GenericModelService(object):
     
@@ -48,3 +49,8 @@ class GenericModelService(object):
         
 
 sensors_service = GenericModelService(Sensors,'Sensor')
+parameter_service = GenericModelService(domains.Parameters, 'Parameter')
+units_service = GenericModelService(domains.Units, 'Unit')
+quality_check_operand_service = GenericModelService(domains.QualityCheckOperands, 'Quality Check Operand')
+quality_check_action_service = GenericModelService(domains.QualityCheckActions, 'Quality Check Action')
+data_qualifier_service = GenericModelService(domains.DataQualifiers, 'Data Qualifier')
