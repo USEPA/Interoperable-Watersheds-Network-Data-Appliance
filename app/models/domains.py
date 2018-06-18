@@ -22,4 +22,4 @@ class Units(db.Model):
 
 class MediumTypes(db.Model):
     medium_type_id = db.Column(db.Integer, primary_key=True)
-    medium_type_name = db.Column(db.String)
+    medium_type_name = db.Column(db.String, nullable=False, unique=True)

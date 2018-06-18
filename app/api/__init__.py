@@ -1,10 +1,12 @@
 from flask_restplus import Api
 from .sensors import api as sensors
+from .sensors import param_api as sensor_parameters
 from .parameters import api as parameters
 from .domains import actions, qualifiers, operands, units ,medium_types
 from .orgs import api as orgs
 api = Api(version='0.1', title='Sensor Ingest API',default='sensors', description='A Restful API for scheduling ingests of remote data sensors')
 api.add_namespace(sensors)
+api.add_namespace(sensor_parameters)
 api.add_namespace(parameters)
 api.add_namespace(qualifiers)
 api.add_namespace(actions)
