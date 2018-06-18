@@ -105,6 +105,9 @@ venv.bak/
 
 # vscode settings
 .vscode/
+settings.json
+*.code-workspace
 
 #react 
 static/node_modules
+
