@@ -1,0 +1,40 @@
+<html>
+    <head><title>Interoperable Watersheds Network (IWN) Add Sensor</title></head>
+    <body>
+        <h1>Interoperable Watersheds Network</h1>
+        <h2>Organization</h2>   
+    
+        Organization Identifier: epa<br>
+        Organization Name: U.S. EPA<br>
+        Organization Subpart Identifier: epar10<br>
+        Organization URL: www.epa.gov<br>
+        Contact Name: Anne Dalrymple<br>
+        Contact Email: dalrymple.anne@epa.gov<br>
+    <br>
+    <h3>Sensors</h3>
+    <form action="addsensor.html">
+    <input type="submit" value="Add" />
+    <table border="1">
+        <tr><th>Sensor Id</th><th>Sensor Name</th><th>Ingest Frequency</th><th>Last Ingested</th><th>QC</th><th>Status</th></tr>
+        <tr><td><a href="addsensor.html">213204</a></td><td>Nooksack@Ferndale</td><td>15 min</td><td>2018-04-13 04:00:41.975126</td><td><input type="checkbox" name="QC" value="1" checked="1"></td><td>^</td></tr>
+        <tr><td>213205</td><td>Nooksack@Lynden</td><td>15 min</td><td>2018-04-13 04:00:41.975126</td><td><input type="checkbox" name="QC" value="0"></td><td>!</td></tr>
+        <tr><td>213206</td><td>Fishtrap@Lynden</td><td>15 min</td><td>2018-04-13 04:00:41.975126</td><td><input type="checkbox" name="QC" value="0"></td><td>!</td></tr>
+    </table>
+    </form>
+
+    <br>
+    <h3>Quality Control</h3>
+    <input type=button value="Add"/><br>
+    <table border="1">
+            <tr><th>Parameter</th><th>Operand</th><th>Threshold</th><th>Action</th><th></tr>
+            <tr><td>Escherichia coli</td><td>
+                <select>
+                    <option value="eq">=</option>
+                    <option value="lt"><</option>
+                    <option value="lteq"><=</option>
+                    <option value="gt">></option>
+                    <option value="gteq">>=</option>
+                </select></td><td>5000</td><td><select><option value="discard">discard</option></select></td></tr>                    
+    </table>
+</body>
+</html>
