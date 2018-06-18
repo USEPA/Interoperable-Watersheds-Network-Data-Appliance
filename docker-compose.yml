@@ -4,10 +4,12 @@ services:
     build: .
     container_name: ingest_api
     command : bash -c "cron && gunicorn --bind 0.0.0.0:8000 app"
+    environment:
+      - FLASK_ENV=production
     ports:
       - "8000:8000"
     volumes:
-      - ./api:/code
+      - ./app:/code
   database:
     build: ./db
     restart: always

@@ -1,6 +1,6 @@
 {
-  "python.pythonPath": "C:\\Users\\adamshelton\\.virtualenvs\\ingest-TwIMfCR6\\scripts\\python.exe",
-  "python.linting.enabled": true,
+  "python.pythonPath": "C:\\Users\\adamshelton\\.virtualenvs\\ingest-TwIMfCR6\\Scripts\\python.exe",
+  "python.linting.enabled": false,
   "python.linting.lintOnSave": true,
-  "python.linting.pylintEnabled": true
+  "python.linting.pylintEnabled": false
 }
