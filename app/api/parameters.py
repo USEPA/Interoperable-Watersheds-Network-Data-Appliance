@@ -1,7 +1,7 @@
 from flask_restplus import Namespace, Resource, fields
 from app.models.services import parameter_service as service
 
-api = Namespace('parameters', 'modify paramters')
+api = Namespace('parameters', 'modify parameters')
 parameter_model = api.model('Parameter', {
     'parameter_id': fields.Integer,
     'parameter_name' : fields.String
