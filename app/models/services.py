@@ -52,6 +52,7 @@ class GenericModelService(object):
 sensors_service = GenericModelService(Sensors,'Sensor')
 parameter_service = GenericModelService(domains.Parameters, 'Parameter')
 units_service = GenericModelService(domains.Units, 'Unit')
+medium_service = GenericModelService(domains.MediumTypes, 'Medium Type')
 quality_check_operand_service = GenericModelService(domains.QualityCheckOperands, 'Quality Check Operand')
 quality_check_action_service = GenericModelService(domains.QualityCheckActions, 'Quality Check Action')
 data_qualifier_service = GenericModelService(domains.DataQualifiers, 'Data Qualifier')

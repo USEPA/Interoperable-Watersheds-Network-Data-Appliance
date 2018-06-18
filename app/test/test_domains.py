@@ -18,3 +18,8 @@ class DomainsAPITest(ApiIntegrationTestCase):
     def test_get_qualifiers(self):
         result = self.client.get('/qualifiers/')
         self.assertEqual(result.status_code, 200, msg='Expected 200 OK')
+
+    def test_get_medium_types(self):
+        result = self.client.get('/mediums/')
+        self.assertEqual(result.status_code, 200, msg='Expected 200 OK')
+        self.assertEqual(len(result.json),1, msg='Expected a single medium type in result')

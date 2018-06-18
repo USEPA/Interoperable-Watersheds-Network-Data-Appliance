@@ -35,6 +35,7 @@ def bootstrap_test_app():
 model_class_dict = {
     'qualifiers' : domains.DataQualifiers,
     'actions' : domains.QualityCheckActions,
+    'mediums' : domains.MediumTypes,
     'operands' : domains.QualityCheckOperands,
     'units' : domains.Units,
     'parameters' : domains.Parameters,

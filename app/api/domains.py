@@ -2,7 +2,7 @@ from flask_restplus import Namespace, Resource, fields
 from app.models.services import data_qualifier_service as qualifier_service
 from app.models.services import quality_check_action_service as actions_service
 from app.models.services import quality_check_operand_service as operands_service
-from app.models.services import units_service
+from app.models.services import units_service, medium_service
 
 qualifiers = Namespace('qualifiers', 'Get a list of Data Qualifiers')
 qualifier_model = qualifiers.model('Data Qualifier', {
@@ -26,6 +26,12 @@ units = Namespace ('units', 'Get a list of units')
 unit_model = units.model('Units', {
     'unit_id' : fields.Integer,
     'unit_name' : fields.String
+})
+
+medium_types = Namespace('mediums', 'Get a list of Medium Types')
+medium_model = medium_types.model('Medium Type', {
+    'medium_type_id' : fields.Integer,
+    'medium_type_name' : fields.String
 })
 
 @qualifiers.route('/')
@@ -62,3 +68,11 @@ class UnitCollection(Resource):
     @units.marshal_list_with(unit_model)
     def get(self):
         return units_service.objects
+
+@medium_types.route('/')
+class MediumTypeCollection(Resource):
+
+    @medium_types.doc('list_medium_types')
+    @medium_types.marshal_list_with(medium_model)
+    def get(self):
+        return medium_service.objects

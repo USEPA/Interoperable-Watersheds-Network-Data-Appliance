@@ -187,6 +187,12 @@
         "parameter_name": "Discharge"
       }
     ],
+    "mediums" : [
+      {
+        "medium_type_id": 1,
+        "medium_type_name": "River/Stream"
+      }
+    ],
     "units" : [
       {
         "unit_id": 1,
