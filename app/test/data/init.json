@@ -1,4 +1,24 @@
 {
+    "organizations":[
+        {
+          "organization_id": "epa",
+          "parent_organization_id": "",
+          "name": "U.S. EPA",
+          "url": "www.epa.gov",
+          "contact_name": "Dwane Young",
+          "contact_email": "Young.Dwane@epa.gov",
+          "sos_url": ""
+        },
+        {
+          "organization_id": "epar10",
+          "parent_organization_id": "epa",
+          "name": "U.S. EPA Region 10",
+          "url": "https://www.epa.gov/aboutepa/epa-region-10-pacific-northwest",
+          "contact_name": "Anne Dalrymple",
+          "contact_email": "dalrymple.anne@epa.gov",
+          "sos_url": "http://ingest_sos:8080/52n-sos-webapp/service"
+        }
+    ],
     "sensors": [
         {
           "sensor_id": 1,

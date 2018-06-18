@@ -4,7 +4,7 @@ from . import db
 class Sensors(db.Model):
     __table_name__ = 'sos.sensors'
     sensor_id = db.Column(db.Integer, primary_key=True)
-    organization_id = db.Column(db.String)
+    organization_id = db.Column(db.ForeignKey("organizations.organization_id"), nullable=False)
     org_sensor_id = db.Column(db.String)
     data_qualifier_id = db.Column(db.Integer)
     short_name = db.Column(db.String)

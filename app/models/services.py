@@ -1,5 +1,6 @@
 from . import session
 from app.models.sensors import Sensors
+from app.models.organizations import Organizations
 from flask_restplus import abort
 class GenericModelService(object):
     
@@ -48,3 +49,4 @@ class GenericModelService(object):
         
 
 sensors_service = GenericModelService(Sensors,'Sensor')
+organizations_service = GenericModelService(Organizations, 'Organization')
