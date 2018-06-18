@@ -1,4 +1,46 @@
 {
+    "qualifiers" : [
+      {
+        "data_qualifier_id": 1,
+        "data_qualifier_name": "Raw"
+      },
+      {
+        "data_qualifier_id": 2,
+        "data_qualifier_name": "Preliminary"
+      },
+      {
+        "data_qualifier_id": 3,
+        "data_qualifier_name": "Final"
+      }
+    ],
+    "actions" : [
+      {
+        "quality_check_action_id": 1,
+        "quality_check_action_name": "Discard"
+      }
+    ],
+    "operands" : [
+      {
+        "quality_check_operand_id": 1,
+        "quality_check_operand_name": "="
+      },
+      {
+        "quality_check_operand_id": 2,
+        "quality_check_operand_name": "<"
+      },
+      {
+        "quality_check_operand_id": 3,
+        "quality_check_operand_name": "<="
+      },
+      {
+        "quality_check_operand_id": 4,
+        "quality_check_operand_name": ">"
+      },
+      {
+        "quality_check_operand_id": 5,
+        "quality_check_operand_name": ">="
+      }
+    ],
     "parameters" : [
       {
         "parameter_id": 79281,
@@ -144,6 +186,44 @@
         "parameter_id": 80050,
         "parameter_name": "Discharge"
       }
+    ],
+    "units" : [
+      {
+        "unit_id": 1,
+        "unit_name": "mg/L"
+      },
+      {
+        "unit_id": 2,
+        "unit_name": "MPN/100ML"
+      },
+      {
+        "unit_id": 3,
+        "unit_name": "mg-N/L"
+      },
+      {
+        "unit_id": 4,
+        "unit_name": "DFU"
+      }
+    ],
+    "organizations":[
+        {
+          "organization_id": "epa",
+          "parent_organization_id": "",
+          "name": "U.S. EPA",
+          "url": "www.epa.gov",
+          "contact_name": "Dwane Young",
+          "contact_email": "Young.Dwane@epa.gov",
+          "sos_url": ""
+        },
+        {
+          "organization_id": "epar10",
+          "parent_organization_id": "epa",
+          "name": "U.S. EPA Region 10",
+          "url": "https://www.epa.gov/aboutepa/epa-region-10-pacific-northwest",
+          "contact_name": "Anne Dalrymple",
+          "contact_email": "dalrymple.anne@epa.gov",
+          "sos_url": "http://ingest_sos:8080/52n-sos-webapp/service"
+        }
     ],
     "sensors": [
         {
