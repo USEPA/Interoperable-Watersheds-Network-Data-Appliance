@@ -3,23 +3,12 @@ from base import ApiIntegrationTestCase
 
 class DomainsAPITest(ApiIntegrationTestCase):
 
-    def test_get_units(self):
-        result = self.client.get('/units/')
+    def test_get_domains(self):
+        result = self.client.get('/domains/')
         self.assertEqual(result.status_code, 200, msg='Expected 200 OK')
-    
-    def test_get_actions(self):
-        result = self.client.get('/actions/')
-        self.assertEqual(result.status_code, 200, msg='Expected 200 OK')
-    
-    def test_get_operands(self):
-        result = self.client.get('/operands/')
-        self.assertEqual(result.status_code, 200, msg='Expected 200 OK')
-    
-    def test_get_qualifiers(self):
-        result = self.client.get('/qualifiers/')
-        self.assertEqual(result.status_code, 200, msg='Expected 200 OK')
-
-    def test_get_medium_types(self):
-        result = self.client.get('/mediums/')
-        self.assertEqual(result.status_code, 200, msg='Expected 200 OK')
-        self.assertEqual(len(result.json),1, msg='Expected a single medium type in result')
+        self.assertGreater(len(result.json['qualifiers']),0, msg='Expected qualifier data to be non-empty')
+        self.assertGreater(len(result.json['actions']),0, msg='Expected actions data to be non-empty')
+        self.assertGreater(len(result.json['operands']),0, msg='Expected operands data to be non-empty')
+        self.assertGreater(len(result.json['medium_types']),0, msg='Expected medium types data to be non-empty')
+        self.assertGreater(len(result.json['units']),0, msg='Expected units data to be non-empty')
+        

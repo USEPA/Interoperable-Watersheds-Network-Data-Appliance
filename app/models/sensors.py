@@ -2,7 +2,6 @@ from . import db
 
 
 class Sensors(db.Model):
-    __table_name__ = 'sos.sensors'
     sensor_id = db.Column(db.Integer, primary_key=True)
     organization_id = db.Column(db.ForeignKey("organizations.organization_id"), nullable=False)
     org_sensor_id = db.Column(db.String)
@@ -25,7 +24,7 @@ class Sensors(db.Model):
     active = db.Column(db.Boolean)
 
 class SensorParameters(db.Model):
-    sensor_id = db.Column(db.ForeignKey('sos.sensors.sensor_id'), primary_key=True)
+    sensor_id = db.Column(db.ForeignKey('sensors.sensor_id'), primary_key=True)
     parameter_id = db.Column(db.ForeignKey('parameters.parameter_id'), primary_key=True)
     unit_id = db.Column(db.ForeignKey('units.unit_id'), nullable=False)
     parameter_column_id = db.Column(db.Integer)

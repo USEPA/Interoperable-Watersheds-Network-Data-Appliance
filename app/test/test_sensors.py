@@ -15,6 +15,7 @@ class SensorsAPITest(ApiIntegrationTestCase):
             "organization_id": "epar10",
             "org_sensor_id": "string",
             "data_qualifier_id": 1,
+            "medium_type_id": 1,
             "short_name": "string",
             "long_name": "string",
             "latitude": 0,
