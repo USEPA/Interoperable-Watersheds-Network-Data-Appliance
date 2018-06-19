@@ -1,8 +1,19 @@
 from flask_restplus import Namespace, Resource, fields
 from app.models.services import sensors_service as service
+from app.models.sensors import SensorParameters
+from app.models.services import sensor_parameters_service as param_service
 
 api = Namespace('sensors', 'modify sensors')
-sensor_model = api.model('Sensor', {
+param_api = Namespace('sparams', 'modify sensor parameters')
+
+sensor_parameter_model = api.model('Sensor Parameters', {
+    'sensor_id' : fields.Integer,
+    'parameter_id' : fields.Integer,
+    'unit_id' : fields.Integer,
+    'parameter_column_id' : fields.Integer
+})
+
+sensor_model = api.model('Sensor List', {
     'sensor_id': fields.Integer(readonly=True),
     'organization_id': fields.String,
     'org_sensor_id': fields.String,
@@ -23,7 +34,6 @@ sensor_model = api.model('Sensor', {
     'qc_rules_apply': fields.Boolean,
     'active': fields.Boolean
 })
-
 
 @api.route('/')
 class SensorCollection(Resource):
@@ -66,3 +76,12 @@ class Sensor(Resource):
         service.delete(id)
         return {}, 204
 
+@param_api.route('/<int:id>')
+class SensorParameterCollection(Resource):
+
+    @param_api.doc('get_sensor_parameter')
+    @param_api.response(404,'Sensor Not Found')
+    @param_api.marshal_list_with(sensor_parameter_model)
+    def get(self, id):
+        """ Fetches a list of sensor parameters based on a sensor Id"""
+        return SensorParameters.query.filter_by(sensor_id=id)

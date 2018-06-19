@@ -1,20 +1,9 @@
 import unittest
-from app.factory import bootstrap_test_app, deconstruct_test_app
+from base import ApiIntegrationTestCase
 
 
-class SensorsAPITest(unittest.TestCase):
+class SensorsAPITest(ApiIntegrationTestCase):
 
-    
-    def setUp(self):
-        self.app = bootstrap_test_app()
-        self.client = self.app.test_client()
-        
-    
-    def tearDown(self):
-        deconstruct_test_app(self.app)
-        self.app = None
-        self.client = None
-    
     
     def test_get_all(self):
         result = self.client.get('/sensors/')
@@ -26,6 +15,7 @@ class SensorsAPITest(unittest.TestCase):
             "organization_id": "epar10",
             "org_sensor_id": "string",
             "data_qualifier_id": 1,
+            "medium_type_id": 1,
             "short_name": "string",
             "long_name": "string",
             "latitude": 0,

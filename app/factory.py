@@ -3,7 +3,7 @@ from flask_cors import CORS
 from app.api import api
 import json
 import os
-from app.models import db, sensors, organizations
+from app.models import db, sensors, domains, organizations
 from app.config import config_by_name, basedir
 
 
@@ -33,6 +33,12 @@ def bootstrap_test_app():
 # a key value match where a key is matched to a sqlalchemy model object 
 # this is used to generically load data from a json file for tests
 model_class_dict = {
+    'qualifiers' : domains.DataQualifiers,
+    'actions' : domains.QualityCheckActions,
+    'mediums' : domains.MediumTypes,
+    'operands' : domains.QualityCheckOperands,
+    'units' : domains.Units,
+    'parameters' : domains.Parameters,
     'organizations': organizations.Organizations,
     'sensors' : sensors.Sensors
 }

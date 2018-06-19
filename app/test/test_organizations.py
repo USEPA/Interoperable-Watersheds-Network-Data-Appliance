@@ -1,17 +1,7 @@
 import unittest
-from app.factory import bootstrap_test_app, deconstruct_test_app
+from base import ApiIntegrationTestCase
 
-class OrganizationsAPITest(unittest.TestCase):
-
-    def setUp(self):
-        self.app = bootstrap_test_app()
-        self.client = self.app.test_client()
-        
-    
-    def tearDown(self):
-        deconstruct_test_app(self.app)
-        self.app = None
-        self.client = None
+class OrganizationsAPITest(ApiIntegrationTestCase):
 
     def test_get_all(self):
         result = self.client.get('/orgs/')
