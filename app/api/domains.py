@@ -1,78 +1,59 @@
-from flask_restplus import Namespace, Resource, fields
+from flask_restplus import Namespace, Resource, fields, Model
 from app.models.services import data_qualifier_service as qualifier_service
 from app.models.services import quality_check_action_service as actions_service
 from app.models.services import quality_check_operand_service as operands_service
 from app.models.services import units_service, medium_service
 
-qualifiers = Namespace('qualifiers', 'Get a list of Data Qualifiers')
-qualifier_model = qualifiers.model('Data Qualifier', {
+qualifier_model = Model('Data Qualifier', {
     'data_qualifier_id': fields.Integer,
     'data_qualifier_name' : fields.String
 })
 
-actions  = Namespace('actions', 'Get a list of Quality Check Actions')
-action_model = actions.model('Quality Check Actions', {
+action_model = Model('Quality Check Actions', {
     'quality_check_action_id' : fields.Integer,
     'quality_check_action_name' : fields.String
 })
 
-operands = Namespace('operands', 'Get a list of Quality Check Operands')
-operand_model = operands.model('Quality Check Operands', {
+operand_model = Model('Quality Check Operands', {
     'quality_check_operand_id' : fields.Integer,
     'quality_check_operand_name' : fields.String
 })
 
-units = Namespace ('units', 'Get a list of units')
-unit_model = units.model('Units', {
+unit_model = Model('Units', {
     'unit_id' : fields.Integer,
     'unit_name' : fields.String
 })
 
-medium_types = Namespace('mediums', 'Get a list of Medium Types')
-medium_model = medium_types.model('Medium Type', {
+medium_model = Model('Medium Type', {
     'medium_type_id' : fields.Integer,
     'medium_type_name' : fields.String
 })
 
-@qualifiers.route('/')
-class DataQualifierCollection(Resource):
+api = Namespace('domains', 'Get domain entities')
+api.models[qualifier_model.name] = qualifier_model
+api.models[action_model.name] = action_model
+api.models[operand_model.name] = operand_model
+api.models[medium_model.name] = medium_model
+api.models[unit_model.name] = unit_model
 
-    @qualifiers.doc('list_qualifiers')
-    @qualifiers.marshal_list_with(qualifier_model)
+domain_model = api.model('Domains', {
+    'qualifiers' : fields.Nested(qualifier_model, as_list=True),
+    'actions' : fields.Nested(action_model, as_list=True),
+    'operands' : fields.Nested(operand_model, as_list=True),
+    'medium_types' : fields.Nested(medium_model, as_list=True),
+    'units' : fields.Nested(unit_model, as_list=True)
+})
+
+@api.route('/')
+class Domains(Resource):
+
+    @api.doc('list_domains')
+    @api.marshal_with(domain_model)
     def get(self):
-        """Returns a list of data qualifiers"""
-        return qualifier_service.objects
-
-@actions.route('/')
-class QualityCheckActionCollection(Resource):
-
-    @actions.doc('list_qualifiers')
-    @actions.marshal_list_with(action_model)
-    def get(self):
-        """Returns a list of quality check actions"""
-        return actions_service.objects
-
-@operands.route('/')
-class QualityCheckOperandCollection(Resource):
-
-    @operands.doc('list_operands')
-    @operands.marshal_list_with(operand_model)
-    def get(self):
-        """Returns a list of quality check operands"""
-        return operands_service.objects
-
-@units.route('/')
-class UnitCollection(Resource):
-
-    @units.doc('list_units')
-    @units.marshal_list_with(unit_model)
-    def get(self):
-        return units_service.objects
-
-@medium_types.route('/')
-class MediumTypeCollection(Resource):
-
-    @medium_types.doc('list_medium_types')
-    @medium_types.marshal_list_with(medium_model)
-    def get(self):
-        return medium_service.objects
+        domains = dict()
+        domains['qualifers'] = qualifier_service.objects
+        domains['actions'] = actions_service.objects
+        domains['operands'] = operands_service.objects
+        domains['medium_types'] = medium_service.objects
+        domains['units'] = units_service.objects
+        return domains

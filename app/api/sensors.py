@@ -84,4 +84,4 @@ class SensorParameterCollection(Resource):
     @param_api.marshal_list_with(sensor_parameter_model)
     def get(self, id):
         """ Fetches a list of sensor parameters based on a sensor Id"""
-        return param_service.query(sensor_id=id)
+        return SensorParameters.query.filter_by(sensor_id=id)
