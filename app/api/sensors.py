@@ -1,7 +1,6 @@
 from flask_restplus import Namespace, Resource, fields
-from app.models.services import sensors_service as service
-from app.models.sensors import SensorParameters
-from app.models.services import sensor_parameters_service as param_service
+from models import services
+service = services.sensors_service
 
 api = Namespace('sensors', 'modify sensors')
 param_api = Namespace('sparams', 'modify sensor parameters')
@@ -68,6 +67,7 @@ class Sensor(Resource):
     @api.marshal_with(sensor_model)
     def put(self, id):
         """Update a sensors data given its id"""
+        
         return service.update(id, api.payload)
 
     @api.doc('delete_sensor')
@@ -76,12 +76,12 @@ class Sensor(Resource):
         service.delete(id)
         return {}, 204
 
-@param_api.route('/<int:id>')
-class SensorParameterCollection(Resource):
+# @param_api.route('/<int:id>')
+# class SensorParameterCollection(Resource):
 
-    @param_api.doc('get_sensor_parameter')
-    @param_api.response(404,'Sensor Not Found')
-    @param_api.marshal_list_with(sensor_parameter_model)
-    def get(self, id):
-        """ Fetches a list of sensor parameters based on a sensor Id"""
-        return SensorParameters.query.filter_by(sensor_id=id)
+#     @param_api.doc('get_sensor_parameter')
+#     @param_api.response(404,'Sensor Not Found')
+#     @param_api.marshal_list_with(sensor_parameter_model)
+#     def get(self, id):
+#         """ Fetches a list of sensor parameters based on a sensor Id"""
+#         return SensorParameters.query.filter_by(sensor_id=id)

@@ -1,6 +1,7 @@
 from flask_restplus import Namespace, Resource, fields
-from app.models.services import organizations_service as service
+from models import services
 
+service = services.organizations_service
 api = Namespace('orgs', 'modify organizations')
 
 organization_model = api.model('Organization', {

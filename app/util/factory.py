@@ -1,17 +1,16 @@
 from flask import Flask
 from flask_cors import CORS
-from app.api import api
 import json
 import os
-from app.models import db, sensors, domains, organizations
-from app.config import config_by_name, basedir
+from api import api
+from models import sensors, organizations, domains , db
+from . import config
 
 
-# bootstraps Flask app with appropriate extensions
 def bootstrap_app():
     ''' bootstraps Flask app with appropriate extensions '''
     app = Flask(__name__)
-    app.config.from_object(config_by_name[os.getenv('FLASK_ENV', default='development')])
+    app.config.from_object(config.config_by_name[os.getenv('FLASK_ENV', default='development')])
     CORS(app)
     db.init_app(app)
     api.init_app(app)
@@ -21,7 +20,7 @@ def bootstrap_app():
 def bootstrap_test_app():
     ''' bootstraps a test application for integration tests '''
     app = Flask(__name__)
-    app.config.from_object(config_by_name['test'])
+    app.config.from_object(config.config_by_name['test'])
     db.init_app(app)
     api.init_app(app)
     with app.app_context():
@@ -54,7 +53,7 @@ def load_model_json(db, key, data):
 
 def load_test_data(db,path):
     ''' loads test data into the test sqlite database '''
-    with open(basedir+path) as test_data:
+    with open(config.basedir+'/..'+path) as test_data:
         test_json = test_data.read()
         data = json.loads(test_json)
         for k, v in data.items():

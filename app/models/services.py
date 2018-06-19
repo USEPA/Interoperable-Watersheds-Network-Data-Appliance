@@ -1,8 +1,7 @@
-from . import session
-from app.models.sensors import Sensors, SensorParameters
-from app.models import domains
-from app.models.organizations import Organizations
 from flask_restplus import abort
+from . import domains , sensors, organizations, session
+
+
 class GenericModelService(object):
     
     
@@ -48,12 +47,12 @@ class GenericModelService(object):
         session.commit()
         
 
-sensors_service = GenericModelService(Sensors,'Sensor')
-sensor_parameters_service = GenericModelService(SensorParameters, 'Sensor Parameter')
+sensors_service = GenericModelService(sensors.Sensors,'Sensor')
+sensor_parameters_service = GenericModelService(sensors.SensorParameters, 'Sensor Parameter')
 parameter_service = GenericModelService(domains.Parameters, 'Parameter')
 units_service = GenericModelService(domains.Units, 'Unit')
 medium_service = GenericModelService(domains.MediumTypes, 'Medium Type')
 quality_check_operand_service = GenericModelService(domains.QualityCheckOperands, 'Quality Check Operand')
 quality_check_action_service = GenericModelService(domains.QualityCheckActions, 'Quality Check Action')
 data_qualifier_service = GenericModelService(domains.DataQualifiers, 'Data Qualifier')
-organizations_service = GenericModelService(Organizations, 'Organization')
+organizations_service = GenericModelService(organizations.Organizations, 'Organization')

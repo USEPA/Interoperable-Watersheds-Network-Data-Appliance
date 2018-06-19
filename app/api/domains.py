@@ -1,8 +1,11 @@
 from flask_restplus import Namespace, Resource, fields, Model
-from app.models.services import data_qualifier_service as qualifier_service
-from app.models.services import quality_check_action_service as actions_service
-from app.models.services import quality_check_operand_service as operands_service
-from app.models.services import units_service, medium_service
+from models import services
+
+qualifier_service = services.data_qualifier_service
+actions_service = services.quality_check_action_service
+operands_service = services.quality_check_operand_service
+medium_service = services.medium_service
+units_service = services.units_service
 
 qualifier_model = Model('Data Qualifier', {
     'data_qualifier_id': fields.Integer,
