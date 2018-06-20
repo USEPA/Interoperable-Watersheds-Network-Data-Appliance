@@ -134,11 +134,13 @@ ALTER TABLE sos.sensors
 
 CREATE TABLE sos.sensor_parameters
 (
+  sensor_parameter_id serial NOT NULL,
   sensor_id integer NOT NULL,
   parameter_id integer NOT NULL,
   unit_id integer NOT NULL,
   parameter_column_id integer NOT NULL,
-  CONSTRAINT sensor_parameters_pkey PRIMARY KEY (sensor_id, parameter_id),
+  CONSTRAINT sensor_parameters_pkey PRIMARY KEY (sensor_parameter_id),
+  CONSTRAINT sensor_parameter_uq UNIQUE (sensor_id, parameter_id),
   CONSTRAINT sensor_parameters_parameter_id_fkey FOREIGN KEY (parameter_id)
       REFERENCES sos.parameters (parameter_id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION,

@@ -1,9 +1,10 @@
 from flask import Flask
 from flask_cors import CORS
+
 import json
 import os
 from api import api
-from models import sensors, organizations, domains , db
+from models import sensors, organizations, domains , db , ma
 from . import config
 
 
@@ -13,6 +14,7 @@ def bootstrap_app():
     app.config.from_object(config.config_by_name[os.getenv('FLASK_ENV', default='development')])
     CORS(app)
     db.init_app(app)
+    ma.init_app(app)
     api.init_app(app)
     return app
 

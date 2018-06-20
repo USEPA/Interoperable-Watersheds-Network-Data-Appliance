@@ -54,7 +54,7 @@ class Domains(Resource):
     @api.marshal_with(domain_model)
     def get(self):
         domains = dict()
-        domains['qualifers'] = qualifier_service.objects
+        domains['qualifiers'] = qualifier_service.objects
         domains['actions'] = actions_service.objects
         domains['operands'] = operands_service.objects
         domains['medium_types'] = medium_service.objects
