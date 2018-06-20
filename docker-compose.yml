@@ -4,15 +4,17 @@ services:
     build: .
     container_name: ingest_api
     command : bash -c "cron && gunicorn --bind 0.0.0.0:8000 app"
+    environment:
+      - FLASK_ENV=production
     ports:
-      - "8000:8000"
+      - 8000:8000
     volumes:
-      - ./api:/code
+      - ./app:/code
   database:
     build: ./db
     restart: always
     ports:
-     - "5433:5432"
+     - 5432:5432
     volumes:
       - datavol:/var/lib/postgresql/data
     container_name: ingest_data
@@ -21,5 +23,12 @@ services:
     ports:
       - 8080:8080
     container_name: ingest_sos
+  web:
+    image: nginx
+    volumes: 
+    -  ./web:/usr/share/nginx/html
+    ports:
+      - 80:80
+    container_name: ingest_web
 volumes:
   datavol:
