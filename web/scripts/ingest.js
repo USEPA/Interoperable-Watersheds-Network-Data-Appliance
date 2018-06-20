@@ -53,7 +53,7 @@
         //bootstrap-table formatter for a date column
         //converts date to local date with timezone (uses moment.js)
 
-        var formattedDate = " ";
+        var formattedDate = "";
         if (value != null) {
             var utcDate = value + "Z";
             var localDate = new Date(utcDate);
