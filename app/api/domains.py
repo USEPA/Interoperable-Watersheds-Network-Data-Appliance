@@ -37,7 +37,6 @@ api.models[qualifier_model.name] = qualifier_model
 api.models[action_model.name] = action_model
 api.models[operand_model.name] = operand_model
 api.models[medium_model.name] = medium_model
-api.models[unit_model.name] = unit_model
 
 domain_model = api.model('Domains', {
     'qualifiers' : fields.Nested(qualifier_model, as_list=True),
