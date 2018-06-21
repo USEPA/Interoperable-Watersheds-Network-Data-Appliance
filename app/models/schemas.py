@@ -39,11 +39,23 @@ class ParameterSchema(ma.ModelSchema):
         sqla_session = session        
 
 
+class OrganizationParameterQualityCheckSchema(ma.ModelSchema):
+    class Meta:
+        model = organizations.OrganizationParameterQualityChecks
+        sqla_session = session
+
+    organization_id = field_for(organizations.Organizations, 'organization_id', dump_only=False)
+    parameter_id = field_for(domains.Parameters, 'parameter_id', dump_only=False)
+    quality_check_operand_id = field_for(domains.QualityCheckOperands, 'quality_check_operand_id', dump_only=False)
+    quality_check_action_id = field_for(domains.QualityCheckActions, 'quality_check_action_id', dump_only=False)
+    
+
 class OrganizationSchema(ma.ModelSchema):
     class Meta:
         model = organizations.Organizations
         sqla_session = session
 
+    quality_checks = fields.Nested(OrganizationParameterQualityCheckSchema,many=True)
 
 class SensorParameterSchema(ma.ModelSchema):
     class Meta:
