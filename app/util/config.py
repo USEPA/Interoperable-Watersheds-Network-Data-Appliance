@@ -11,7 +11,7 @@ class AppConfig(object):
 class DevConfig(AppConfig):
     Debug = True
     SQLALCHEMY_ECHO = True
-    SQLALCHEMY_DATABASE_URI = 'postgres://sos:sensors@localhost:5433/ingest'
+    SQLALCHEMY_DATABASE_URI = 'postgres://sos:sensors@localhost:5432/ingest'
 
 
 class TestConfig(AppConfig):

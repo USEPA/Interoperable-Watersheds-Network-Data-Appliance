@@ -27,7 +27,24 @@ class SensorsAPITest(ApiIntegrationTestCase):
             "data_format": 1,
             "timestamp_column_id": 1,
             "qc_rules_apply": True,
-            "active": True
+            "active": True,
+            "parameters" : [
+                {
+                    "parameter_id": 79950,
+                    "unit_id": 1,
+                    "parameter_column_id": 3
+                },
+                {
+                    "parameter_id": 79940,
+                    "unit_id": 2,
+                    "parameter_column_id": 4
+                },
+                {
+                    "parameter_id": 79960,
+                    "unit_id": 3,
+                    "parameter_column_id": 5
+                },
+            ]
         })
         self.assertEqual(result.status_code, 201, msg='Expected 201 Created')
         result = self.client.get('sensors/4')
@@ -51,9 +68,27 @@ class SensorsAPITest(ApiIntegrationTestCase):
 
     
     def test_put_one(self):
-        result = self.client.put('/sensors/1',json={"altitude": 15})
+        result = self.client.put('/sensors/1',json={
+            "altitude": 15,
+            "parameters" : [{
+                "sensor_parameter_id": 1,
+                "sensor_id": 1,
+                "parameter_id": 79950,
+                "unit_id": 1,
+                "parameter_column_id": 10
+            },
+            {
+                "sensor_id": 1,
+                "parameter_id": 80050,
+                "unit_id": 2,
+                "parameter_column_id": 5
+            }       
+        ]})
         self.assertEqual(result.status_code, 200, msg="Expected 200 OK")
         result = self.client.get('/sensors/1')
         self.assertEqual(result.json['altitude'],15, msg="Expected updated altitude value to be 15")
+        self.assertEqual(len(result.json['parameters']),2, msg="Expected 2 parameters to exist")
+        modified_p = result.json['parameters'][0]
+        self.assertEqual(modified_p['parameter_column_id'],10, msg='Expected column id to be 10')
         result = self.client.put('/sensors/123098124')
         self.assertEqual(result.status_code, 404, msg='Expected 404 Sensor Not Found')

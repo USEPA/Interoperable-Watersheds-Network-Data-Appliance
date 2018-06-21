@@ -1,9 +1,10 @@
 from flask import Flask
 from flask_cors import CORS
+
 import json
 import os
 from api import api
-from models import sensors, organizations, domains , db
+from models import schemas, db , ma
 from . import config
 
 
@@ -13,6 +14,7 @@ def bootstrap_app():
     app.config.from_object(config.config_by_name[os.getenv('FLASK_ENV', default='development')])
     CORS(app)
     db.init_app(app)
+    ma.init_app(app)
     api.init_app(app)
     return app
 
@@ -31,24 +33,24 @@ def bootstrap_test_app():
 
 # a key value match where a key is matched to a sqlalchemy model object 
 # this is used to generically load data from a json file for tests
-model_class_dict = {
-    'qualifiers' : domains.DataQualifiers,
-    'actions' : domains.QualityCheckActions,
-    'mediums' : domains.MediumTypes,
-    'operands' : domains.QualityCheckOperands,
-    'units' : domains.Units,
-    'parameters' : domains.Parameters,
-    'organizations': organizations.Organizations,
-    'sensors' : sensors.Sensors
+model_schema_dict = {
+    'qualifiers' : schemas.DataQualifierSchema(),
+    'actions' : schemas.QualityCheckActionSchema(),
+    'mediums' : schemas.MediumTypeSchema(),
+    'operands' : schemas.QualityCheckOperandSchema(),
+    'units' : schemas.UnitSchema(),
+    'parameters' : schemas.ParameterSchema(),
+    'organizations': schemas.OrganizationSchema(),
+    'sensors' : schemas.SensorSchema()
 }
 
 def load_model_json(db, key, data):
     ''' loads an array of dictionaries into the database based on its model class '''
     models_to_insert = []
-    model_class = model_class_dict[key]
+    model_schema = model_schema_dict[key]
     for json in data:
-        models_to_insert.append(model_class(**json))
-    db.session.bulk_save_objects(models_to_insert)
+        models_to_insert.append(model_schema.load(json, session=db.session).data)
+    db.session.bulk_save_objects(models_to_insert)#use bulk save here for more speed during tests
     db.session.commit()
 
 def load_test_data(db,path):
