@@ -55,10 +55,10 @@ class GenericModelService(object):
         
 
 sensors_service = GenericModelService(sensors.Sensors,schemas.SensorSchema(),'Sensor')
-parameter_service = GenericModelService(domains.Parameters, None, 'Parameter')
-units_service = GenericModelService(domains.Units, None, 'Unit')
-medium_service = GenericModelService(domains.MediumTypes, None, 'Medium Type')
-quality_check_operand_service = GenericModelService(domains.QualityCheckOperands, None, 'Quality Check Operand')
-quality_check_action_service = GenericModelService(domains.QualityCheckActions, None, 'Quality Check Action')
-data_qualifier_service = GenericModelService(domains.DataQualifiers, None, 'Data Qualifier')
-organizations_service = GenericModelService(organizations.Organizations, None, 'Organization')
+parameter_service = GenericModelService(domains.Parameters, schemas.ParameterSchema(), 'Parameter')
+units_service = GenericModelService(domains.Units, schemas.UnitSchema(), 'Unit')
+medium_service = GenericModelService(domains.MediumTypes, schemas.MediumTypeSchema(), 'Medium Type')
+quality_check_operand_service = GenericModelService(domains.QualityCheckOperands, schemas.QualityCheckOperandSchema(), 'Quality Check Operand')
+quality_check_action_service = GenericModelService(domains.QualityCheckActions, schemas.QualityCheckActionSchema(), 'Quality Check Action')
+data_qualifier_service = GenericModelService(domains.DataQualifiers, schemas.DataQualifierSchema(), 'Data Qualifier')
+organizations_service = GenericModelService(organizations.Organizations, schemas.OrganizationSchema(), 'Organization')

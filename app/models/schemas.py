@@ -2,6 +2,49 @@ from . import sensors, domains, organizations, ma, session
 from flask_marshmallow.fields import fields
 from marshmallow_sqlalchemy import field_for, fields_for_model
 
+
+class DataQualifierSchema(ma.ModelSchema):
+    class Meta: 
+        model = domains.DataQualifiers
+        sqla_session = session
+
+
+class QualityCheckActionSchema(ma.ModelSchema):
+    class Meta:
+        model = domains.QualityCheckActions
+        sqla_session = session
+
+
+class QualityCheckOperandSchema(ma.ModelSchema):
+    class Meta:
+        model = domains.QualityCheckOperands
+        sqla_session = session
+
+
+class MediumTypeSchema(ma.ModelSchema):
+    class Meta:
+        model = domains.MediumTypes
+        sqla_session = session
+
+
+class UnitSchema(ma.ModelSchema):
+    class Meta:
+        model = domains.Units
+        sqla_session = session
+
+
+class ParameterSchema(ma.ModelSchema):
+    class Meta:
+        model = domains.Parameters
+        sqla_session = session        
+
+
+class OrganizationSchema(ma.ModelSchema):
+    class Meta:
+        model = organizations.Organizations
+        sqla_session = session
+
+
 class SensorParameterSchema(ma.ModelSchema):
     class Meta:
         model = sensors.SensorParameters
@@ -11,6 +54,7 @@ class SensorParameterSchema(ma.ModelSchema):
     sensor_id = field_for(sensors.Sensors,'sensor_id', dump_only=False)
     parameter_id = field_for(domains.Parameters, 'parameter_id', dump_only=False)
     unit_id = field_for(domains.Units, 'unit_id', dump_only=False)
+
 
 class SensorSchema(ma.ModelSchema):
     class Meta:
