@@ -48,8 +48,7 @@ def load_model_json(db, key, data):
     ''' loads an array of dictionaries into the database based on its model class '''
     models_to_insert = []
     model_schema = model_schema_dict[key]
-    for json in data:
-        models_to_insert.append(model_schema.load(json, session=db.session).data)
+    models_to_insert.extend(model_schema.load(data, session=db.session, many=True).data)
     db.session.bulk_save_objects(models_to_insert)#use bulk save here for more speed during tests
     db.session.commit()
 
