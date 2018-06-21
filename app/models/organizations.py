@@ -8,7 +8,7 @@ class Organizations(db.Model):
     contact_name = db.Column(db.String)
     contact_email = db.Column(db.String)
     sos_url = db.Column(db.String)
-    quality_checks = db.relationship("OrganizationParameterQualityChecks", cascade="save-update, delete, delete-orphan")
+    quality_checks = db.relationship("OrganizationParameterQualityChecks", lazy="joined", cascade="save-update, delete, delete-orphan")
 
 class OrganizationParameterQualityChecks(db.Model):
     org_parameter_quality_check_id = db.Column(db.Integer, primary_key=True)

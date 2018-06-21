@@ -1,4 +1,5 @@
 from flask_restplus import abort
+from flask import Response, stream_with_context
 from . import domains , sensors, organizations, session, schemas
 
 
@@ -19,7 +20,10 @@ class GenericModelService(object):
 
     @property
     def objects(self):
-        return self.model.query.all()
+        def stream():
+            for q in session.query(self.model).yield_per(5000):
+                yield q
+        return stream()
     
     def get(self, id):
         obj = self.model.query.get(id)
