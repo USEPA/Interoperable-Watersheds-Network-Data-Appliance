@@ -14,10 +14,9 @@ import xml.etree.ElementTree as ET
 
 #Global variables
 CSVCHUNKSIZE = 1000
-connstring = 'postgres://sos:sensors@havasu:5433/ingest'
+connstring = 'postgres://sos:sensors@ingest_data:5432/ingest'
 db = records.Database(connstring)
-#url = None
-url = "http://havasu.rtp.rti.org:8080/52n-sos-webapp/service"
+url = None
 station_meta_template="templates/station_template.txt"
 sensor_meta_template="templates/sensor_template.txt"
 result_meta_template="templates/result_template.txt"
