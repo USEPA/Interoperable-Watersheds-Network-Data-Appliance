@@ -1,6 +1,5 @@
 from flask_restplus import Namespace, Resource, fields
 from models import services
-from flask import Response, stream_with_context
 
 service = services.units_service
 api = Namespace('units', 'modify units')
@@ -16,7 +15,7 @@ class UnitCollection(Resource):
     @api.marshal_list_with(unit_model)
     def get(self):
         """Returns a list of unit"""
-        return Response(stream_with_context(service.objects),mimetype="application/json")
+        return service.objects
 
     @api.doc('create_unit')
     @api.expect(unit_model)
