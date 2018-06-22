@@ -109,7 +109,7 @@ CREATE TABLE sos.sensors
   ingest_frequency integer NOT NULL,
   ingest_status character varying(8) NOT NULL DEFAULT 'unknown'::character varying,
   last_ingest timestamp without time zone,
-  next_ingest timestamp without time zone,  
+  next_ingest timestamp without time zone,
   data_url text NOT NULL,
   data_format integer,
   timestamp_column_id integer NOT NULL,
@@ -146,7 +146,7 @@ CREATE TABLE sos.sensor_parameters
       ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT sensor_units_unit_id_fkey FOREIGN KEY (unit_id)
       REFERENCES sos.units (unit_id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,      
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT sensor_parameters_sensor_id_fkey FOREIGN KEY (sensor_id)
       REFERENCES sos.sensors (sensor_id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION
@@ -184,31 +184,31 @@ WITH (
 );
 ALTER TABLE sos.organization_parameter_quality_checks
   OWNER TO sos;
-  
+
 CREATE TABLE sos.ingestions
 (
-   ingestion_id serial, 
-   sensor_id integer, 
-   ingestion_start_time timestamp without time zone, 
-   ingestion_stop_time timestamp without time zone, 
-   status character varying(4), 
+   ingestion_id serial,
+   sensor_id integer,
+   ingestion_start_time timestamp without time zone,
+   ingestion_stop_time timestamp without time zone,
+   status character varying(4),
    PRIMARY KEY (ingestion_id)
-) 
+)
 WITH (
   OIDS = FALSE
 )
 ;
 ALTER TABLE sos.ingestions
-  OWNER TO sos;  
+  OWNER TO sos;
 
 CREATE VIEW sos.all_sensors AS
-   select sensor_id, org_sensor_id as stationid, short_name as "shortName", 
-      long_name as "longName", longitude::text as easting, latitude::text as northing, 
-      coalesce(altitude,0)::text as altitude, o.name as "organizationName", o.url as "organizationURL", 
-      o.contact_name || ':' || o.contact_email as contact, 
-      medium_type_name as "waterbodyType", o.parent_organization_id as "urn-org", o.organization_id as suborg 
+   select sensor_id, org_sensor_id as stationid, short_name as "shortName",
+      long_name as "longName", longitude::text as easting, latitude::text as northing,
+      coalesce(altitude,0)::text as altitude, o.name as "organizationName", o.url as "organizationURL",
+      o.contact_name || ':' || o.contact_email as contact,
+      medium_type_name as "waterbodyType", o.parent_organization_id as "urn-org", o.organization_id as suborg
    from sos.sensors s, sos.organizations o, medium_types m
-   where s.organization_id = o.organization_id 
+   where s.organization_id = o.organization_id
    and s.medium_type_id = m.medium_type_id;
 
 ALTER VIEW sos.all_sensors
@@ -222,6 +222,22 @@ CREATE VIEW sos.all_sensor_parameters AS
    and s.data_qualifier_id = d.data_qualifier_id
    and u.unit_id = sp.unit_id;
 
-ALTER VIEW sos.all_sensor_parameters 
+ALTER VIEW sos.all_sensor_parameters
    OWNER TO sos;
 
+   CREATE OR REPLACE VIEW sos.all_sensor_quality_checks AS
+    SELECT s.sensor_id,
+       sp.parameter_column_id,
+           CASE
+               WHEN op.quality_check_operand_name = '='::text THEN '=='::text
+               ELSE op.quality_check_operand_name
+           END AS quality_check_operand_name,
+       o.threshold
+      FROM sensor_parameters sp,
+       organization_parameter_quality_checks o,
+       sensors s,
+       quality_check_operands op
+     WHERE s.sensor_id = sp.sensor_id AND o.parameter_id = sp.parameter_id AND o.organization_id::text = s.organization_id::text AND s.qc_rules_apply AND op.quality_check_operand_id = o.quality_check_operand_id;
+
+ALTER VIEW sos.all_sensor_quality_checks
+  OWNER TO sos;
