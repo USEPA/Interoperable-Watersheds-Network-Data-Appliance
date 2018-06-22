@@ -21,7 +21,15 @@ class OrganizationsAPITest(ApiIntegrationTestCase):
             "url": "string",
             "contact_name": "string",
             "contact_email": "string",
-            "sos_url": "string"
+            "sos_url": "string",
+            "quality_checks" : [
+                {
+                    "organization_id" : "string",
+                    "parameter_id": 79950,
+                    "quality_check_operand_id": 3,
+                    "quality_check_action_id": 1,
+                    "threshold": 0.1149228928
+                }]
         })
         self.assertEqual(result.status_code, 201, msg='Expected 201 Created')
         result = self.client.get('orgs/string')

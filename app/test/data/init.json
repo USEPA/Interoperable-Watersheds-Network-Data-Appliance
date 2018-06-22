@@ -219,7 +219,16 @@
       "url": "www.epa.gov",
       "contact_name": "Dwane Young",
       "contact_email": "Young.Dwane@epa.gov",
-      "sos_url": ""
+      "sos_url": "",
+      "quality_checks" :[
+      {
+        "org_parameter_quality_check_id": 1,
+        "organization_id": "epar10",
+        "parameter_id": 79950,
+        "quality_check_operand_id": 3,
+        "quality_check_action_id": 1,
+        "threshold": 0.1149228928
+      }]
     },
     {
       "organization_id": "epar10",
@@ -228,7 +237,32 @@
       "url": "https://www.epa.gov/aboutepa/epa-region-10-pacific-northwest",
       "contact_name": "Anne Dalrymple",
       "contact_email": "dalrymple.anne@epa.gov",
-      "sos_url": "http://ingest_sos:8080/52n-sos-webapp/service"
+      "sos_url": "http://ingest_sos:8080/52n-sos-webapp/service",
+      "quality_checks" : [
+      {
+        "org_parameter_quality_check_id": 2,
+        "organization_id": "epa",
+        "parameter_id": 79940,
+        "quality_check_operand_id": 1,
+        "quality_check_action_id": 1,
+        "threshold": 0.759075136
+      },
+      {
+        "org_parameter_quality_check_id": 3,
+        "organization_id": "epa",
+        "parameter_id": 79443,
+        "quality_check_operand_id": 4,
+        "quality_check_action_id": 1,
+        "threshold": 0.536484032
+      },
+      {
+        "org_parameter_quality_check_id": 4,
+        "organization_id": "epa",
+        "parameter_id": 80020,
+        "quality_check_operand_id": 4,
+        "quality_check_action_id": 1,
+        "threshold": 0.736236416
+      }]
     }
   ],
   "sensors": [

@@ -10,13 +10,6 @@ class GenericModelService(object):
         self.schema = schema
         self.name = name
 
-
-    def __deserialize__(self, data):
-        if self.schema is not None:
-            return self.schema.load(data,session=session).data
-        else:
-            return self.model(**data)
-
     @property
     def objects(self):
         return self.model.query.all()
@@ -28,21 +21,27 @@ class GenericModelService(object):
         return obj
     
     def create(self, data):
-        obj = self.__deserialize__(data)
-        session.add(obj)
-        session.commit()
+        obj = self.schema.load(data,session=session)
+        if len(obj.errors) is 0 or None:
+            session.add(obj.data)
+            session.commit()
         return obj
     
+    def create_all(self, data, use_bulk=None):
+        collection = self.schema.load(data, session=session, many=True).data
+        if use_bulk is True:
+            session.bulk_save_objects(collection)
+        else:
+            session.add_all(collection)
+        session.commit()
+        return collection
+
     def update(self, id, data):
         obj = self.model.query.get(id)
         if not obj:
             abort(404, '{0} Entity {1} Not Found'.format(self.name,id))
-        if self.schema is not None:
-            obj = self.schema.load(data, session=session, instance=obj, partial=True)
-        else:
-            for key, value in data.items():
-                setattr(obj,key,value)
 
+        obj = self.schema.load(data, session=session, instance=obj, partial=True)
         session.commit()
         return obj
     
