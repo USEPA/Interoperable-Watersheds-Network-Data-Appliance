@@ -16,7 +16,7 @@ sensor_list_model = api.model('Sensor List',{
     'sensor_id' : fields.Integer(readonly=True),
     'short_name' : fields.String,
     'ingest_frequency' : fields.Integer,
-    'last_ingested' : fields.DateTime,
+    'last_ingest' : fields.DateTime,
     'qc_rules_apply' : fields.Boolean,
     'ingest_status' : fields.String
 })
