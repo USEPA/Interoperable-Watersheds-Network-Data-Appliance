@@ -1,8 +1,8 @@
 from flask import Flask
 from flask_cors import CORS
-
 import json
 import os
+import logging
 from api import api
 from models import services, db , ma
 from . import config
@@ -12,6 +12,9 @@ def bootstrap_app():
     ''' bootstraps Flask app with appropriate extensions '''
     app = Flask(__name__)
     app.config.from_object(config.config_by_name[os.getenv('FLASK_ENV', default='development')])
+    logger = logging.getLogger('werkzeug')
+    handler = logging.handlers.RotatingFileHandler(config.logdir+'/access.log')
+    logger.addHandler(handler)
     CORS(app)
     db.init_app(app)
     ma.init_app(app)
