@@ -1,25 +1,22 @@
-#*****************
-# Import modules
-#*****************
+#Imports
+from datetime import datetime
+from glob import glob
+import argparse
+import csv
+import dateutil.parser
+import json
+import logging
+import os
+import records
 import urllib.request as ur
 import urllib.parse
 import xml.etree.ElementTree as ET
-from pprint import pprint
-import csv
-from datetime import datetime
-import dateutil.parser
-import os
-from glob import glob
-import argparse
-import records
-import json
-import operator as op
-import logging
-#*****************
-# Global variables
-#*****************
+
+#Global variables
+CSVCHUNKSIZE = 1000
 connstring = 'postgres://sos:sensors@havasu:5433/ingest'
 db = records.Database(connstring)
+#url = None
 url = "http://havasu.rtp.rti.org:8080/52n-sos-webapp/service"
 station_meta_template="templates/station_template.txt"
 sensor_meta_template="templates/sensor_template.txt"
@@ -72,10 +69,7 @@ namespaces = {
     'gda':"http://www.opengis.net/sosgda/1.0",
     'gml':"http://www.opengis.net/gml/3.2"}
 
-#*****************
-# Functions
-#*****************
-
+#Functions
 def create_offer_dict(noff):
     off_d = {}
     for field in offerkey:
@@ -129,8 +123,6 @@ def pull_capability_data(offer_list):
                 parameter=""
             fo.write("{},{},{},{},{},{},{},{},{},{}\n".format(
                 nid,org,suborg,stationid,status,parameter,phenombegin,phenomend,resbegin,resend))
-
-            #compile unique offers. Date defaults to 1950-01-01
             try:
                 unique_offers.append((stationid,parameter,status,dateutil.parser.parse(phenomend,default=datetime(1950,1,1))))
             except ValueError:
@@ -139,17 +131,18 @@ def pull_capability_data(offer_list):
 
 def get_url(sensor_id):
     global url
-    rows = db.query('''
-        select o.sos_url from sensors s, organizations o
-        where s.organization_id = o.organization_id
-        and sensor_id = :id''', id=sensor_id)
-    url = rows[0].sos_url
+    if url == None:
+        rows = db.query('''
+            select o.sos_url from sensors s, organizations o
+            where s.organization_id = o.organization_id
+            and sensor_id = :id''', id=sensor_id)
+        url = rows[0].sos_url
 
 def get_data(sensor_id):
     q = db.query('select org_sensor_id, data_url from sensors where sensor_id = :id', id=sensor_id)
     url = q[0].data_url
     r = urllib.request.urlopen(url)
-    open('data/' + str(sensor_id) + '.csv', 'wb').write(r.read())
+    open("data/{}.csv".format(sensor_id), 'wb').write(r.read())
     org_sensor_id = q[0].org_sensor_id
     return org_sensor_id
 
@@ -222,7 +215,6 @@ def create_station_request(template, stationmeta, parammeta):
             'publisher':stationmeta['urn-org'].lower(),
             'status':parammeta['status'].lower(),
             'urn-org':stationmeta['urn-org'].lower()}
-    #log_entry("-","Create template from {}".format(template))
     #open the station template file and read the template as a string
     with open(template,'r') as fi:
         station_meta_str = fi.read()
@@ -235,7 +227,6 @@ def create_station_request(template, stationmeta, parammeta):
     new_station_meta_str = station_meta_str.format(**lookup)
     return new_station_meta_str
 
-
 def push_template(station_str, url):
     """
     Purpose: Push station or sensor to server
@@ -247,11 +238,9 @@ def push_template(station_str, url):
     req.add_header('Content-Type','application/xml')
     req.add_header('charset','UTF-8')
     r = ur.urlopen(req,data=station_bytes)
-
     return r
 
 def check_data(data_file,unique_offers,station_status):
-    #log_entry("-", "Check offerings for missing stations and sensors")
     last_record = []
     station_list = [s[0] for s in unique_offers]
     station_match_flag = False
@@ -265,8 +254,7 @@ def check_data(data_file,unique_offers,station_status):
             else:
                 station = row[0]
                 parameter = row[3]
-                #if VERBOSE:
-                    #log_entry(".","{} - Station: {} Parameter {}".format(i,station,parameter))
+                #logging.debug("{} - Station: {} Parameter {}".format(i,station,parameter))
                 #check if station is in offering
                 #stops when it finds a match, because offering should be unique
                 if station in station_list:
@@ -300,7 +288,6 @@ def get_unique_station_sensor(data_file,date_filter):
                 j = i-1
                 stationid = row[0]
                 parameter = row[3]
-                #print(parameter)
                 if not date_filter[j]:
                     continue #or do something with it
                 else:
@@ -331,7 +318,6 @@ def check_dates(data_file,last_record):
 
     return date_filter
 
-
 def accumulate_data(unique_station_sensor,data,date_filter):
     rolled_up_data = {}
     with open(data,'r') as fi:
@@ -345,8 +331,6 @@ def accumulate_data(unique_station_sensor,data,date_filter):
                     data_id = (row[0],row[3])  #(stationid,parameter)
                     date_time = dateutil.parser.parse("{} {}".format(row[1],row[2]))
                     data_value = (datetime.isoformat(date_time),row[4])
-                    #print(data_value)
-
                     #rolled_up_data.setdefault(data_id, []).append(data_value)
                     rolled_up_data.setdefault(data_id, {}).setdefault('values',[]).append(data_value)
     for k,v in rolled_up_data.items():
@@ -357,9 +341,6 @@ def accumulate_data(unique_station_sensor,data,date_filter):
 def create_data_request(data_template, k,v,status,urnorg,suborg):
     stationid = k[0]
     parameter = k[1]
-    #print(parameter)
-    # status = "final"
-    # suborg = "python"
     count = str(v['count'])
     values_str = ""
     for item in v['values']:
@@ -380,7 +361,6 @@ def create_data_request(data_template, k,v,status,urnorg,suborg):
                                             suborg=suborg,
                                             urnorg=urnorg,
                                             data=data)
-    #print(new_data_meta_str)
     return new_data_meta_str
 
 def push_new_templates(data,last_record,date_filter,stationmeta,parammeta):
@@ -401,24 +381,18 @@ def push_new_templates(data,last_record,date_filter,stationmeta,parammeta):
                     # Get pertinent info
                     station = last_record[j][1][0]
                     parameter = last_record[j][1][1]
-                    #
-                    #PROCESS STATION TEMPLATE
-                    #
                     station_record = None
                     for record in stationmeta:
                         if record['stationid'] == station:
                             station_record = record
                             break
-                    if station_record == None:
-                        #print("station metadata not found for {}".format(station))
+                    if station_record == None:                        
                         continue #OR DO SOMETHING else
                     #Create STATION template
                     station_str = create_station_request(station_meta_template,station_record,parammeta[0])
                     response = push_template(station_str, url)
-                    #log_entry("+","Station {} template pushed with response {}".format(station,response.readlines()))
-                    #
+                    #logger.debug("Station {} template pushed with response {}".format(station,response.readlines()))
                     # PROCESS SENSOR TEMPLATE
-                    #
                     sensor_record = None
                     sensor_param_record=None
                     for record in stationmeta:
@@ -426,23 +400,18 @@ def push_new_templates(data,last_record,date_filter,stationmeta,parammeta):
                                 sensor_record = record
                                 break
                     for record in parammeta:
-                        #print(record)
                         if record['fieldName'] == parameter:
                                 sensor_param_record = record
                                 break
                     if sensor_record == None:
-                        #print("sensor metadata not found for {}".format(station))
                         continue #OR DO SOMETHING else
                     if sensor_param_record == None:
-                        #print("1parameter metadata not found {}".format(parameter))
                         continue
                     #Create sensor str
                     sensor_str = create_station_request(sensor_meta_template,sensor_record,sensor_param_record)
                     response = push_template(sensor_str, url)
-                    #log_entry("+","Sensor {} template pushed with response {}".format(parameter, response.readlines()))
-                    #
+                    #logging.debug("Sensor {} template pushed with response {}".format(parameter, response.readlines()))
                     # PROCESS RECORD TEMPLATE
-                    #
                     result_record = None
                     result_param_record=None
                     for record in stationmeta:
@@ -454,50 +423,38 @@ def push_new_templates(data,last_record,date_filter,stationmeta,parammeta):
                                 result_param_record = record
                                 break
                     if result_record == None:
-                        #print("sensor metadata not found for {}".format(station))
-                        continue #OR DO SOMETHING else
+                         continue #OR DO SOMETHING else
                     if result_param_record == None:
-                        #print("2parameter metadata not found {}".format(parameter))
-                        continue
+                         continue
                     #Create sensor str
                     result_str = create_station_request(result_meta_template,result_record,result_param_record)
                     response = push_template(result_str, url)
-                    #log_entry("+","Result {} {} template pushed with response {}".format(station, parameter,response.readlines()))
+                    #logging.debug("Result {} {} template pushed with response {}".format(station, parameter,response.readlines()))
                     alreadyprocessed.append(last_record[j])
-
                 elif status == 'sensor':
                     station = last_record[j][1][0]
                     parameter = last_record[j][1][1]
-                    #print(parameter)
                     #lookup station parameter in metadata_headers
-                    #
                     # PROCESS SENSOR TEMPLATE
-                    #
                     sensor_record = None
                     sensor_param_record=None
                     for record in stationmeta:
                         if record['stationid'] == station:
                                 sensor_record = record
                                 break
-                    for record in parammeta:
-                        #print(record['fieldName'])
-                        #print(parameter)
+                    for record in parammeta:                       
                         if record['fieldName'] == parameter:
                                 sensor_param_record = record
                                 break
-                    if sensor_record == None:
-                        #print("sensor metadata not found for {}".format(station))
+                    if sensor_record == None:                        
                         continue #OR DO SOMETHING else
                     if sensor_param_record == None:
-                        #print("3parameter metadata not found {}".format(parameter))
                         continue
                     #Create sensor str
                     sensor_str = create_station_request(sensor_meta_template,sensor_record,sensor_param_record)
                     response = push_template(sensor_str, url)
-                    #log_entry("+","Sensor {} template pushed with response {}".format(parameter, response.readlines()))
-                    #
+                    #logging.debug("Sensor {} template pushed with response {}".format(parameter, response.readlines()))
                     # PROCESS RECORD TEMPLATE
-                    #
                     result_record = None
                     result_param_record=None
                     for record in stationmeta:
@@ -509,29 +466,54 @@ def push_new_templates(data,last_record,date_filter,stationmeta,parammeta):
                                 result_param_record = record
                                 break
                     if result_record == None:
-                        #print("sensor metadata not found for {}".format(station))
-                        continue #OR DO SOMETHING else
+                         continue #OR DO SOMETHING else
                     if result_param_record == None:
-                        #print("4parameter metadata not found {}".format(parameter))
-                        continue
+                         continue
                     #Create sensor str
                     result_str = create_station_request(result_meta_template,result_record,result_param_record)
-                    #print(result_str)
                     response = push_template(result_str, url)
-
-                    #log_entry("+","Result {} {} template pushed with response {}".format(station, parameter, response.readlines()))
+                    #logging.debug("Result {} {} template pushed with response {}".format(station, parameter, response.readlines()))
                     alreadyprocessed.append(last_record[j])
 
-def pivot(sensorid,conf_file,data_file,qa):
-    CSVCHUNK = 1000
+def chunk(sensorid,alldatafile):
+    with open(alldatafile,'r') as fi:
+        num_lines = sum(1 for line in fi)
+        if num_lines <= 1:
+            logging.error("No data to ingest for sensor Id:{}".format(sensorid))
+            exit()
+        fi.seek(0)
+        r = csv.reader(fi)
+        filecount = 0
+        counter = 1 #account for header
+        eof = False
+        next(fi)
+        while eof == False:
+            filecount += 1
+            filename = "{}.{}".format(alldatafile, filecount)
+            with open(filename,'w',newline="") as fo:
+                w = csv.writer(fo)
+                w.writerow(["station","date","time","parameter","value"])
+                for i,line in enumerate(r):
+                    counter += 1
+                    w.writerow(line)
+                    if counter == num_lines:
+                        eof = True
+                    if counter % CSVCHUNKSIZE == 0:
+                        break
+    
+def pivot(sensorid,qa):
+    conf_file='config/{}.json'.format(sensorid)
+    data_file='data/{}.csv'.format(sensorid)
     if qa != None:
         logging.debug("QA Applied for sensor Id:{}".format(sensorid))
-        alldatafile="temp/" + sensorid + '_all_data_QA.csv'
+        alldatafile="data/{}.qa.csv".format(sensorid)
     else:
-        alldatafile="temp/" + sensorid + '_all_data.csv'
+        alldatafile="data/{}.raw.csv".format(sensorid)
+        
     with open(conf_file,'r') as fi:
         conf_str = fi.read()
         config = json.loads(conf_str)
+        
     with open(data_file,'r') as fi:
         with open(alldatafile,'w', newline="") as fo:
             r = csv.reader(fi)
@@ -543,7 +525,6 @@ def pivot(sensorid,conf_file,data_file,qa):
             header = config['header']
 
             for i,ncol in enumerate(columns):
-                #print(ncol)
                 if ncol == "datetime":
                     continue
                 elif ncol == "id":
@@ -563,7 +544,6 @@ def pivot(sensorid,conf_file,data_file,qa):
                             if qa != None:
                                 for q in qa:
                                     if q["parameter_column_id"] == i+1:
-                                        #print(q["quality_check_operand_name"]+str(q["threshold"]))
                                         if eval(nrow[i] + q["quality_check_operand_name"]+str(q["threshold"])):
                                             logging.debug("Discarding sensor id {} value {} for {}".format(sensorid, nrow[i],ncol))
                                             discard=True
@@ -571,33 +551,7 @@ def pivot(sensorid,conf_file,data_file,qa):
                                 newrow.append(nrow[i])
                                 w.writerow(newrow)
                     fi.seek(0)
-    with open(alldatafile,'r') as fi:
-        num_lines = sum(1 for line in fi)
-        #print(num_lines)
-        if num_lines == 1:
-            logging.error("No data to ingest for sensor Id:{}".format(sensorid))
-            exit()
-        fi.seek(0)
-        r = csv.reader(fi)
-        filecount = 0
-        counter = 1 #account for header
-        eof = False
-        next(fi)
-        while eof == False:
-            filecount += 1
-            filename = "temp/" + sensorid + "_PART_{}.csv".format(filecount)
-            with open(filename,'w',newline="") as fo:
-                w = csv.writer(fo)
-                w.writerow(["station","date","time","parameter","value"])
-
-                for i,line in enumerate(r):
-                    counter += 1
-                    #print(counter)
-                    w.writerow(line)
-                    if counter == num_lines:
-                        eof = True
-                    if counter % CSVCHUNK == 0:
-                        break
+    chunk(sensorid,alldatafile)
 
 def update_status(sensorid, status):
     db.query("update sensors set ingest_status = :st where sensor_id = :id", st=status, id=sensorid)
@@ -607,97 +561,70 @@ def update_status(sensorid, status):
 def submit(filelist, parammeta, stationmeta, unique_offers, station_status):
     total_files = len(filelist)
     for i,nfile in enumerate(filelist):
-        #print("Processing {} file {} of {}".format(station_status,i+1,total_files))
-        #log_entry("-","Processing file {} of {}".format(i+1,total_files))
-        #------------------------
+        #logging.debug("Processing file {} of {}".format(i+1,total_files))
         # Check data for missing templates
-        #------------------------
         #loop through the data file and determine what has to be done for each data point
-        last_record = check_data(nfile,unique_offers,station_status)
-        #print('last record:',last_record)
+        last_record = check_data(nfile,unique_offers,station_status)        
         #create a list of which dates are before the offering date
         date_filter = check_dates(nfile, last_record) # could clean this up a bit
-        #print('date_filter:',date_filter)
         #push any new templates that are needed
         push_new_templates(nfile,last_record,date_filter,stationmeta,parammeta)
-        #------------------------
         #process data, format data and push
-        #------------------------
         unique_station_sensor = get_unique_station_sensor(nfile,date_filter)
-        #print('unique_station_sensor:',unique_station_sensor)
+        #logging.debug('unique_station_sensor:{}'.format(unique_station_sensor))
         rolled_up_data = accumulate_data(unique_station_sensor,nfile,date_filter)
-        #print('rolled_up_data:',rolled_up_data)
         for k,v in rolled_up_data.items():
-            #print('k,v:',k,v)
             for i in parammeta:
-                #print('i:',i)
                 if k[1] == i['fieldName']:
-                    #print(i['status'].lower())
                     status = i['status'].lower()
                     break
             for i in stationmeta:
-                #print('i:',i)
                 if k[0] == i['stationid']:
                     urnorg = i['urn-org'].lower()
                     suborg = i['suborg'].lower()
                     break
-            #print(urnorg)
-            #print(stationmeta)
             data_meta_str = create_data_request(data_template, k,v,status,urnorg,suborg)
             response = push_template(data_meta_str,url)
-            #log_entry("-","Results for {} pushed with response {}".format(k,response.readlines()))
-    #log_entry("*","*************")
-    #log_entry("*","End Program")
-    #log_entry("*","*************")
+            #logging.debug("-","Results for {} pushed with response {}".format(k,response.readlines()))
 
+def remove_old_files(sensorid):
+    filelist = glob("data/{}.*".format(sensorid))
+    for nfile in filelist:
+        os.remove(nfile)
+    
 def process(sensorid):
     logging.debug("Ingesting Sensor Id: {}".format(sensorid))
     update_status(sensorid,'running')
-    #get_url(sensorid)
-    filelist = glob("temp/" + sensorid + "_PART_*.csv")
-    for nfile in filelist:
-        os.remove(nfile)
+    get_url(sensorid)
+    remove_old_files(sensorid)
     station = get_data(sensorid)
     #TODO:only if already doesn't exist
     write_config(sensorid, station, get_header(sensorid))
 
-    pivot(sensorid, 'config/' + sensorid + '.json', 'data/' + sensorid + '.csv', None)
-
-    #------------------------
-    # Get existing information from server
-    #------------------------
     #Request offering from server. Parse into a list of offerings.
     offer_dict = parse_capabilities(url)
 
     #Create a list of unique offerings (station, parameter, last measurement date/time)
     unique_offers = pull_capability_data(offer_dict)
-    #------------------------
-    #Read metadata
-    #------------------------
+
     #Read station metadata csv file
     stationmeta = get_station_metadata(sensorid)
+
     #Read parameter metadata csv file
     parammeta = get_parameter_metadata(sensorid, get_header(sensorid))
 
-    #process original data
-    filelist = glob("temp/" + sensorid + "_PART_*.csv")
-    #submit(filelist, parammeta, stationmeta, unique_offers, parammeta[0]["status"])
+    #Process original data
+    pivot(sensorid, None)
+    filelist = glob("data/{}.raw.csv.*".format(sensorid))
+    submit(filelist, parammeta, stationmeta, unique_offers, parammeta[0]["status"])
 
-    #if data is raw and qa is true:
     if is_qa_applied(sensorid):
-        for param in parammeta:
+        prelimparammeta = parammeta
+        for param in prelimparammeta:
             param["status"] = "preliminary"
-        pivot(sensorid, 'config/' + sensorid + '.json', 'data/' + sensorid + '.csv', qa_rules(sensorid))
-        #prelimfilelist = glob("temp/" + sensorid + "_PRELIM_PART_*.csv")
-        #newparammeta = parammeta
-        #prelimfilelist = filelist
-        #submit(prelimfilelist, newparammeta, stationmeta, unique_offers, "preliminary")
-
-    #find out what to do to what
-    #ex: if col 3 value > 5000 then discard
-    #read each file and modify if necessary, write to new prelim file
-
-    #modify parammeta to set correct qualifier to preliminary
+        pivot(sensorid, qa_rules(sensorid))
+        prelimfilelist = glob("data/{}.qa.csv.*".format(sensorid))
+        submit(prelimfilelist, prelimparammeta, stationmeta, unique_offers, "preliminary")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -709,4 +636,5 @@ if __name__ == "__main__":
         update_status(args.sensorid, 'ingested')
     except Exception as e:
        update_status(args.sensorid, 'error')
-       logging.critical(str(e))
+       logging.critical(str(e)) 
+       raise       
