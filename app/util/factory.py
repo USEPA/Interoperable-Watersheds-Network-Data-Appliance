@@ -4,7 +4,7 @@ from flask_cors import CORS
 import json
 import os
 from api import api
-from models import schemas, db , ma
+from models import services, db , ma
 from . import config
 
 
@@ -27,39 +27,36 @@ def bootstrap_test_app():
     api.init_app(app)
     with app.app_context():
         db.create_all()
-        load_test_data(db,'/test/data/init.json')
+        load_test_data('/test/data/init.json')
 
     return app
 
 # a key value match where a key is matched to a sqlalchemy model object 
 # this is used to generically load data from a json file for tests
-model_schema_dict = {
-    'qualifiers' : schemas.DataQualifierSchema(),
-    'actions' : schemas.QualityCheckActionSchema(),
-    'mediums' : schemas.MediumTypeSchema(),
-    'operands' : schemas.QualityCheckOperandSchema(),
-    'units' : schemas.UnitSchema(),
-    'parameters' : schemas.ParameterSchema(),
-    'organizations': schemas.OrganizationSchema(),
-    'sensors' : schemas.SensorSchema()
+services_dict = {
+    'qualifiers' : services.data_qualifier_service,
+    'actions' : services.quality_check_action_service,
+    'mediums' : services.medium_service,
+    'operands' : services.quality_check_operand_service,
+    'units' : services.units_service,
+    'parameters' : services.parameter_service,
+    'organizations': services.organizations_service,
+    'sensors' : services.sensors_service
 }
 
-def load_model_json(db, key, data):
+def load_model_json( key, data):
     ''' loads an array of dictionaries into the database based on its model class '''
-    models_to_insert = []
-    model_schema = model_schema_dict[key]
-    for json in data:
-        models_to_insert.append(model_schema.load(json, session=db.session).data)
-    db.session.bulk_save_objects(models_to_insert)#use bulk save here for more speed during tests
-    db.session.commit()
+    service = services_dict[key]
+    service.create_all(data, use_bulk=True)
 
-def load_test_data(db,path):
+
+def load_test_data(path):
     ''' loads test data into the test sqlite database '''
     with open(config.basedir+'/..'+path) as test_data:
         test_json = test_data.read()
         data = json.loads(test_json)
         for k, v in data.items():
-            load_model_json(db,k,v)
+            load_model_json(k,v)
 
 
 def deconstruct_test_app(app):
