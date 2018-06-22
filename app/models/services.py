@@ -20,10 +20,7 @@ class GenericModelService(object):
 
     @property
     def objects(self):
-        def stream():
-            for q in session.query(self.model).yield_per(5000):
-                yield q
-        return stream()
+        return self.model.query.all()
     
     def get(self, id):
         obj = self.model.query.get(id)
