@@ -1,0 +1,23 @@
+version: "3.6"
+services:
+  api:
+    build: .
+    container_name: ingest_api_dev
+    command : bash -c "echo $PYTHONPATH && cron && flask run --host=0.0.0.0"
+    environment:
+      - FLASK_APP=app.app:application
+      - FLASK_ENV=development
+      - PYTHONPATH=/app/app
+    ports:
+      - "5000:5000"
+  database:
+    build: 
+      context: ../db
+    restart: always
+    ports:
+     - 5432:5432
+    volumes:
+      - datavol:/var/lib/postgresql/data
+    container_name: ingest_data_dev
+volumes:
+  datavol:
