@@ -1,4 +1,6 @@
 from flask_restplus import Api
+from flask import jsonify
+from werkzeug.exceptions import HTTPException
 from .sensors import api as sensors
 from .parameters import api as parameters
 from .domains import api as domains
@@ -10,3 +12,8 @@ api.add_namespace(parameters)
 api.add_namespace(orgs)
 api.add_namespace(domains)
 api.add_namespace(units)
+
+
+@api.errorhandler(Exception)
+def handle_error(e):
+    return {'message': str(e.orig.args)}, 500

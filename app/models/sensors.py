@@ -21,7 +21,7 @@ class Sensors(db.Model):
     timestamp_column_id = db.Column(db.Integer)
     qc_rules_apply = db.Column(db.Boolean)
     active = db.Column(db.Boolean)
-    parameters = db.relationship("SensorParameters", cascade="save-update, delete, delete-orphan")
+    parameters = db.relationship("SensorParameters", lazy='joined', cascade="save-update, delete, delete-orphan")
 
 class SensorParameters(db.Model):
     sensor_parameter_id = db.Column(db.Integer, primary_key=True)

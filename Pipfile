@@ -16,10 +16,12 @@ sqlalchemy = "*"
 records = "*"
 flask-marshmallow = "*"
 marshmallow-sqlalchemy = "*"
+flask-logconfig = "*"
 "psycopg2-binary" = "*"
 
 [dev-packages]
 "flake8" = "*"
+pylint = "*"
 
 [requires]
 python_version = "3.6"

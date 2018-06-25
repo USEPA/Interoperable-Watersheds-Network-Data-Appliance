@@ -22,7 +22,7 @@ class UnitCollection(Resource):
     @api.marshal_with(unit_model)
     def post(self):
         """Creates a unit"""
-        return service.create(api.payload), 201
+        return service.create(api.payload)
 
 
 @api.route('/<int:id>')
@@ -46,6 +46,6 @@ class Unit(Resource):
     @api.doc('delete_unit')
     def delete(self, id):
         """Deletes a unit given its id"""
-        service.delete(id)
-        return {}, 204
+
+        return service.delete(id)
 

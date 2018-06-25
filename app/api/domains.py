@@ -9,7 +9,7 @@ units_service = services.units_service
 
 qualifier_model = Model('Data Qualifier', {
     'data_qualifier_id': fields.Integer,
-    'data_qualifier_name' : fields.String
+    'data_qualifier_name': fields.String
 })
 
 action_model = Model('Quality Check Actions', {

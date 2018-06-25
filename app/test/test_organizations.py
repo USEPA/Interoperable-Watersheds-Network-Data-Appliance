@@ -45,8 +45,11 @@ class OrganizationsAPITest(ApiIntegrationTestCase):
 
     
     def test_put_one(self):
-        result = self.client.put('/orgs/epa',json={"sos_url": 'wwww.biscuit.com'})
-        self.assertEqual(result.status_code, 200, msg="Expected 200 OK")
+        result = self.client.put('/orgs/epa',json={
+            "organization_id" : "epa",
+            "sos_url": 'wwww.biscuit.com'
+        })
+        self.assertEqual(result.status_code, 202, msg="Expected 202 Entity Successfully updated")
         result = self.client.get('/orgs/epa')
         self.assertEqual(result.json['sos_url'], 'wwww.biscuit.com', msg="Expected updated altitude value to be wwww.biscuit.com")
         result = self.client.put('/orgs/doesntexist')

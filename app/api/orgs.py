@@ -59,5 +59,5 @@ class Organization(Resource):
     @api.doc('delete_organization')
     def delete(self, id):
         """Deletes a organization given its id"""
-        service.delete(id)
-        return {}, 204
+
+        return service.delete(id)
