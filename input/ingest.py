@@ -319,6 +319,7 @@ def check_dates(data_file,last_record):
 
 def accumulate_data(unique_station_sensor,data,date_filter):
     rolled_up_data = {}
+    last_date = None
     with open(data,'r') as fi:
         r = csv.reader(fi)
         for i, row in enumerate(r):
@@ -330,8 +331,9 @@ def accumulate_data(unique_station_sensor,data,date_filter):
                     data_id = (row[0],row[3])  #(stationid,parameter)
                     date_time = dateutil.parser.parse("{} {}".format(row[1],row[2]))
                     data_value = (datetime.isoformat(date_time),row[4])
-                    #rolled_up_data.setdefault(data_id, []).append(data_value)
-                    rolled_up_data.setdefault(data_id, {}).setdefault('values',[]).append(data_value)
+                    if last_date != date_time:
+                        last_date = date_time
+                        rolled_up_data.setdefault(data_id, {}).setdefault('values',[]).append(data_value)
     for k,v in rolled_up_data.items():
         count = len(v['values'])
         rolled_up_data[k]['count']=count
