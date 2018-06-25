@@ -16,6 +16,7 @@ sqlalchemy = "*"
 records = "*"
 flask-marshmallow = "*"
 marshmallow-sqlalchemy = "*"
+"psycopg2-binary" = "*"
 
 [dev-packages]
 "flake8" = "*"
