@@ -16,9 +16,11 @@ sqlalchemy = "*"
 records = "*"
 flask-marshmallow = "*"
 marshmallow-sqlalchemy = "*"
+flask-logconfig = "*"
 
 [dev-packages]
 "flake8" = "*"
+pylint = "*"
 
 [requires]
 python_version = "3.6"

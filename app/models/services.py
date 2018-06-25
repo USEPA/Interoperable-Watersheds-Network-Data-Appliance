@@ -12,38 +12,51 @@ class GenericModelService(object):
 
     @property
     def objects(self):
-        return self.model.query.all()
+        return self.model.query.all(), 200
     
     def get(self, id):
         obj = self.model.query.get(id)
         if not obj:
             abort(404, '{0} Entity {1} Not Found'.format(self.name,id))
-        return obj
+        return obj, 200
     
     def create(self, data):
+        validation_errors = self.schema.validate(data, session=session)
+        if len(validation_errors) is not 0:
+            return validation_errors , 400
+
         obj = self.schema.load(data,session=session)
         if len(obj.errors) is 0 or None:
             session.add(obj.data)
             session.commit()
-        return obj
+            
+        return obj , 201
     
     def create_all(self, data, use_bulk=None):
+        validation_errors = self.schema.validate(data,session=session,many=True)
+        if len(validation_errors) is not 0:
+            return validation_errors, 400
+
         collection = self.schema.load(data, session=session, many=True).data
         if use_bulk is True:
             session.bulk_save_objects(collection)
         else:
             session.add_all(collection)
         session.commit()
-        return collection
+        return collection, 201
 
     def update(self, id, data):
         obj = self.model.query.get(id)
         if not obj:
             abort(404, '{0} Entity {1} Not Found'.format(self.name,id))
 
+        validation_errors = self.schema.validate(data, session=session)
+        if len(validation_errors) is not 0:
+            return validation_errors, 400
+        
         obj = self.schema.load(data, session=session, instance=obj, partial=True)
         session.commit()
-        return obj
+        return obj.data, 202
     
     def delete(self, id):
         obj = self.model.query.get(id)
@@ -51,7 +64,7 @@ class GenericModelService(object):
             abort(404, '{0} Entity {1} Not Found'.format(self.name,id))
         session.delete(obj)
         session.commit()
-        
+        return {}, 204
 
 sensors_service = GenericModelService(sensors.Sensors,schemas.SensorSchema(),'Sensor')
 parameter_service = GenericModelService(domains.Parameters, schemas.ParameterSchema(), 'Parameter')

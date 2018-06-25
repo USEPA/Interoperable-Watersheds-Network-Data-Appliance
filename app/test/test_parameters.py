@@ -39,7 +39,7 @@ class ParametersAPITest(ApiIntegrationTestCase):
     
     def test_put_one(self):
         result = self.client.put('/parameters/80040',json={"parameter_name": 'biscuit'})
-        self.assertEqual(result.status_code, 200, msg="Expected 200 OK")
+        self.assertEqual(result.status_code, 202, msg="Expected 202 Entity Successfully Updated")
         result = self.client.get('/parameters/80040')
         self.assertEqual(result.json['parameter_name'], 'biscuit', msg="Expected updated parameter_name value to be 'biscuit'")
         result = self.client.put('/parameters/123098124')

@@ -59,7 +59,7 @@ class SensorCollection(Resource):
     @api.marshal_with(sensor_model)
     def post(self):
         """Creates a sensor"""
-        return service.create(api.payload), 201
+        return service.create(api.payload)
 
 
 @api.route('/<int:id>')
@@ -84,5 +84,4 @@ class Sensor(Resource):
     @api.doc('delete_sensor')
     def delete(self, id):
         """Deletes a sensor given its id"""
-        service.delete(id)
-        return {}, 204
+        return service.delete(id)

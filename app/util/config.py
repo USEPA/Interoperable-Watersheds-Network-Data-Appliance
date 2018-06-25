@@ -1,7 +1,7 @@
 import os
 import logging
 from logging.config import dictConfig
-
+from flask_logconfig import LogConfig
 basedir = os.path.abspath(os.path.dirname(__file__))
 logdir = basedir+'/../logs'
 
@@ -16,7 +16,7 @@ class DevConfig(AppConfig):
     SQLALCHEMY_ECHO = True
     SQLALCHEMY_DATABASE_URI = 'postgres://sos:sensors@localhost:5432/ingest'
     MAX_LOG_BYTES = 1024 * 1024
-    dictConfig({
+    LOGCONFIG = {
         'version': 1,
         'formatters': {
             'default': {
@@ -39,16 +39,28 @@ class DevConfig(AppConfig):
         },
         'loggers': {
             'sqlalchemy' : {
-                'handlers' : ['file'],
+                'handlers' : ['file','console'],
                 'level' : 'DEBUG',
                 'propagate' : True,
+            },
+            'api' : {
+                'handlers' : ['file', 'console'],
+                'level' : 'DEBUG',
+                'propagate' : True
+            },
+            'werkzeug' : {
+                'handlers' : ['file','console'],
+                'level' : 'DEBUG',
+                'propagate' : True
             }
         },
         'root' : {
             'level' : 'INFO',
             'handlers' : ['console']
         }
-    })
+    }
+
+    LOGCONFIG_QUEUE = ['root', 'api']
 
 
 
@@ -63,7 +75,7 @@ class ProdConfig(AppConfig):
     SQLALCHEMY_DATABASE_URI = 'postgres://sos:sensors@database:5432/ingest'
     SQLALCHEMY_ECHO = False
     MAX_LOG_BYTES = 1024 * 1024
-    dictConfig({
+    LOGCONFIG = {
         'version': 1,
         'formatters': {
             'default': {
@@ -72,12 +84,12 @@ class ProdConfig(AppConfig):
         },
         'handlers': {
             'console': {
-                'level': 'INFO',
+                'level': 'DEBUG',
                 'class': 'logging.StreamHandler',
                 'formatter': 'default'
             },
             'file': {
-                'level': 'INFO',
+                'level': 'DEBUG',
                 'class': 'logging.handlers.RotatingFileHandler',
                 'filename': os.path.join(logdir, 'flask.log'),
                 'formatter': 'default',
@@ -86,16 +98,28 @@ class ProdConfig(AppConfig):
         },
         'loggers': {
             'sqlalchemy' : {
-                'handlers' : ['file'],
-                'level' : 'INFO',
+                'handlers' : ['file','console'],
+                'level' : 'DEBUG',
                 'propagate' : True,
+            },
+            'api' : {
+                'handlers' : ['file', 'console'],
+                'level' : 'DEBUG',
+                'propagate' : True
+            },
+            'werkzeug' : {
+                'handlers' : ['file','console'],
+                'level' : 'DEBUG',
+                'propagate' : True
             }
         },
         'root' : {
             'level' : 'INFO',
             'handlers' : ['console']
         }
-    })
+    }
+
+    LOGCONFIG_QUEUE = ['root', 'api']
 
 
 config_by_name = dict(

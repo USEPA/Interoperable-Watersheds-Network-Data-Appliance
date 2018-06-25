@@ -39,7 +39,7 @@ class unitsAPITest(ApiIntegrationTestCase):
     
     def test_put_one(self):
         result = self.client.put('/units/1',json={"unit_name": 'biscuit'})
-        self.assertEqual(result.status_code, 200, msg="Expected 200 OK")
+        self.assertEqual(result.status_code, 202, msg="Expected 202 Entity successfully updated")
         result = self.client.get('/units/1')
         self.assertEqual(result.json['unit_name'], 'biscuit', msg="Expected updated unit_name value to be 'biscuit'")
         result = self.client.put('/units/123098124')

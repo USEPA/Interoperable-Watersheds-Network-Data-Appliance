@@ -22,7 +22,7 @@ class ParameterCollection(Resource):
     @api.marshal_with(parameter_model)
     def post(self):
         """Creates a Parameter"""
-        return service.create(api.payload), 201
+        return service.create(api.payload)
 
 
 @api.route('/<int:id>')
@@ -46,6 +46,6 @@ class Parameter(Resource):
     @api.doc('delete_Parameter')
     def delete(self, id):
         """Deletes a Parameter given its id"""
-        service.delete(id)
-        return {}, 204
+
+        return service.delete(id)
 

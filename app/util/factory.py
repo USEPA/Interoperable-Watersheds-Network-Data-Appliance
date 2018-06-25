@@ -1,20 +1,17 @@
-from flask import Flask
+import flask 
 from flask_cors import CORS
 import json
 import os
-import logging
 from api import api
 from models import services, db , ma
 from . import config
-
+from flask_logconfig import LogConfig
 
 def bootstrap_app():
     ''' bootstraps Flask app with appropriate extensions '''
-    app = Flask(__name__)
+    app = flask.Flask(__name__)
     app.config.from_object(config.config_by_name[os.getenv('FLASK_ENV', default='development')])
-    logger = logging.getLogger('werkzeug')
-    handler = logging.handlers.RotatingFileHandler(config.logdir+'/access.log')
-    logger.addHandler(handler)
+    LogConfig(app)
     CORS(app)
     db.init_app(app)
     ma.init_app(app)
@@ -24,7 +21,7 @@ def bootstrap_app():
 
 def bootstrap_test_app():
     ''' bootstraps a test application for integration tests '''
-    app = Flask(__name__)
+    app = flask.Flask(__name__)
     app.config.from_object(config.config_by_name['test'])
     db.init_app(app)
     api.init_app(app)
