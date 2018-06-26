@@ -1,13 +1,17 @@
 from crontab import CronTab
 from sys import argv
+from utils.exception import CronException
 
-def add_to_schedule(sensorid, interval):
-    cmd = '/app/ingest/run.sh ' + str(sensorid) + ' >>/var/log/cron.log 2>&1'
+def add_to_schedule(sensor):
+    cmd = '/app/ingest/run.sh ' + str(sensor.sensor_id) + ' >>/var/log/cron.log 2>&1'
     ingest_cron = CronTab(user=True)
     job  = ingest_cron.new(command=cmd)
-    job.minute.every(interval)
+    job.minute.every(sensor.ingest_frequency)
     job.enable()
-    ingest_cron.write()
+    try:
+        ingest_cron.write()
+    except CronException as err:
+        raise CronException('Error adding to cron', sensor)
 
 if __name__ == "__main__":
     add_to_schedule(argv[1], argv[2])

@@ -67,6 +67,11 @@ class SensorParameterSchema(ma.ModelSchema):
     parameter_id = field_for(domains.Parameters, 'parameter_id', dump_only=False)
     unit_id = field_for(domains.Units, 'unit_id', dump_only=False)
 
+class SensorListSchema(ma.ModelSchema):
+    class Meta:
+        model = sensors.Sensors
+        sqla_session = session
+        fields = ('sensor_id', 'short_name', 'ingest_frequency', 'last_ingest','qc_rules_apply', 'ingest_status')
 
 class SensorSchema(ma.ModelSchema):
     class Meta:

@@ -1,27 +1,13 @@
 from flask_restplus import Namespace, Resource, fields
 from models import services
 from ingest.scheduler import add_to_schedule
+from views.sensors import list_view, parameter_view, detail_view
 service = services.sensors_service
 
 api = Namespace('sensors', 'modify sensors')
 
-sensor_parameter_model = api.model('Sensor Parameters', {
-    'sensor_parameter_id' : fields.Integer(readonly=True),
-    'sensor_id' : fields.Integer,
-    'parameter_id' : fields.Integer,
-    'unit_id' : fields.Integer,
-    'parameter_column_id' : fields.Integer
-})
-
-sensor_list_model = api.model('Sensor List',{
-    'sensor_id' : fields.Integer(readonly=True),
-    'short_name' : fields.String,
-    'ingest_frequency' : fields.Integer,
-    'last_ingest' : fields.DateTime,
-    'qc_rules_apply' : fields.Boolean,
-    'ingest_status' : fields.String
-})
-
+sensor_parameter_model = api.model('Sensor Parameters', parameter_view)
+# sensor_list_model = api.model('Sensor List', list_view)
 sensor_model = api.model('Sensor', {
     'sensor_id': fields.Integer(readonly=True),
     'organization_id': fields.String,
@@ -43,30 +29,25 @@ sensor_model = api.model('Sensor', {
     'timestamp_column_id': fields.Integer,
     'qc_rules_apply': fields.Boolean,
     'active': fields.Boolean,
-    'parameters' : fields.Nested(sensor_parameter_model, allow_null=False, as_list=True)
+    'parameters' : fields.Nested(sensor_parameter_model, as_list=True)
 })
+
+
 
 @api.route('/')
 class SensorCollection(Resource):
 
     @api.doc('list_sensors')
-    @api.marshal_list_with(sensor_list_model)
+    # @api.marshal_list_with(sensor_list_model)
     def get(self):
         """Returns a list of sensors"""
         return service.objects
 
     @api.doc('create_sensor')
     @api.expect(sensor_model)
-    @api.marshal_with(sensor_model)
     def post(self):
         """Creates a sensor"""
-        response = service.create(api.payload)
-        sensor = response[0].data
-        try:
-            add_to_schedule(sensor.sensor_id, sensor.ingest_frequency)
-        except:
-            raise Exception('Error adding sensor')
-        return response
+        return service.create(api.payload)
 
 
 @api.route('/<int:id>')
@@ -75,14 +56,13 @@ class SensorCollection(Resource):
 class Sensor(Resource):
 
     @api.doc('get_sensor')
-    @api.marshal_with(sensor_model)
     def get(self, id):
         """ Fetch a sensor resource given its id"""
         return service.get(id)
 
     @api.doc('edit_sensor')
-    @api.expect(sensor_model)
-    @api.marshal_with(sensor_model)
+    # @api.expect(sensor_model)
+    # @api.marshal_with(sensor_model)
     def put(self, id):
         """Update a sensors data given its id"""
         
