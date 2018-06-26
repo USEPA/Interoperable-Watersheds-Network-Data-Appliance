@@ -14,7 +14,7 @@ class AppConfig(object):
 class DevConfig(AppConfig):
     Debug = True
     SQLALCHEMY_ECHO = True
-    SQLALCHEMY_DATABASE_URI = 'postgres://sos:sensors@database:5432/ingest'
+    SQLALCHEMY_DATABASE_URI = 'postgres://sos:sensors@localhost:5433/ingest'
     MAX_LOG_BYTES = 1024 * 1024
     LOGCONFIG = {
         'version': 1,
@@ -40,7 +40,7 @@ class DevConfig(AppConfig):
         'loggers': {
             'sqlalchemy' : {
                 'handlers' : ['file','console'],
-                'level' : 'DEBUG',
+                'level' : 'WARNING',
                 'propagate' : True,
             },
             'api' : {

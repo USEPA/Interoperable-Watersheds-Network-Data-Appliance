@@ -1,5 +1,6 @@
 from flask_restplus import Namespace, Resource, fields
 from models import services
+from ingest.scheduler import add_to_schedule
 service = services.sensors_service
 
 api = Namespace('sensors', 'modify sensors')
@@ -59,7 +60,13 @@ class SensorCollection(Resource):
     @api.marshal_with(sensor_model)
     def post(self):
         """Creates a sensor"""
-        return service.create(api.payload)
+        response = service.create(api.payload)
+        sensor = response[0].data
+        try:
+            add_to_schedule(sensor.sensor_id, sensor.ingest_frequency)
+        except:
+            raise Exception('Error adding sensor')
+        return response
 
 
 @api.route('/<int:id>')

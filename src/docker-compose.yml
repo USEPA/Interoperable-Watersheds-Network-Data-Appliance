@@ -3,7 +3,7 @@ services:
   api:
     build: .
     container_name: ingest_api_dev
-    command : bash -c "echo $PYTHONPATH && cron && flask run --host=0.0.0.0"
+    command : bash -c "cron && flask run --host=0.0.0.0 --no-debugger --no-reload"
     environment:
       - FLASK_APP=app.app:application
       - FLASK_ENV=development
@@ -15,7 +15,7 @@ services:
       context: ../db
     restart: always
     ports:
-     - 5432:5432
+     - 5433:5432
     volumes:
       - datavol:/var/lib/postgresql/data
     container_name: ingest_data_dev

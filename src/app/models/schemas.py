@@ -73,6 +73,7 @@ class SensorSchema(ma.ModelSchema):
         model = sensors.Sensors
         sqla_session = session
 
+    ingest_frequency = fields.Number(validate=lambda n: 1 <= n <= 60)
     organization_id = field_for(organizations.Organizations,'organization_id', dump_only=False)
     data_qualifier_id = field_for(domains.DataQualifiers,'data_qualifier_id', dump_only=False)
     medium_type_id = field_for(domains.MediumTypes, 'medium_type_id', dump_only=False)

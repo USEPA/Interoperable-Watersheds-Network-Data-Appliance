@@ -2,7 +2,7 @@ from crontab import CronTab
 from sys import argv
 
 def add_to_schedule(sensorid, interval):
-    cmd = '/app/ingest/run.sh ' + sensorid + ' >>/var/log/cron.log 2>&1'
+    cmd = '/app/ingest/run.sh ' + str(sensorid) + ' >>/var/log/cron.log 2>&1'
     ingest_cron = CronTab(user=True)
     job  = ingest_cron.new(command=cmd)
     job.minute.every(interval)
