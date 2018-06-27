@@ -2,15 +2,12 @@ from flask_restplus import Namespace, Resource, fields
 from models import services
 from ingest.scheduler import add_to_schedule
 from docs.sensors import  sensor_parameter_model, sensor_model
+
 service = services.sensors_service
 
 api = Namespace('sensors', 'modify sensors')
 api.models[sensor_parameter_model.name] = sensor_parameter_model
 api.models[sensor_model.name] = sensor_model
-# sensor_parameter_model = api.model('Sensor Parameters', parameter_view)
-# detail_view['parameters'] = fields.Nested(sensor_parameter_model, as_list=True)
-# sensor_model = api.model('Sensor', detail_view)
-
 
 @api.route('/')
 @api.response(422, 'Invalid Sensor Data')

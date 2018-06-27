@@ -1,11 +1,10 @@
 from flask_restplus import Namespace, Resource, fields
 from models import services
-from docs.organizations import quality_check, detail_view
+from docs.organizations import quality_check_model, organization_model
 service = services.organizations_service
 api = Namespace('orgs', 'modify organizations')
-quality_check_model = api.model('Organization Quality Check',quality_check)
-detail_view['quality_checks'] = fields.Nested(quality_check_model, as_list=True)
-organization_model = api.model('Organization', detail_view)
+api.models[quality_check_model.name] = quality_check_model
+api.models[organization_model.name] = organization_model
 
 @api.route('/')
 class OrganizationCollection(Resource):

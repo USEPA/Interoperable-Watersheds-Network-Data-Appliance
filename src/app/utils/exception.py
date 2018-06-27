@@ -1,5 +1,13 @@
-class CronException(Exception):
-    def __init__(self, message, data):
-        super(CronException,self).__init__(message)
+class ErrorResponse(Exception):
+    status_code = 503
+    def __init__(self, message, status_code=None, payload=None):
+        Exception.__init__(self)
+        self.message = message
+        if status_code is not None:
+            self.status_code = status_code
+        self.payload = payload
 
-        self.data = data
+    def to_dict(self):
+        rv = dict(self.payload or ())
+        rv['message'] = self.message
+        return rv
