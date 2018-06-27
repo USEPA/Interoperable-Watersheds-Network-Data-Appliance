@@ -1,25 +1,21 @@
 from flask_restplus import Namespace, Resource, fields
 from models import services
+from docs.domains import parameter_model
 service = services.parameter_service
 api = Namespace('parameters', 'modify parameters')
-parameter_model = api.model('Parameter', {
-    'parameter_id': fields.Integer,
-    'parameter_name' : fields.String
-})
+api.models[parameter_model.name] = parameter_model
 
 
 @api.route('/')
 class ParameterCollection(Resource):
 
     @api.doc('list_paramters')
-    @api.marshal_list_with(parameter_model)
     def get(self):
         """Returns a list of paramters"""
         return service.objects
 
     @api.doc('create_Parameter')
     @api.expect(parameter_model)
-    @api.marshal_with(parameter_model)
     def post(self):
         """Creates a Parameter"""
         return service.create(api.payload)
@@ -31,14 +27,12 @@ class ParameterCollection(Resource):
 class Parameter(Resource):
 
     @api.doc('get_Parameter')
-    @api.marshal_with(parameter_model)
     def get(self, id):
         """ Fetch a Parameter resource given its id"""
         return service.get(id)
 
     @api.doc('edit_Parameter')
     @api.expect(parameter_model)
-    @api.marshal_with(parameter_model)
     def put(self, id):
         """Update a paramters data given its id"""
         return service.update(id, api.payload)

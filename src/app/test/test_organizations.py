@@ -43,7 +43,6 @@ class OrganizationsAPITest(ApiIntegrationTestCase):
         result = self.client.delete('/orgs/doesntexist')
         self.assertEqual(result.status_code, 404, msg='Expected 404 Sensor Not Found')
 
-    
     def test_put_one(self):
         result = self.client.put('/orgs/epa',json={
             "organization_id" : "epa",
@@ -51,6 +50,6 @@ class OrganizationsAPITest(ApiIntegrationTestCase):
         })
         self.assertEqual(result.status_code, 202, msg="Expected 202 Entity Successfully updated")
         result = self.client.get('/orgs/epa')
-        self.assertEqual(result.json['sos_url'], 'wwww.biscuit.com', msg="Expected updated altitude value to be wwww.biscuit.com")
+        self.assertEqual(result.json['sos_url'], 'wwww.biscuit.com', msg="Expected updated sos_url value to be wwww.biscuit.com")
         result = self.client.put('/orgs/doesntexist')
         self.assertEqual(result.status_code, 404, msg='Expected 404 Organization Not Found')

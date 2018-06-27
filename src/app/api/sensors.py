@@ -1,44 +1,22 @@
 from flask_restplus import Namespace, Resource, fields
 from models import services
 from ingest.scheduler import add_to_schedule
-from views.sensors import list_view, parameter_view, detail_view
+from docs.sensors import  sensor_parameter_model, sensor_model
 service = services.sensors_service
 
 api = Namespace('sensors', 'modify sensors')
-
-sensor_parameter_model = api.model('Sensor Parameters', parameter_view)
-# sensor_list_model = api.model('Sensor List', list_view)
-sensor_model = api.model('Sensor', {
-    'sensor_id': fields.Integer(readonly=True),
-    'organization_id': fields.String,
-    'org_sensor_id': fields.String,
-    'data_qualifier_id': fields.Integer,
-    'medium_type_id' : fields.Integer,
-    'short_name': fields.String,
-    'long_name': fields.String,
-    'latitude': fields.Float,
-    'longitude': fields.Float,
-    'altitude': fields.Float,
-    'timezone': fields.String,
-    'ingest_frequency': fields.Integer,
-    'ingest_status': fields.String(readonly=True),
-    'last_ingest': fields.DateTime(readonly=True),
-    'next_ingest': fields.DateTime(readonly=True),
-    'data_url': fields.String,
-    'data_format': fields.Integer,
-    'timestamp_column_id': fields.Integer,
-    'qc_rules_apply': fields.Boolean,
-    'active': fields.Boolean,
-    'parameters' : fields.Nested(sensor_parameter_model, as_list=True)
-})
-
+api.models[sensor_parameter_model.name] = sensor_parameter_model
+api.models[sensor_model.name] = sensor_model
+# sensor_parameter_model = api.model('Sensor Parameters', parameter_view)
+# detail_view['parameters'] = fields.Nested(sensor_parameter_model, as_list=True)
+# sensor_model = api.model('Sensor', detail_view)
 
 
 @api.route('/')
+@api.response(422, 'Invalid Sensor Data')
 class SensorCollection(Resource):
 
     @api.doc('list_sensors')
-    # @api.marshal_list_with(sensor_list_model)
     def get(self):
         """Returns a list of sensors"""
         return service.objects
@@ -52,6 +30,7 @@ class SensorCollection(Resource):
 
 @api.route('/<int:id>')
 @api.response(404, 'Sensor Not Found')
+@api.response(422, 'Invalid Sensor Data')
 @api.param('id', 'The Sensor Identifier')
 class Sensor(Resource):
 
@@ -61,8 +40,7 @@ class Sensor(Resource):
         return service.get(id)
 
     @api.doc('edit_sensor')
-    # @api.expect(sensor_model)
-    # @api.marshal_with(sensor_model)
+    @api.expect(sensor_model)
     def put(self, id):
         """Update a sensors data given its id"""
         

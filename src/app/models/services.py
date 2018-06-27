@@ -7,16 +7,16 @@ from . import domains , sensors, organizations, session, schemas
 class GenericModelService(object):
     
     
-    def __init__(self, model, schema, list_schema, name):
+    def __init__(self, model, schema, list_schema, name, post_save_hook=None):
         self.model = model
         self.list_schema = list_schema
         self.schema = schema
         self.name = name
+        self.post_save_hook = post_save_hook
 
     @property
     def objects(self):
-        dump = self.list_schema.dump(self.model.query.all())
-        return self._build_response(dump,200)
+        return self.list_schema.jsonify(self.model.query.all(), many=True)
 
     def _save(self, data, many=False, use_bulk=False):
         if many:
@@ -28,54 +28,48 @@ class GenericModelService(object):
             session.add(data)
         session.commit()
         
-    def _build_response(self, response,status_code):
-        
-        return {
-            'data' : response.data,
-            'errors' : response.errors
-        }, status_code
-
-    def _deserialize(self, data, many=False,partial=True,instance=None):
-        return self.schema.load(data,session=session,instance=instance,partial=partial, many=many)
+    def _build_error_response(self, response, status_code):
+        return { 'errors' : response.errors}, status_code
 
     def get(self, id):
-
         obj = self.model.query.get(id)
         if not obj:
             abort(404, '{0} Entity {1} Not Found'.format(self.name,id))
 
-        response = self.schema.dump(obj)
-        return self._build_response(response, 200)
+        return self.schema.jsonify(obj)
     
     def create(self,data):
-
-        obj = self._deserialize(data)
+        obj = self.schema.load(data,session=session)
         if not obj.errors:
             self._save(obj.data)
-            return self._build_response(obj,201)
+            if self.post_save_hook is not None:
+                self.post_save_hook(obj)
+            response = self.schema.dump(obj.data)
+            return response.data, 201
         
-        return self._build_response(obj,422)
-    
-    def create_all(self, data, use_bulk=None):
-        obj = self._deserialize(data,many=True,partial=False)
+        return self._build_error_response(obj, 422)
 
-        if not obj.errors:
-            self._save(obj.data, many=True)
-            return self._build_response(obj,201)
+    def create_all(self,data,use_bulk):
+        collection = self.schema.load(data,session=session,many=True)
+        if not collection.errors:
+            self._save(collection.data, many=True, use_bulk=use_bulk)
+            response = self.schema.dump(collection.data)
+            return response, 201
         
-        return self._build_response(obj,422)
+        return self._build_error_response(collection,422)
 
     def update(self, id, data):
         obj = self.model.query.get(id)
         if not obj:
             abort(404, '{0} Entity {1} Not Found'.format(self.name,id))
 
-        obj = self._deserialize(data, instance=obj, partial=True)
+        obj = self.schema.load(data, instance=obj, partial=True)
         if not obj.errors:
             session.commit()
-            return self._build_response(obj,202)
+            response = self.schema.dump(obj.data)
+            return response.data, 202
         
-        return self._build_response(obj,422)
+        return self._build_error_response(obj, 422)
     
     def delete(self, id):
         obj = self.model.query.get(id)

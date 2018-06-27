@@ -83,3 +83,4 @@ class SensorSchema(ma.ModelSchema):
     data_qualifier_id = field_for(domains.DataQualifiers,'data_qualifier_id', dump_only=False)
     medium_type_id = field_for(domains.MediumTypes, 'medium_type_id', dump_only=False)
     parameters = fields.Nested(SensorParameterSchema, many=True)
+
