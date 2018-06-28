@@ -1,5 +1,5 @@
 from . import domains , sensors, organizations, session
-from ingest.scheduler import add_to_schedule, remove_from_schedule, update_frequency
+from ingest.scheduler import add_to_schedule, remove_from_schedule, update
 from utils.exception import ErrorResponse
 class Service(object):
     
@@ -41,7 +41,7 @@ class Service(object):
         session.commit()
 
 
-sensors_service = Service(sensors.Sensors,add_to_schedule,update_frequency,remove_from_schedule)
+sensors_service = Service(sensors.Sensors,add_to_schedule,update,remove_from_schedule)
 parameter_service = Service(domains.Parameters)
 units_service = Service(domains.Units)
 medium_service = Service(domains.MediumTypes)
