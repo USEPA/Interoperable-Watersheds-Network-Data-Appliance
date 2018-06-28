@@ -55,7 +55,7 @@
 
         var formattedDate = "";
         if (value != null) {
-            var utcDate = value + "Z";
+            var utcDate = value;
             var localDate = new Date(utcDate);
             var tz = moment.tz.guess();
             formattedDate = localDate.toLocaleDateString("en-US") + " " + localDate.toLocaleTimeString("en-US") + " " + moment.tz(tz).format("z");
