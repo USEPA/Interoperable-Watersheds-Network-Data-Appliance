@@ -1,5 +1,7 @@
 FROM kennethreitz/pipenv
-COPY . /app
-RUN apt-get install -y cron logrotate
+COPY ./app /app
+RUN apt-get install -y cron rsyslog logrotate
 COPY ./app/ingest/logrotate.conf /etc/logrotate.d/ingest
+RUN mkdir /app/logs /app/ingest/config /app/ingest/data /app/ingest/debug 
 RUN touch /var/log/cron.log
+RUN ln -s /var/log/cron.log /app/logs/cron.log

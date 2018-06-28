@@ -50,11 +50,10 @@ def remove_from_schedule(sensor):
     ingest_cron.write()
 
 class Sensor:
-    def __init___(self, id, freq):
+    def __init__(self, id, freq):
         self.sensor_id = id
         self.ingest_frequency = freq
         
 if __name__ == "__main__":
-    #add_to_schedule(argv[1], argv[2])
     s  = Sensor(argv[1], argv[2])
-    disable(s)
+    add_to_schedule(s)

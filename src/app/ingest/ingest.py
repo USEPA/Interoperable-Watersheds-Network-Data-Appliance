@@ -644,7 +644,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("sensorid", help="system sensor id")
     args = parser.parse_args()
-    logging.basicConfig(filename="log/{}.log".format(args.sensorid), level=logging.DEBUG, format="%(asctime)s:%(levelname)s:%(message)s")
+    logging.basicConfig(filename="../logs/{}.log".format(args.sensorid), level=logging.DEBUG, format="%(asctime)s:%(levelname)s:%(message)s")
     try:
         process(args.sensorid)
     except Exception as e:
