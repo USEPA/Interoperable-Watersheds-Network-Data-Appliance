@@ -16,20 +16,6 @@ def add_to_schedule(sensor):
     job.enable()
     ingest_cron.write()
 
-def disable(sensor):
-    ingest_cron = CronTab(user=True)
-    jobs = ingest_cron.find_command(CMD.format(str(sensor.sensor_id)))
-    for job in jobs:
-        job.enable(False)
-    ingest_cron.write()
-    
-def enable(sensor):
-    ingest_cron = CronTab(user=True)
-    jobs = ingest_cron.find_command(CMD.format(str(sensor.sensor_id)))
-    for job in jobs:
-        job.enable(True)
-    ingest_cron.write()
-    
 def update_frequency(sensor):
     ingest_cron = CronTab(user=True)
     jobs = ingest_cron.find_command(CMD.format(str(sensor.sensor_id)))
@@ -48,9 +34,9 @@ def update(sensor):
     for job in jobs:
         update_frequency(sensor)
         if str(sensor.active) == 'true':
-            enable(sensor)
+            job.enable(True)
         else:
-            disable(sensor)
+            job.enable(False)
     ingest_cron.write()
     
 def remove_from_schedule(sensor):
@@ -61,10 +47,12 @@ def remove_from_schedule(sensor):
     ingest_cron.write()
 
 class Sensor:
-    def __init__(self, id, freq):
+    def __init__(self, id, freq, act):
         self.sensor_id = id
         self.ingest_frequency = freq
+        self.active = act
         
 if __name__ == "__main__":
-    s  = Sensor(argv[1], argv[2])
-    add_to_schedule(s)
+    s  = Sensor(argv[1], argv[2], argv[3])
+    #add_to_schedule(s)
+    update(s)
