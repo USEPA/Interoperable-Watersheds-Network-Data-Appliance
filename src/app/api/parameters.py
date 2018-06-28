@@ -30,7 +30,7 @@ class ParameterCollection(Resource):
         if not parameter.errors:
             try:
                 parameter = service.create(parameter)
-                response = detail_schema.dump(parameter.data)
+                response = detail_schema.dump(parameter.data).data
                 return response, 201
             except Exception as err:
                 message = 'There was an error saving. Message: '+type(err).__name__+' '+str(err)

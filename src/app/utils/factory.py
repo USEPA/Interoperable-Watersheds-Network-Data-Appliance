@@ -3,7 +3,7 @@ from flask_cors import CORS
 import json
 import os
 from api import api
-from models import services, db , ma
+from models import schemas, db , ma
 from . import config
 from flask_logconfig import LogConfig
 
@@ -33,21 +33,23 @@ def bootstrap_test_app():
 
 # a key value match where a key is matched to a sqlalchemy model object 
 # this is used to generically load data from a json file for tests
-services_dict = {
-    'qualifiers' : services.data_qualifier_service,
-    'actions' : services.quality_check_action_service,
-    'mediums' : services.medium_service,
-    'operands' : services.quality_check_operand_service,
-    'units' : services.units_service,
-    'parameters' : services.parameter_service,
-    'organizations': services.organizations_service,
-    'sensors' : services.sensors_service
+schemas_dict = {
+    'qualifiers' : schemas.DataQualifierSchema(many=True),
+    'actions' : schemas.QualityCheckActionSchema(many=True),
+    'mediums' : schemas.MediumTypeSchema(many=True),
+    'operands' : schemas.QualityCheckOperandSchema(many=True),
+    'units' : schemas.UnitSchema(many=True),
+    'parameters' : schemas.ParameterSchema(many=True),
+    'organizations': schemas.OrganizationSchema(many=True),
+    'sensors' : schemas.SensorSchema(many=True)
 }
 
-def load_model_json( key, data):
+def load_model_json(session, key, data):
     ''' loads an array of dictionaries into the database based on its model class '''
-    service = services_dict[key]
-    service.create_all(data, use_bulk=True)
+    schema = schemas_dict[key]
+    collection = schema.load(data,session=session,many=True)
+    session.bulk_save_objects(collection.data)
+    session.commit()
 
 
 def load_test_data(path):
@@ -56,7 +58,7 @@ def load_test_data(path):
         test_json = test_data.read()
         data = json.loads(test_json)
         for k, v in data.items():
-            load_model_json(k,v)
+            load_model_json(db.session,k,v)
 
 
 def deconstruct_test_app(app):

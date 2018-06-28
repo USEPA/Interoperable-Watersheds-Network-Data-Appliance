@@ -26,7 +26,7 @@ class OrganizationCollection(Resource):
     @api.expect(organization_model)
     def post(self):
         """Creates a organization"""
-        org = detail_schema.load(api.payload,session=session)
+        org = detail_schema.load(api.payload,session=session).data
         if not org.errors:
             try:
                 org = service.create(org)

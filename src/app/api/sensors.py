@@ -32,7 +32,7 @@ class SensorCollection(Resource):
         if not sensor.errors:
             try:
                 sensor = service.create(sensor)
-                response = detail_schema.dump(sensor.data)
+                response = detail_schema.dump(sensor.data).data
                 return response, 201
             except Exception as err:
                 message = 'There was an error saving. Message: '+type(err).__name__+' '+str(err)
@@ -66,7 +66,7 @@ class Sensor(Resource):
         sensor = detail_schema.load(api.payload,instance=sensor, partial=True)
         if not sensor.errors:
             try:
-                service.update()
+                service.update(data=sensor.data)
                 response = detail_schema.dump(sensor.data).data
                 return response, 202
             except Exception as err:
@@ -80,5 +80,9 @@ class Sensor(Resource):
         sensor = service.get(id)
         if not sensor:
             abort(404, 'Sensor {} Not Found'.format(id))
-        service.delete(sensor)
-        return {}, 204
+        try:
+            service.delete(sensor)
+            return {}, 204
+        except Exception as err:
+            message = 'There was an error Deleting, Message: '+type(err).__name__+' '+str(err)
+            raise ErrorResponse(message,500)

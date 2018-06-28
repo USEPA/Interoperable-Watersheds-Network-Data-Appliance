@@ -24,7 +24,7 @@ class UnitCollection(Resource):
     @api.expect(unit_model)
     def post(self):
         """Creates a unit"""
-        unit = detail_schema.load(api.payload,session=session)
+        unit = detail_schema.load(api.payload,session=session).data
         if not unit.errors:
             try:
                 unit = service.create(unit)

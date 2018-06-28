@@ -5,9 +5,9 @@ services:
     container_name: ingest_api_dev
     command : bash -c "cron && flask run --host=0.0.0.0 --no-debugger --no-reload"
     environment:
-      - FLASK_APP=app.app:application
+      - FLASK_APP=app:application
       - FLASK_ENV=development
-      - PYTHONPATH=/app/app
+      - PYTHONPATH=/app
     ports:
       - "5000:5000"
   database:
