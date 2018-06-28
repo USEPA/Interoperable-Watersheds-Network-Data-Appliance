@@ -20,73 +20,64 @@ class Service(object):
 
     @property
     def objects(self):
-        return self.list_schema.jsonify(self.model.query.all(), many=True)
-
-    def _save(self, data, many=False, use_bulk=False):
-        if many:
-            if use_bulk:
-                session.bulk_save_objects(data)
-            else:
-                session.add_all(data)
-        else:
-            session.add(data)
-        session.commit()
-        
-    def _build_error_response(self, response, status_code):
-        return { 'errors' : response.errors}, status_code
-
-    def get(self, id):
-        obj = self.model.query.get(id)
-        if not obj:
-            abort(404, '{0} Entity {1} Not Found'.format(self.name,id))
-
-        return self.schema.jsonify(obj)
+        return self.model.query.all()
     
-    def create(self,data):
-        obj = self.schema.load(data,session=session)
-        if not obj.errors:
-            self._save(obj.data)
-            response = self.schema.dump(obj.data)
-            if self.post_save_hook is not None:
-                try:
-                    self.post_save_hook(obj.data)
-                except:
-                    message = 'Error adding {0} Entity to cron'.format(self.name) 
-                    raise ErrorResponse(message, 500, response.data)
+    # def get(self, id):
+    #     obj = self.model.query.get(id)
+    #     if not obj:
+    #         abort(404, '{0} Entity {1} Not Found'.format(self.name,id))
+
+    #     return self.schema.jsonify(obj)
+    def get(self, id):
+        return self.model.query.get(id)
+
+    def create(self,obj):
+        session.add(obj.data)
+        session.commit()
+        if self.post_save_hook is not None:
+            self.post_save_hook(obj.data)
+        return obj
+
+    # def create(self,data):
+    #     obj = self.schema.load(data,session=session)
+    #     if not obj.errors:
+    #         self._save(obj.data)
+    #         response = self.schema.dump(obj.data)
+    #         if self.post_save_hook is not None:
+    #             try:
+    #                 self.post_save_hook(obj.data)
+    #             except:
+    #                 message = 'Error adding {0} Entity to cron'.format(self.name) 
+    #                 raise ErrorResponse(message, 500, response.data)
             
-            return response.data, 201
+    #         return response.data, 201
         
-        return self._build_error_response(obj, 422)
+    #     return self._build_error_response(obj, 422)
 
     def create_all(self,data,use_bulk):
         collection = self.schema.load(data,session=session,many=True)
-        if not collection.errors:
-            self._save(collection.data, many=True, use_bulk=use_bulk)
-            response = self.schema.dump(collection.data)
-            return response, 201
-        
-        return self._build_error_response(collection,422)
+        if use_bulk:
+            session.bulk_save_objects(collection.data)
+        else:
+            session.add_all(collection.data)
+        session.commit()
 
-    def update(self, id, data):
-        obj = self.model.query.get(id)
-        if not obj:
-            abort(404, '{0} Entity {1} Not Found'.format(self.name,id))
-
-        obj = self.schema.load(data, instance=obj, partial=True)
-        if not obj.errors:
-            session.commit()
-            response = self.schema.dump(obj.data)
-            return response.data, 202
+    # def create_all(self,data,use_bulk):
+    #     collection = self.schema.load(data,session=session,many=True)
+    #     if not collection.errors:
+    #         self._save(collection.data, many=True, use_bulk=use_bulk)
+    #         response = self.schema.dump(collection.data)
+    #         return response, 201
         
-        return self._build_error_response(obj, 422)
+    #     return self._build_error_response(collection,422)
+
+    def update(self):
+        session.commit()
     
-    def delete(self, id):
-        obj = self.model.query.get(id)
-        if not obj:
-            abort(404, '{0} Entity {1} Not Found'.format(self.name,id))
+    def delete(self, obj):
         session.delete(obj)
         session.commit()
-        return {}, 204
+
 
 sensors_service = Service('Sensor',sensors.Sensors,schemas.SensorSchema(),schemas.SensorListSchema(many=True), add_to_schedule)
 parameter_service = Service('Parameter',domains.Parameters, schemas.ParameterSchema())

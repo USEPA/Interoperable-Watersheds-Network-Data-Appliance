@@ -17,7 +17,5 @@ api.add_namespace(units)
 
 @api.errorhandler
 def default_error_handler(error):
-    response = jsonify(error.to_dict())
-    response.status_code = error.status_code
     return {'message': error.message, 'data' : error.payload}, error.status_code
 

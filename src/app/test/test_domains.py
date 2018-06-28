@@ -10,5 +10,3 @@ class DomainsAPITest(ApiIntegrationTestCase):
         self.assertGreater(len(result.json['actions']),0, msg='Expected actions data to be non-empty')
         self.assertGreater(len(result.json['operands']),0, msg='Expected operands data to be non-empty')
         self.assertGreater(len(result.json['medium_types']),0, msg='Expected medium types data to be non-empty')
-        self.assertGreater(len(result.json['units']),0, msg='Expected units data to be non-empty')
-        
