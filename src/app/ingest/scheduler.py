@@ -42,6 +42,17 @@ def update_frequency(sensor):
             return None
     ingest_cron.write()    
 
+def update(sensor):
+    ingest_cron = CronTab(user=True)
+    jobs = ingest_cron.find_command(CMD.format(str(sensor.sensor_id)))
+    for job in jobs:
+        update_frequency(sensor)
+        if str(sensor.active) == 'true':
+            enable(sensor)
+        else:
+            disable(sensor)
+    ingest_cron.write()
+    
 def remove_from_schedule(sensor):
     ingest_cron = CronTab(user=True)
     jobs = ingest_cron.find_command(CMD.format(str(sensor.sensor_id)))
