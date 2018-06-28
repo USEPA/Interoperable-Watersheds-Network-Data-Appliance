@@ -555,12 +555,16 @@ def pivot(sensorid,qa):
     chunk(sensorid,alldatafile)
 
 def update_status(sensorid, status):
-    db.query("update sensors set ingest_status = :st where sensor_id = :id", st=status, id=sensorid)
+    if status == 'complete':
+        db.query("update sensors set ingest_status = 'ingested' where sensor_id = :id", id=sensorid)
+    if status == 'error':
+        db.query("update sensors set ingest_status = :st where sensor_id = :id", st=status, id=sensorid)
     if status == 'ingested':
-        db.query("update sensors set last_ingest = now(), next_ingest = now() + (20 * interval '1 minute') where sensor_id = :id", id=sensorid)
+        db.query("update sensors set ingest_status = :st, last_ingest = now(), next_ingest = now() + (20 * interval '1 minute') where sensor_id = :id", st = status, id=sensorid)
 
 def submit(filelist, parammeta, stationmeta, unique_offers, station_status):
     total_files = len(filelist)
+    new_records = 0
     for i,nfile in enumerate(filelist):
         #logging.debug("Processing file {} of {}".format(i+1,total_files))
         # Check data for missing templates
@@ -574,6 +578,9 @@ def submit(filelist, parammeta, stationmeta, unique_offers, station_status):
         unique_station_sensor = get_unique_station_sensor(nfile,date_filter)
         #logging.debug('unique_station_sensor:{}'.format(unique_station_sensor))
         rolled_up_data = accumulate_data(unique_station_sensor,nfile,date_filter)
+        new_records - new_records + len(rolled_up_data)
+        if len(rolled_up_data) == 0:
+            logging.debug('No NEW data to ingest')
         for k,v in rolled_up_data.items():
             for i in parammeta:
                 if k[1] == i['fieldName']:
@@ -587,6 +594,7 @@ def submit(filelist, parammeta, stationmeta, unique_offers, station_status):
             data_meta_str = create_data_request(data_template, k,v,status,urnorg,suborg)
             response = push_template(data_meta_str,url)
             #logging.debug("-","Results for {} pushed with response {}".format(k,response.readlines()))
+    return new_records
 
 def remove_old_files(sensorid):
     filelist = glob("data/{}.*".format(sensorid))
@@ -617,7 +625,7 @@ def process(sensorid):
     #Process original data
     pivot(sensorid, None)
     filelist = glob("data/{}.raw.csv.*".format(sensorid))
-    submit(filelist, parammeta, stationmeta, unique_offers, parammeta[0]["status"])
+    new_records = submit(filelist, parammeta, stationmeta, unique_offers, parammeta[0]["status"])
 
     if is_qa_applied(sensorid):
         prelimparammeta = parammeta
@@ -626,6 +634,11 @@ def process(sensorid):
         pivot(sensorid, qa_rules(sensorid))
         prelimfilelist = glob("data/{}.qa.csv.*".format(sensorid))
         submit(prelimfilelist, prelimparammeta, stationmeta, unique_offers, "preliminary")
+    logging.debug('{} records ingested for {}'.format(new_records,sensorid))
+    if new_records > 0:
+        update_status(args.sensorid, 'ingested')
+    else:
+        update_status(args.sensorid, 'complete')
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -634,7 +647,6 @@ if __name__ == "__main__":
     logging.basicConfig(filename="log/{}.log".format(args.sensorid), level=logging.DEBUG, format="%(asctime)s:%(levelname)s:%(message)s")
     try:
         process(args.sensorid)
-        update_status(args.sensorid, 'ingested')
     except Exception as e:
        update_status(args.sensorid, 'error')
        logging.critical(str(e)) 
