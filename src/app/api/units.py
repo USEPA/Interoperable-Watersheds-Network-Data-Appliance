@@ -28,7 +28,7 @@ class UnitCollection(Resource):
         if not unit.errors:
             try:
                 unit = service.create(unit)
-                response = detail_schema.dump(unit.data)
+                response = detail_schema.dump(unit.data).data
                 return response, 201
             except Exception as err:
                 message = 'There was an error saving. Message: '+type(err).__name__+' '+str(err)
