@@ -26,11 +26,11 @@ class OrganizationCollection(Resource):
     @api.expect(organization_model)
     def post(self):
         """Creates a organization"""
-        org = detail_schema.load(api.payload,session=session).data
+        org = detail_schema.load(api.payload,session=session)
         if not org.errors:
             try:
                 org = service.create(org)
-                response = detail_schema.dump(org.data)
+                response = detail_schema.dump(org.data).data
                 return response, 201
             except Exception as err:
                 message = 'There was an error saving. Message: '+type(err).__name__+' '+str(err)
