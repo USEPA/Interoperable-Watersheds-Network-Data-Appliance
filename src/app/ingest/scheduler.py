@@ -13,10 +13,7 @@ def add_to_schedule(sensor):
         job.every(1).hours()
     else:
         return None
-    if str(sensor.active) == 'true':
-        job.enable(True)
-    else:
-        job.enable(False)
+    job.enable(sensor.active)
     ingest_cron.write()
 
 def remove_from_schedule(sensor):
@@ -39,4 +36,3 @@ class Sensor:
 if __name__ == "__main__":
     s  = Sensor(argv[1], argv[2], argv[3])
     add_to_schedule(s)
-    update(s)
