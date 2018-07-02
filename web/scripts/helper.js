@@ -23,13 +23,28 @@
             $("#" + defaults.loadingElementId).show();
         }
 
+        if (verb == "GET") {
+            if (data == {} || data == null) {
+                data = "";
+            }
+        }
+        else {
+            if (data == "" || data == null) {
+                data = {};
+            }
+            else {
+                data = JSON.stringify(data);
+            }
+        }
+
         //make ajax call
         var promise = $.ajax({
             type: verb,
             url: url,
             data: data,
             contentType: "application/json; charset=utf-8",
-            dataType: "json"
+            dataType: "json",
+            crossDomain: true
         });
 
         //success
@@ -63,5 +78,15 @@
             }
         });
 
+    },
+    getQueryStringParams: function () {
+        var params = [], hash;
+        var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+        for (var i = 0; i < hashes.length; i++) {
+            hash = hashes[i].split('=');
+            params.push(hash[0]);
+            params[hash[0]] = hash[1];
+        }
+        return params;
     }
 };

@@ -40,8 +40,7 @@
                                 <div class="col-md-4 text-info">
                                     <b>Organization Identifier:</b>
                                 </div>
-                                <div class="col-md-8">
-                                    epa
+                                <div id="orgParentId" class="col-md-8">
                                 </div>
                             </div>
                         </li>
@@ -50,8 +49,7 @@
                                 <div class="col-md-4 text-info">
                                     <b>Organization Name:</b>
                                 </div>
-                                <div class="col-md-8">
-                                    U.S. EPA
+                                <div id="orgName" class="col-md-8">
                                 </div>
                             </div>
                         </li>
@@ -60,8 +58,7 @@
                                 <div class="col-md-4 text-info">
                                     <b>Organization Subpart Identifier:</b>
                                 </div>
-                                <div class="col-md-8">
-                                    epar10
+                                <div id="orgId" class="col-md-8">
                                 </div>
                             </div>
                         </li>
@@ -70,8 +67,7 @@
                                 <div class="col-md-4 text-info">
                                     <b>Organization URL:</b>
                                 </div>
-                                <div class="col-md-8">
-                                    www.epa.gov
+                                <div id="orgUrl" class="col-md-8">
                                 </div>
                             </div>
                         </li>
@@ -80,8 +76,7 @@
                                 <div class="col-md-4 text-info">
                                     <b>Contact Name:</b>
                                 </div>
-                                <div class="col-md-8">
-                                    Anne Dalrymple
+                                <div id="contactName" class="col-md-8">
                                 </div>
                             </div>
                         </li>
@@ -90,8 +85,7 @@
                                 <div class="col-md-4 text-info">
                                     <b>Contact Email:</b>
                                 </div>
-                                <div class="col-md-8">
-                                    dalrymple.anne@epa.gov
+                                <div id="contactEmail" class="col-md-8">
                                 </div>
                             </div>
                         </li>
@@ -112,7 +106,7 @@
                         </div>
                     </div>
                     <div class="table-responsive-md">
-                        <table id="tblSensors" class="table table-striped" data-locale="en-us" data-search="true">
+                        <table id="sensorsTable" class="table table-striped" data-locale="en-us" data-search="true" data-id-field="sensor_id">
                             <thead>
                                 <tr>
                                     <th class="text-info" data-sortable="true" data-field="sensor_id" data-formatter="ingest.sensorIdFormatter">Sensor Id</th>
@@ -123,8 +117,6 @@
                                     <th class="text-info text-center" data-sortable="true" data-field="ingest_status" data-formatter="ingest.ingestStatusFormatter">Status</th>
                                 </tr>
                             </thead>
-                            <tbody id="tbodySensors">
-                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -143,31 +135,15 @@
                         </div>
                     </div>
                     <div class="table-responsive-md">
-                        <table class="table table-striped" data-pagination="true" data-search="true" data-toggle="table">
+                        <table id="qcTable" class="table table-striped" data-locale="en-us" data-search="true" data-id-field="org_parameter_quality_check_id">
                             <thead>
                                 <tr>
-                                    <th class="text-info" data-sortable="true">Parameter</th>
-                                    <th class="text-info text-center">Operand</th>
-                                    <th class="text-info text-right" data-sortable="true">Threshold</th>
-                                    <th class="text-info text-center" data-sortable="true">Action</th>
+                                    <th class="text-info" data-sortable="true" data-field="parameter_id" data-formatter="ingest.parameterFormatter">Parameter</th><!-- change to parameter_name when available /-->
+                                    <th class="text-info text-center" data-sortable="true" data-field="quality_check_operand_id">Operand</th><!-- change to operand_name when available /-->
+                                    <th class="text-info text-right" data-sortable="true" data-field="threshold">Threshold</th>
+                                    <th class="text-info text-center" data-sortable="true" data-field="quality_check_action_id">Action</th><!-- change to action_name when available /-->
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="text-left">
-                                        <a href="javascript:void(0);" title="Edit">Escherichia coli</a>
-                                    </td>
-                                    <td class="text-center">
-                                        >
-                                    </td>
-                                    <td class="text-right">
-                                        5000
-                                    </td>
-                                    <td class="text-center">
-                                        Discard
-                                    </td>
-                                </tr>
-                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -267,12 +243,12 @@
                                                     <label for="sensorTimeZone"><i class="fas fa-asterisk fa-xs"></i> Timezone</label>
                                                     <select id="sensorTimeZone" class="custom-select" required="required">
                                                         <option value="">Select sensor's timezone</option>
-                                                        <option value="Pacific/Honolulu">(GMT-10:00) Hawaii</option>
-                                                        <option value="US/Alaska">(GMT-09:00) Alaska</option>
-                                                        <option value="America/Los_Angeles">(GMT-08:00) Pacific Time (US & Canada)</option>
-                                                        <option value="US/Mountain">(GMT-07:00) Mountain Time (US & Canada)</option>
-                                                        <option value="US/Central">(GMT-06:00) Central Time (US & Canada)</option>
-                                                        <option value="US/Eastern">(GMT-05:00) Eastern Time (US & Canada)</option>
+                                                        <option value="(GMT-10:00) Hawaii">(GMT-10:00) Hawaii</option>
+                                                        <option value="(GMT-09:00) Alaska">(GMT-09:00) Alaska</option>
+                                                        <option value="(GMT-08:00) Pacific Time (US & Canada)">(GMT-08:00) Pacific Time (US & Canada)</option>
+                                                        <option value="(GMT-07:00) Mountain Time (US & Canada)">(GMT-07:00) Mountain Time (US & Canada)</option>
+                                                        <option value="(GMT-06:00) Central Time (US & Canada)">(GMT-06:00) Central Time (US & Canada)</option>
+                                                        <option value="(GMT-05:00) Eastern Time (US & Canada)">(GMT-05:00) Eastern Time (US & Canada)</option>
                                                     </select>
                                                     <div class="invalid-feedback">
                                                         Please select the sensor's timezone.
@@ -401,27 +377,13 @@
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <div class="table-responsive-md">
-                                                    <table class="table table-striped" data-toggle="table">
+                                                    <table class="table table-striped" data-locale="en-us" data-search="true" data-id-field="sensor_parameter_id">
                                                         <thead>
                                                             <tr>
-                                                                <th class="text-info" data-sortable="true">Parameter</th>
-                                                                <th class="text-info text-center" data-sortable="true">Data Column</th>
+                                                                <th class="text-info" data-sortable="true" data-field="parameter_id">Parameter</th>
+                                                                <th class="text-info text-center" data-sortable="true" data-field="parameter_column_id">Data Column</th>
                                                             </tr>
                                                         </thead>
-                                                        <tbody>
-                                                            <tr>
-                                                                <td class="text-left">Colored dissolved organic matter (CDOM)</td>
-                                                                <td class="text-center">
-                                                                    C
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td class="text-left">Dissolved Oxygen</td>
-                                                                <td class="text-center">
-                                                                    F
-                                                                </td>
-                                                            </tr>
-                                                        </tbody>
                                                     </table>
                                                 </div>
                                             </div>
@@ -587,6 +549,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.17/moment-timezone-with-data.min.js" type="text/javascript"></script>
         <!-- Local -->
         <script src="scripts/helper.js" language="javascript" type="text/javascript"></script>
+        <script src="scripts/config.js" language="javascript" type="text/javascript"></script>
         <script src="scripts/ingest.js" language="javascript" type="text/javascript"></script>
 
         <!-- /scripts -->
