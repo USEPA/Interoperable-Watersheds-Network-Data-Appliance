@@ -1,15 +1,14 @@
 version: "3.6"
 services:
   api:
-    build: .
+    build: ./src
     container_name: ingest_api
     command : bash -c "cron && gunicorn --bind 0.0.0.0:8000 app"
     environment:
       - FLASK_ENV=production
+      - PYTHONPATH=/app
     ports:
       - 8000:8000
-    volumes:
-      - ./app:/code
   database:
     build: ./db
     restart: always
