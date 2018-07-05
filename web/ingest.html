@@ -20,7 +20,11 @@
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css" type="text/css">
         <!-- Local -->
         <link rel="stylesheet" href="styles/loading.css" type="text/css">
-
+        <style type="text/css">
+            td.link {
+                width:40px;
+            }
+        </style>
         <!-- /styles -->
 
     </head>
@@ -109,7 +113,9 @@
                         <table id="sensorsTable" class="table table-striped" data-locale="en-us" data-search="true" data-id-field="sensor_id">
                             <thead>
                                 <tr>
-                                    <th class="text-info" data-sortable="true" data-field="sensor_id" data-formatter="ingest.sensorIdFormatter">Sensor Id</th>
+                                    <th class="text-info text-center link" data-sortable="false" data-field="sensor_id" data-formatter="ingest.sensorEditFormatter">&nbsp;</th>
+                                    <th class="text-info text-center link" data-sortable="false" data-field="sensor_id" data-formatter="ingest.sensorDeleteFormatter">&nbsp;</th>
+                                    <th class="text-info" data-sortable="true" data-field="sensor_id">Sensor Id</th>
                                     <th class="text-info" data-sortable="true" data-field="short_name">Sensor Name</th>
                                     <th class="text-info text-right" data-sortable="true" data-field="ingest_frequency">Ingest Frequency</th>
                                     <th class="text-info" data-sortable="true" data-field="last_ingest" data-formatter="ingest.dateFormatter">Last Ingested</th>
@@ -138,10 +144,15 @@
                         <table id="qcTable" class="table table-striped" data-locale="en-us" data-search="true" data-id-field="org_parameter_quality_check_id">
                             <thead>
                                 <tr>
-                                    <th class="text-info" data-sortable="true" data-field="parameter_id" data-formatter="ingest.parameterFormatter">Parameter</th><!-- change to parameter_name when available /-->
-                                    <th class="text-info text-center" data-sortable="true" data-field="quality_check_operand_id">Operand</th><!-- change to operand_name when available /-->
+                                    <th class="text-info text-center link" data-sortable="false" data-field="org_parameter_quality_check_id" data-formatter="ingest.qcEditFormatter">&nbsp;</th>
+                                    <th class="text-info text-center link" data-sortable="false" data-field="org_parameter_quality_check_id" data-formatter="ingest.qcDeleteFormatter">&nbsp;</th>
+                                    <th class="text-info" data-sortable="false" data-field="parameter_id" data-visible="false">Parameter ID</th>
+                                    <th class="text-info" data-sortable="true" data-field="parameter_name">Parameter</th>
+                                    <th class="text-info text-center" data-sortable="false" data-field="quality_check_operand_id" data-visible="false">Operand ID</th>
+                                    <th class="text-info text-center" data-sortable="true" data-field="quality_check_operand_name">Operand</th>
                                     <th class="text-info text-right" data-sortable="true" data-field="threshold">Threshold</th>
-                                    <th class="text-info text-center" data-sortable="true" data-field="quality_check_action_id">Action</th><!-- change to action_name when available /-->
+                                    <th class="text-info text-center" data-sortable="false" data-field="quality_check_action_id" data-visible="false">Action ID</th>
+                                    <th class="text-info text-center" data-sortable="true" data-field="quality_check_action_name">Action</th>
                                 </tr>
                             </thead>
                         </table>
@@ -152,15 +163,15 @@
 
             <!-- sensor form -->
             <div id="sensorModal" class="modal fade" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-lg" role="document">
+                <form class="modal-dialog modal-lg" role="form" action="javascript:ingest.saveSensor();">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">Add Sensor</h5>
+                            <h5 id="sensorModalTitle" class="modal-title"></h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
-                        <div class="modal-body needs-validation">
+                        <div class="modal-body">
                             <div class="container-fluid">
 
                                 <ul id="sensorModalTabs" class="nav nav-tabs" role="tablist">
@@ -177,7 +188,7 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label for="sendorId"><i class="fas fa-asterisk fa-xs"></i> Sensor ID</label>
+                                                    <label for="sensorId"><i class="fas fa-asterisk fa-xs"></i> Sensor ID</label>
                                                     <input id="sensorId" type="text" class="form-control" placeholder="Enter sensor ID" required="required">
                                                     <div class="invalid-feedback">
                                                         Please enter the sensor ID.
@@ -205,12 +216,23 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="sensorMediumType"><i class="fas fa-asterisk fa-xs"></i> Medium type</label>
+                                                    <select id="sensorMediumType" class="custom-select" required="required"></select>
+                                                    <div class="invalid-feedback">
+                                                        Please enter the sensor's medium type.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <hr />
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="format-group">
                                                     <label for="sensorLatitude"><i class="fas fa-asterisk fa-xs"></i> Latitude (WGS84)</label>
-                                                    <input id="sensorLatitude" type="number" min="-90" max="90" class="form-control" placeholder="Enter sensor's latitude" required="required">
+                                                    <input id="sensorLatitude" type="number" min="-90" max="90" step="any" class="form-control" placeholder="Enter sensor's latitude" required="required">
                                                     <div class="invalid-feedback">
                                                         Please enter the sensor's latitude.
                                                     </div>
@@ -219,7 +241,7 @@
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="sensorLongitude"><i class="fas fa-asterisk fa-xs"></i> Longitude (WGS84)</label>
-                                                    <input id="sensorLongitude" type="number" min="-180" max="180" class="form-control" placeholder="Enter sensor's longitude" required="required">
+                                                    <input id="sensorLongitude" type="number" min="-180" max="180" step="any" class="form-control" placeholder="Enter sensor's longitude" required="required">
                                                     <div class="invalid-feedback">
                                                         Please enter the sensor's longitude.
                                                     </div>
@@ -282,10 +304,6 @@
                                                 <div class="form-group">
                                                     <label for="sensorQuality"><i class="fas fa-asterisk fa-xs"></i> Data Quality</label>
                                                     <select id="sensorQuality" class="custom-select" required="required">
-                                                        <option value="">Select data quality</option>
-                                                        <option value="raw">Raw</option>
-                                                        <option value="prelim">Preliminary</option>
-                                                        <option value="final">Final</option>
                                                     </select>
                                                     <div class="invalid-feedback">
                                                         Please select the data quality.
@@ -296,8 +314,8 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label for="sensorResultTimeStamp"><i class="fas fa-asterisk fa-xs"></i> Timestamp Data Column</label>
-                                                    <input id="sensorResultTimeStamp" class="form-control" placeholder="Enter timestamp data column" required="required">
+                                                    <label for="sensorTimestampColumn"><i class="fas fa-asterisk fa-xs"></i> Timestamp Data Column</label>
+                                                    <input id="sensorTimestampColumn" class="form-control" placeholder="Enter timestamp data column" required="required">
                                                     <div class="invalid-feedback">
                                                         Please enter the timestamp data column.
                                                     </div>
@@ -315,72 +333,40 @@
                                             <div class="col-md-12">
                                                 <h5>Parameter Data Columns</h5>
                                             </div>
-                                            <div class="col-md-6">
-                                                
-                                            </div>
                                         </div>
                                         <div class="row">
-                                            <div class="col-md-5">
+                                            <div class="col-md-8">
                                                 <div class="form-group">
                                                     <label for="sensorParameter"><i class="fas fa-asterisk fa-xs"></i> Parameter</label>
                                                     <select id="sensorParameter" class="custom-select">
-                                                        <option value="">Select a parameter</option>
-                                                        <option value="79443">Barometric pressure</option>
-                                                        <option value="42916">Chlorophyll</option>
-                                                        <option value="80020">Colored dissolved organic matter (CDOM)</option>
-                                                        <option value="79261">Conductivity</option>
-                                                        <option value="79607">Depth</option>
-                                                        <option value="78485">Dew point</option>
-                                                        <option value="80050">Discharge</option>
-                                                        <option value="101627">Dissolved Oxygen</option>
-                                                        <option value="79586">Dissolved Oxygen Saturation</option>
-                                                        <option value="79950">Escherichia coli</option>
-                                                        <option value="79771">Flow</option>
-                                                        <option value="79749">Flow, Total</option>
-                                                        <option value="98309">Height, gage</option>
-                                                        <option value="35904">Inorganic Nitrogen (Nitrate and Nitrite)</option>
-                                                        <option value="80000">Lake or reservoir water surface elevation</option>
-                                                        <option value="79002">Light, photosynthetic active radiation (PAR)</option>
-                                                        <option value="79940">Nitrate as N</option>
-                                                        <option value="79933">Oxidation Reduction Potential (ORP)</option>
-                                                        <option value="79960">Petroleum Hydrocarbons</option>
-                                                        <option value="78426">pH</option>
-                                                        <option value="80010">Phosphate as P</option>
-                                                        <option value="80040">Phosphate as PO4</option>
-                                                        <option value="79970">Phycocyanin</option>
-                                                        <option value="79912">Precipitation</option>
-                                                        <option value="79436">Relative humidity</option>
-                                                        <option value="79990">Reservoir storage</option>
-                                                        <option value="79345">Salinity</option>
-                                                        <option value="79373">Specific Conductance</option>
-                                                        <option value="79287">Stream Velocity</option>
-                                                        <option value="79246">Temperature, air</option>
-                                                        <option value="79281">Temperature, Water</option>
-                                                        <option value="79980">Total Suspended Solids</option>
-                                                        <option value="79196">Turbidity</option>
-                                                        <option value="79648">Wind direction</option>
-                                                        <option value="78471">Wind gust, peak</option>
-                                                        <option value="79645">Wind velocity</option>
                                                     </select>
                                                 </div>
                                             </div>
-                                            <div class="col-md-5">
+                                            <div class="col-md-4">
                                                 <div class="form-group">
-                                                    <label for="sensorParameterColumn"><i class="fas fa-asterisk fa-xs"></i> Data Column</label>
-                                                    <input id="sensorParameterColumn" class="form-control" placeholder="Enter the parameter's data column">
+                                                    <label for="sensorUnit"><i class="fas fa-asterisk fa-xs"></i> Unit</label>
+                                                    <select id="sensorUnit" class="custom-select"></select>
                                                 </div>
                                             </div>
-                                            <div class="col-md-2 text-right" style="padding-top:32px">
-                                                <button type="button" class="btn btn-info">Add</button>
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label for="sensorParameterColumn"><i class="fas fa-asterisk fa-xs"></i> Data Column</label>
+                                                    <input id="sensorParameterColumn" class="form-control" placeholder="Enter the column number">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-8 text-right" style="padding-top:32px">
+                                                <button id="btnAddSensorParameter" type="button" class="btn btn-info">Add</button>
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <div class="table-responsive-md">
-                                                    <table class="table table-striped" data-locale="en-us" data-search="true" data-id-field="sensor_parameter_id">
+                                                    <table id="sensorParametersTable" class="table table-striped" data-locale="en-us" data-search="true" data-id-field="parameter_id">
                                                         <thead>
                                                             <tr>
+                                                                <th class="text-info" data-sortable="false" data-field="sensor_id" data-visible="false">Parameter</th>
                                                                 <th class="text-info" data-sortable="true" data-field="parameter_id">Parameter</th>
+                                                                <th class="text-info" data-sortable="false" data-field="unit_id">Unit</th>
                                                                 <th class="text-info text-center" data-sortable="true" data-field="parameter_column_id">Data Column</th>
                                                             </tr>
                                                         </thead>
@@ -398,19 +384,20 @@
                                 Fields marked with <i class="fas fa-asterisk fa-xs"></i> are required.
                             </div>
                             <div class="col-md-6 text-right">
-                                <button type="button" class="btn btn-info">Save changes</button>
+                                <input id="sensorUid" type="hidden" />
+                                <button type="submit" class="btn btn-info">Save changes</button>
                                 <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
                             </div>
                             
                         </div>
                     </div>
-                </div>
+                </form>
             </div>
             <!-- sensor form -->
 
             <!-- qc form -->
             <div id="qcModal" class="modal fade" tabindex="-1" role="dialog">
-                <div class="modal-dialog" role="document">
+                <form class="modal-dialog" role="form" action="javascript:ingest.saveQc();">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">Quality Control</h5>
@@ -418,50 +405,13 @@
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
-                        <div class="modal-body needs-validation">
+                        <div class="modal-body">
                             <div class="container-fluid">
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group">
                                             <label for="qcParameter"><i class="fas fa-asterisk fa-xs"></i> Parameter</label>
                                             <select id="qcParameter" class="custom-select" required="required">
-                                                <option value="">Select parameter</option>
-                                                <option value="79443">Barometric pressure</option>
-                                                <option value="42916">Chlorophyll</option>
-                                                <option value="80020">Colored dissolved organic matter (CDOM)</option>
-                                                <option value="79261">Conductivity</option>
-                                                <option value="79607">Depth</option>
-                                                <option value="78485">Dew point</option>
-                                                <option value="80050">Discharge</option>
-                                                <option value="101627">Dissolved Oxygen</option>
-                                                <option value="79586">Dissolved Oxygen Saturation</option>
-                                                <option value="79950">Escherichia coli</option>
-                                                <option value="79771">Flow</option>
-                                                <option value="79749">Flow, Total</option>
-                                                <option value="98309">Height, gage</option>
-                                                <option value="35904">Inorganic Nitrogen (Nitrate and Nitrite)</option>
-                                                <option value="80000">Lake or reservoir water surface elevation</option>
-                                                <option value="79002">Light, photosynthetic active radiation (PAR)</option>
-                                                <option value="79940">Nitrate as N</option>
-                                                <option value="79933">Oxidation Reduction Potential (ORP)</option>
-                                                <option value="79960">Petroleum Hydrocarbons</option>
-                                                <option value="78426">pH</option>
-                                                <option value="80010">Phosphate as P</option>
-                                                <option value="80040">Phosphate as PO4</option>
-                                                <option value="79970">Phycocyanin</option>
-                                                <option value="79912">Precipitation</option>
-                                                <option value="79436">Relative humidity</option>
-                                                <option value="79990">Reservoir storage</option>
-                                                <option value="79345">Salinity</option>
-                                                <option value="79373">Specific Conductance</option>
-                                                <option value="79287">Stream Velocity</option>
-                                                <option value="79246">Temperature, air</option>
-                                                <option value="79281">Temperature, Water</option>
-                                                <option value="79980">Total Suspended Solids</option>
-                                                <option value="79196">Turbidity</option>
-                                                <option value="79648">Wind direction</option>
-                                                <option value="78471">Wind gust, peak</option>
-                                                <option value="79645">Wind velocity</option>
                                             </select>
                                             <div class="invalid-feedback">
                                                 Please select a parameter.
@@ -474,12 +424,6 @@
                                         <div class="form-group">
                                             <label for="qcOperand"><i class="fas fa-asterisk fa-xs"></i> Operand</label>
                                             <select id="qcOperand" class="custom-select" required="required">
-                                                <option value="">Select operand</option>
-                                                <option value="eq">=</option>
-                                                <option value="lt"><</option>
-                                                <option value="lteq"><=</option>
-                                                <option value="gt">></option>
-                                                <option value="gteq">>=</option>
                                             </select>
                                             <div class="invalid-feedback">
                                                 Please select an operand.
@@ -501,8 +445,6 @@
                                         <div class="form-group">
                                             <label for="qcAction"><i class="fas fa-asterisk fa-xs"></i> Action</label>
                                             <select id="qcAction" class="custom-select" required="required">
-                                                <option value="">Select action</option>
-                                                <option value="discard">Discard</option>
                                             </select>
                                             <div class="invalid-feedback">
                                                 Please select an action.
@@ -517,14 +459,15 @@
                                         Fields marked with <i class="fas fa-asterisk fa-xs"></i> are required.
                                     </div>
                                     <div class="col-md-12 text-right mr-0">
-                                        <button type="button" class="btn btn-info">Save changes</button>
+                                        <input id="qcUid" type="hidden" />
+                                        <button type="submit" class="btn btn-info">Save changes</button>
                                         <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </form>
 
             </div>
             <!-- qc form -->
@@ -550,6 +493,7 @@
         <!-- Local -->
         <script src="scripts/helper.js" language="javascript" type="text/javascript"></script>
         <script src="scripts/config.js" language="javascript" type="text/javascript"></script>
+        <script src="scripts/lookup.js" language="javascript" type="text/javascript"></script>
         <script src="scripts/ingest.js" language="javascript" type="text/javascript"></script>
 
         <!-- /scripts -->

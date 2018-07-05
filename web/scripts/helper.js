@@ -8,7 +8,7 @@
             loadingElementId: "loading", //string - the id of the loading spinner element
             logErrorToConsole: true, //boolean - log errors to the browser console
             showFriendlyErrorAlert: false, //boolean - show a friendly error alert
-            showVerboseErrorAlert: false //boolean - show a verbose error alert
+            showVerboseErrorAlert: true //boolean - show a verbose error alert
         }
 
         if (options) {
