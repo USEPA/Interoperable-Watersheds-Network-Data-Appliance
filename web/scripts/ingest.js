@@ -83,6 +83,7 @@
 
             //initialize title and sensor parameters table when sensor form is shown
             $("#sensorModal").on("show.bs.modal", function () {
+                $("#sensorModalTabs a[href='#sensorInfoTabContent']").tab("show");
                 if ($("#sensorUid").val() == "") {
                     $("#sensorModalTitle").text("Add Sensor");
                     $("#sensorParametersTable").bootstrapTable();
@@ -93,7 +94,7 @@
             });
 
             //initialize title when QC form is shown
-            $("#qcModal").on("shown.bs.modal", function () {
+            $("#qcModal").on("show.bs.modal", function () {
                 if ($("#qcUid").val() == "") {
                     $("#qcModalTitle").text("Add Quality Control");
                 }
