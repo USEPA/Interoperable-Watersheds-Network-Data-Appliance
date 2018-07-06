@@ -82,14 +82,14 @@
             });
 
             //initialize title and sensor parameters table when sensor form is shown
-            $("#sensorModal").on("shown.bs.modal", function () {
+            $("#sensorModal").on("show.bs.modal", function () {
                 if ($("#sensorUid").val() == "") {
                     $("#sensorModalTitle").text("Add Sensor");
+                    $("#sensorParametersTable").bootstrapTable();
                 }
                 else {
                     $("#sensorModalTitle").text("Edit Sensor");
                 }
-                $("#sensorParametersTable").bootstrapTable();
             });
 
             //initialize title when QC form is shown
@@ -322,7 +322,7 @@
                 sensorParametersData[index].unit_name = unitData[0].unit_name;
             });
             //*** end temporary ***
-            
+            $("#sensorParametersTable").bootstrapTable();
             $("#sensorParametersTable").bootstrapTable("load", sensorParametersData);
             $("#sensorModal").modal("show");
         });
