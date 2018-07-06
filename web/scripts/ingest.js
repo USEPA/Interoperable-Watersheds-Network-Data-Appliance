@@ -22,6 +22,7 @@
             domains: config.serviceUrl + "domains/"
         },
         text: {
+            orgNotFound: "Organization not found. Unable to load data.",
             selectParameter: "Select a parameter",
             selectUnit: "Select a unit",
             selectMediumType: "Select the medium type",
@@ -31,8 +32,12 @@
             selectOperand: "Select an operand",
             selectAction: "Select an action",
             confirm: "Are you sure?",
+            addSensor: "Add Sensor",
+            editSensor: "Edit Sensor",
             sensorSaved: "Sensor saved!",
             sensorDeleted: "Sensor deleted!",
+            addQc: "Add Quality Control",
+            editQc: "Edit Quality Control",
             qcSaved: "Quality control saved!",
             qcDeleted: "Quality control deleted!"
         }
@@ -85,21 +90,21 @@
             $("#sensorModal").on("show.bs.modal", function () {
                 $("#sensorModalTabs a[href='#sensorInfoTabContent']").tab("show");
                 if ($("#sensorUid").val() == "") {
-                    $("#sensorModalTitle").text("Add Sensor");
+                    $("#sensorModalTitle").text(g.text.addSensor);
                     $("#sensorParametersTable").bootstrapTable();
                 }
                 else {
-                    $("#sensorModalTitle").text("Edit Sensor");
+                    $("#sensorModalTitle").text(g.text.editSensor);
                 }
             });
 
             //initialize title when QC form is shown
             $("#qcModal").on("show.bs.modal", function () {
                 if ($("#qcUid").val() == "") {
-                    $("#qcModalTitle").text("Add Quality Control");
+                    $("#qcModalTitle").text(g.text.addQc);
                 }
                 else {
-                    $("#qcModalTitle").text("Edit Quality Control");
+                    $("#qcModalTitle").text(g.text.editQc);
                 }
             });
 
@@ -114,7 +119,7 @@
             });
         }
         else {
-            //redirect?
+            alert(g.text.orgNotFound);
         }
     },
     callOrgService(callback) {
