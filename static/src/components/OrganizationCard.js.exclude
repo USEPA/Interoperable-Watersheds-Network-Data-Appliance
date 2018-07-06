@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
+import Card from './Card';
 
 export default class OrganizationCard extends Component {
     constructor(props){
         super(props)
     }
     render(){
+
+
         const orgId = this.props.orgData ? this.props.orgData.orgId : ''
         const orgName = this.props.orgData ? this.props.orgData.orgName : ''
         const orgSubId  = this.props.orgData ? this.props.orgData.orgSubId : ''
@@ -14,6 +17,7 @@ export default class OrganizationCard extends Component {
         console.log(orgId)
         console.log(this.props.orgData)
         return (
+            
             <div className="card mt-5">
                 <div className="card-body">
                     <h3 className="card-title">Organization</h3>

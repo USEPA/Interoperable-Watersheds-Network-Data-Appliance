@@ -1,0 +1,11 @@
+﻿{
+    "appTitle": "Interoperable Watersheds Network",
+    "orgSectionTitle": "Organization",
+    "orgIdLabel": "Organization Identifier:",
+    "orgNameLabel": "Organization Name:",
+    "orgSubIdLabel": "Organization Subpart Identifier:",
+    "orgUrlLabel": "Organization URL:",
+    "contactNameLabel": "Contact Name:",
+    "contactEmailLabel": "Contact Email:"
+
+}
