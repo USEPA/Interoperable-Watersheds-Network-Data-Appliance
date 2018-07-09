@@ -4,6 +4,8 @@ services:
     build: .
     container_name: ingest_api_dev
     command : bash -c "cron && flask run --host=0.0.0.0 --no-debugger --no-reload"
+    volumes:
+      - ./app:/app
     environment:
       - FLASK_APP=app:application
       - FLASK_ENV=development
