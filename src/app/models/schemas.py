@@ -73,7 +73,7 @@ class SensorListSchema(ma.ModelSchema):
     class Meta:
         model = sensors.Sensors
         sqla_session = session
-        fields = ('sensor_id', 'short_name', 'ingest_frequency', 'last_ingest','qc_rules_apply', 'ingest_status')
+        fields = ('sensor_id', 'short_name','org_sensor_id', 'ingest_frequency', 'last_ingest','qc_rules_apply', 'ingest_status')
 
 class SensorSchema(ma.ModelSchema):
     class Meta:
