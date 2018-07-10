@@ -17,3 +17,7 @@ class OrganizationParameterQualityChecks(db.Model):
     quality_check_operand_id = db.Column(db.Integer, db.ForeignKey('quality_check_operands.quality_check_operand_id'))
     quality_check_action_id = db.Column(db.Integer, db.ForeignKey('quality_check_actions.quality_check_action_id'))
     threshold = db.Column(db.Float)
+
+    quality_check_action_name = db.relationship('QualityCheckActions', lazy='joined')
+    quality_check_operand_name = db.relationship('QualityCheckOperands', lazy='joined')
+    parameter_name = db.relationship('Parameters', lazy='joined')

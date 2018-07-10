@@ -49,6 +49,19 @@ class OrganizationParameterQualityCheckSchema(ma.ModelSchema):
     quality_check_operand_id = field_for(domains.QualityCheckOperands, 'quality_check_operand_id', dump_only=False)
     quality_check_action_id = field_for(domains.QualityCheckActions, 'quality_check_action_id', dump_only=False)
 
+    parameter_name = fields.Nested(ParameterSchema, only=('parameter_name'))
+    quality_check_operand_name = fields.Nested(QualityCheckOperandSchema, only=('quality_check_operand_name'))
+    quality_check_action_name = fields.Nested(QualityCheckActionSchema, only=('quality_check_action_name'))
+
+class OrgParamQualCheckListSchema(ma.ModelSchema):
+    class Meta:
+        model = organizations.OrganizationParameterQualityChecks
+        sqla_session = session
+    
+    organization_id = field_for(organizations.Organizations, 'organization_id', dump_only=False)
+    parameter_name = fields.Nested(ParameterSchema, only=('parameter_name'))
+    quality_check_operand_name = fields.Nested(QualityCheckOperandSchema, only=('quality_check_operand_name'))
+    quality_check_action_name = fields.Nested(QualityCheckActionSchema, only=('quality_check_action_name'))
 
 class OrganizationSchema(ma.ModelSchema):
     class Meta:
@@ -56,7 +69,7 @@ class OrganizationSchema(ma.ModelSchema):
         sqla_session = session
 
     quality_checks = fields.Nested(OrganizationParameterQualityCheckSchema,many=True)
-
+    
 class SensorParameterSchema(ma.ModelSchema):
     class Meta:
         model = sensors.SensorParameters
