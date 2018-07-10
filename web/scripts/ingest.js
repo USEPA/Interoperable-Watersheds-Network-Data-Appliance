@@ -1,8 +1,10 @@
 ﻿var ingest = {
     globals: {
+        //global variables
         variables: {
             orgId: null
         },
+        //html templates for bootstrap tables
         templates: {
             yesTemplate: "<i class='fas fa-check'></i>",
             noTemplate: "<i class='fas fa-times'></i>",
@@ -14,6 +16,7 @@
             qcEditTemplate: "<a href='javascript:void(0)' onclick='ingest.showEditQcModal([qc_id]);'><i class='fas fa-edit'></i></a>",
             qcDeleteTemplate: "<a href='javascript:void(0)' onclick='ingest.deleteQc([qc_id]);'><i class='fas fa-trash-alt'></i></a>"
         },
+        //web services
         services: {
             orgs: config.serviceUrl + "orgs/",
             sensors: config.serviceUrl + "sensors/",
@@ -21,7 +24,9 @@
             units: config.serviceUrl + "units/",
             domains: config.serviceUrl + "domains/"
         },
+        //site text
         text: {
+            orgNotFound: "Organization not found. Unable to load data.",
             selectParameter: "Select a parameter",
             selectUnit: "Select a unit",
             selectMediumType: "Select the medium type",
@@ -31,8 +36,12 @@
             selectOperand: "Select an operand",
             selectAction: "Select an action",
             confirm: "Are you sure?",
+            addSensor: "Add Sensor",
+            editSensor: "Edit Sensor",
             sensorSaved: "Sensor saved!",
             sensorDeleted: "Sensor deleted!",
+            addQc: "Add Quality Control",
+            editQc: "Edit Quality Control",
             qcSaved: "Quality control saved!",
             qcDeleted: "Quality control deleted!"
         }
@@ -83,22 +92,23 @@
 
             //initialize title and sensor parameters table when sensor form is shown
             $("#sensorModal").on("show.bs.modal", function () {
+                $("#sensorModalTabs a[href='#sensorInfoTabContent']").tab("show");
                 if ($("#sensorUid").val() == "") {
-                    $("#sensorModalTitle").text("Add Sensor");
+                    $("#sensorModalTitle").text(g.text.addSensor);
                     $("#sensorParametersTable").bootstrapTable();
                 }
                 else {
-                    $("#sensorModalTitle").text("Edit Sensor");
+                    $("#sensorModalTitle").text(g.text.editSensor);
                 }
             });
 
             //initialize title when QC form is shown
-            $("#qcModal").on("shown.bs.modal", function () {
+            $("#qcModal").on("show.bs.modal", function () {
                 if ($("#qcUid").val() == "") {
-                    $("#qcModalTitle").text("Add Quality Control");
+                    $("#qcModalTitle").text(g.text.addQc);
                 }
                 else {
-                    $("#qcModalTitle").text("Edit Quality Control");
+                    $("#qcModalTitle").text(g.text.editQc);
                 }
             });
 
@@ -113,7 +123,8 @@
             });
         }
         else {
-            //redirect?
+            //display alert when no organization ID found in query string
+            alert(g.text.orgNotFound);
         }
     },
     callOrgService(callback) {
@@ -147,7 +158,9 @@
             }
         });
     },
-    loadOrgTable: function(data) {
+    loadOrgTable: function (data) {
+        //load data into organizations table
+
         $("#orgParentId").text(data.parent_organization_id);
         $("#orgName").text(data.name);
         $("#orgId").text(data.organization_id);
@@ -179,6 +192,7 @@
         });
         //*** end temporary ***
 
+        //load QC data into table
         $("#qcTable").bootstrapTable("load", qcData);
     },
     sensorEditFormatter: function (value) {
@@ -306,8 +320,8 @@
             $("#sensorTimestampColumn").val(data.timestamp_column_id);
             $("#sensorApplyQc").prop("checked", data.qc_rules_apply);
 
+            //*** temporary - sensor parameters should be handled through separate services ***
             var sensorParametersData = data.parameters;
-            //*** temporary ***
             //add name fields from lookup data to sensor parameter data in order to display in table
             $.each(data.parameters, function (index, record) {
                 var parameterId = record.parameter_id;
@@ -321,13 +335,17 @@
                 });
                 sensorParametersData[index].unit_name = unitData[0].unit_name;
             });
+            //load data into table
+            $("#sensorParametersTable").bootstrapTable({ data: sensorParametersData });
             //*** end temporary ***
-            $("#sensorParametersTable").bootstrapTable();
-            $("#sensorParametersTable").bootstrapTable("load", sensorParametersData);
+
+            //display sensor modal
             $("#sensorModal").modal("show");
         });
     },
     addSensorParameter: function () {
+        //add a sensor parameter to the sensor parameters table
+
         var me = ingest;
         var g = me.globals;
 
@@ -376,10 +394,13 @@
         $("#sensorParametersTable").bootstrapTable("destroy");
     },
     saveSensor: function () {
+        //save sensor data to database
+
         var me = ingest;
         var g = me.globals;
         var s = g.services;
 
+        //get sensor data from form
         var uid = $("#sensorUid").val();
         
         var data = {};
@@ -403,14 +424,17 @@
 
 
         if (uid != "") {
-            //call sensor update service
+            //UID exists so call sensor update service
             helper.callService(s.sensors + uid, data, "PUT", function (data) {
+                //alert user, hide modal, refresh sensors table data
                 alert(g.text.sensorSaved);
                 $("#sensorModal").modal("hide");
                 me.callSensorsService();
             });
         }
         else {
+            //new sensor
+
             //*** temporary ***
             data.parameters = [];
             //*** end temporary ***
@@ -418,7 +442,7 @@
             //call sensor create service
             helper.callService(s.sensors, data, "POST", function (data) {
 
-                //*** temporary ***
+                //*** temporary - add sensor ID to parameters data after saving sensor, then resave with parameters (not pretty!) ***
                 $("#sensorUid").val(data.sensor_id);
                 data.parameters = $("#sensorParametersTable").bootstrapTable("getData");
                 $.each(data.parameters, function (index, record) {
@@ -443,13 +467,16 @@
         if (confirm(g.text.confirm)) {
             //call sensor delete service
             helper.callService(s.sensors + uid, "", "DELETE", function (data) {
+                //alert user, hide modal, refresh sensors table data
                 alert(g.text.sensorDeleted);
                 $("#sensorModal").modal("hide");
                 me.callSensorsService();
             });
         }
     },
-    showEditQcModal: function(uid) {
+    showEditQcModal: function (uid) {
+        //display QC modal with data from table
+
         var qcData = $("#qcTable").bootstrapTable("getData");
         var rowData = $.grep(qcData, function (record, index) {
             return record.org_parameter_quality_check_id == uid;
@@ -470,10 +497,13 @@
         $("#qcAction").val("");
     },
     saveQc: function () {
+        //save QC data to database
+
         var me = ingest;
         var g = me.globals;
         var s = g.services;
 
+        //get QC data from form
         var uid = $("#qcUid").val();
 
         var data = {};
@@ -485,18 +515,28 @@
         data.threshold = $("#qcThreshold").val();
         data.quality_check_action_id = $("#qcAction").val();
         data.quality_check_action_name = $("#qcAction option:selected").text();
+
+        //*** temporary - QC should be handled through separate services ***
         if (uid != "") {
+            //UID exists so
+
+            //find the table row index and update data in the QC table
             var index = $.map($("#qcTable").bootstrapTable("getData"), function (record, index) {
                 if (record.org_parameter_quality_check_id == uid) {
                     return index;
                 }
             });
             $("#qcTable").bootstrapTable("updateRow", { index: index, row: data });
+            
         }
         else {
+            //new QC
+
+            //create a temp UID so new row can be added to QC table
             data.org_parameter_quality_check_id = Date.now();
             $("#qcTable").bootstrapTable("append", [data]);
         }
+        //get data from table, remove extraneous fields
         var qcData = $("#qcTable").bootstrapTable("getData");
         $.each(qcData, function (index, record) {
             delete record.org_parameter_quality_check_id;
@@ -505,15 +545,20 @@
             delete record.quality_check_action_name;
             record.organization_id = g.variables.orgId;
         });
+
+        //first call org service to retrieve org data
         me.callOrgService(function (data) {
+            //add updated QC data to org data
             data.quality_checks = qcData;
-            //call org update service to update QC data
+            //call org update service to update org data with new QC data (not pretty!)
             helper.callService(s.orgs + g.variables.orgId, data, "PUT", function (data) {
+                //alert user, hide modal, refresh QC table data
                 alert(g.text.qcSaved);
                 $("#qcModal").modal("hide");
                 me.callOrgService(me.loadQcTable(data));
             });
         });
+        //*** end temporary ***
     },
     deleteQc: function (uid) {
         var me = ingest;
@@ -521,7 +566,9 @@
         var s = g.services;
 
         if (confirm(g.text.confirm)) {
-            //update organization data to remove QC record
+
+            //*** temporary - QC should be handled through separate services ***
+            //update QC table data to remove QC record and extraneous fields
             var qcData = $("#qcTable").bootstrapTable("getData");
             var newQcData = $.grep(qcData, function (record, index) {
                 return record.org_parameter_quality_check_id != uid;
@@ -533,15 +580,18 @@
                 delete record.quality_check_action_name;
                 record.organization_id = g.variables.orgId;
             });
+            //first call org service to retrieve org data
             me.callOrgService(function (data) {
                 data.quality_checks = newQcData;
-                //call org update service to update QC data
+                //then call org update service to update QC data without the deleted record (ugly!)
                 helper.callService(s.orgs + g.variables.orgId, data, "PUT", function (data) {
+                    //alert user, hide modal, refresh QC table data
                     alert(g.text.qcDeleted);
                     $("#qcModal").modal("hide");
                     me.callOrgService(me.loadQcTable(data));
                 });
             });
+            //*** end temporary ***
         }
     }
 };
