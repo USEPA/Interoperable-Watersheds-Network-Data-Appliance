@@ -101,10 +101,11 @@ class SensorParameterCollection(Resource):
 
     @api.doc('list sensor parameters by Sensor Identifier')
     def get(self, sensorId):
+        "Lists a specific sensors parameters"
         parameters = param_service.query().filter_by(sensor_id=sensorId).all()
         if not parameters:
             abort(404,'No Parameters Found for Sensor {}'.format(id))
-        response = parameter_list_schema.dump(org.parameters).data
+        response = parameter_list_schema.dump(parameters).data
         return response, 200
     
 
@@ -112,17 +113,17 @@ class SensorParameterCollection(Resource):
     @api.expect(sensor_parameter_model)
     def post(self, sensorId):
         api.payload['sensor_id'] = sensorId
-        qual_check = param_detail_schema.load(api.payload, session=session)
+        parameter = param_detail_schema.load(api.payload, session=session)
         
-        if not qual_check.errors:
+        if not parameter.errors:
             try:
-                qual_check = param_service.create(qual_check)
-                response = param_detail_schema.dump(qual_check.data).data
+                parameter = param_service.create(parameter)
+                response = param_detail_schema.dump(parameter.data).data
                 return response, 201
             except Exception as err:
                 message = 'There was an error saving. Message: '+type(err).__name__+' '+str(err)
                 raise ErrorResponse(message,500,api.payload)
-        return { 'errors': qual_check.errors }, 422
+        return { 'errors': parameter.errors }, 422
 
 
 @api.route('/<string:sensorId>/parameters/<int:id>')
