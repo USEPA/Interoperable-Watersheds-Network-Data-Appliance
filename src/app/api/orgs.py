@@ -89,19 +89,19 @@ qual_list_schema = OrganizationParameterQualityCheckSchema(many=True)
 @api.param('orgId', 'The Organization Identifier')
 class ParameterQualityCheckCollection(Resource):
     
-
     @api.doc('list quality checks by Organization Identifier')
     def get(self, orgId):
-        org = service.get(orgId)
-        if not org:
-            abort(404,'Org {} Not Found'.format(id))
-        response = qual_list_schema.dump(org.quality_checks).data
+        qualchecks = qual_check_service.query().filter_by(organization_id=orgId).all()
+        if not qualchecks:
+            abort(404,'No Parameter Quality Checks found for Organization {} '.format(orgId))
+        response = qual_list_schema.dump(qualchecks).data
         return response, 200
     
 
     @api.doc('create org quality check')
     @api.expect(quality_check_model)
-    def post(self):
+    def post(self, orgId):
+        api.payload['organization_id'] = orgId
         qual_check = qual_detail_schema.load(api.payload, session=session)
         
         if not qual_check.errors:
@@ -115,7 +115,7 @@ class ParameterQualityCheckCollection(Resource):
         return { 'errors': qual_check.errors }, 422
 
 
-@api.route('<string:orgId>/qualitychecks/<int:id>')
+@api.route('/<string:orgId>/qualitychecks/<int:id>')
 @api.response(404, 'Organization Not Found')
 @api.response(404, 'Parameter Quality Check Not Found')
 @api.param('orgId', 'Organization Identifier')
@@ -131,6 +131,7 @@ class ParameterQualityCheck(Resource):
         return response, 200
     
     @api.doc('update parameter quailty check')
+    @api.expect(quality_check_model)
     def put(self, orgId, id):
         qc = qual_check_service.query().filter_by(organization_id=orgId, org_parameter_quality_check_id=id).first()
         if not qc:
@@ -153,5 +154,5 @@ class ParameterQualityCheck(Resource):
         if not qc:
             abort(404, 'Parameter Quality Check {} Not Found for Organization {}'.format(id,orgId))
         
-        service.delete(qc)
+        qual_check_service.delete(qc)
         return {}, 204

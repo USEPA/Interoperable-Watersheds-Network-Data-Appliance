@@ -1,6 +1,6 @@
 from flask_restplus import Namespace, Resource, fields, abort
 from models import services, session
-from models.schemas import SensorSchema, SensorListSchema
+from models.schemas import SensorSchema, SensorListSchema, SensorParameterSchema
 from ingest.scheduler import add_to_schedule
 from docs.sensors import  sensor_parameter_model, sensor_model
 from utils.exception import ErrorResponse
@@ -86,3 +86,83 @@ class Sensor(Resource):
         except Exception as err:
             message = 'There was an error Deleting, Message: '+type(err).__name__+' '+str(err)
             raise ErrorResponse(message,500)
+
+param_service = services.sensor_parameters_service
+
+param_detail_schema = SensorParameterSchema()
+param_list_schema = SensorParameterSchema(many=True)
+
+
+@api.route('/<int:sensorId>/parameters')
+@api.response(404, 'Sensor Not Found')
+@api.param('sensorId', 'The Sensor Identifier')
+class SensorParameterCollection(Resource):
+    
+
+    @api.doc('list sensor parameters by Sensor Identifier')
+    def get(self, sensorId):
+        parameters = param_service.query().filter_by(sensor_id=sensorId).all()
+        if not parameters:
+            abort(404,'No Parameters Found for Sensor {}'.format(id))
+        response = parameter_list_schema.dump(org.parameters).data
+        return response, 200
+    
+
+    @api.doc('create sensor parameter')
+    @api.expect(sensor_parameter_model)
+    def post(self, sensorId):
+        api.payload['sensor_id'] = sensorId
+        qual_check = param_detail_schema.load(api.payload, session=session)
+        
+        if not qual_check.errors:
+            try:
+                qual_check = param_service.create(qual_check)
+                response = param_detail_schema.dump(qual_check.data).data
+                return response, 201
+            except Exception as err:
+                message = 'There was an error saving. Message: '+type(err).__name__+' '+str(err)
+                raise ErrorResponse(message,500,api.payload)
+        return { 'errors': qual_check.errors }, 422
+
+
+@api.route('/<string:sensorId>/parameters/<int:id>')
+@api.response(404, 'Sensor Not Found')
+@api.response(404, 'Parameter Not Found')
+@api.param('sensorId', 'Sensor Identifier')
+@api.param('id', 'Parameter  Identifier')
+class SensorParameter(Resource):
+    
+    @api.doc('get sensor parameter ')
+    def get(self, sensorId, id):
+        parameter = param_service.query().filter_by(sensor_id=sensorId, parameter_id=id).first()
+        if not parameter:
+            abort(404, 'Parameter {} Not Found for Sensor {}'.format(id,sensorId))
+        response = param_detail_schema.dump(parameter).data
+        return response, 200
+    
+    @api.doc('update parameter quailty check')
+    @api.expect(sensor_parameter_model)
+    def put(self, sensorId, id):
+        parameter = param_service.query().filter_by(sensor_id=sensorId, parameter_id=id).first()
+        if not parameter:
+            abort(404, 'Parameter Quality Check {} Not Found for Sensor {}'.format(id,sensorId))
+        
+        parameter = detail_schema.load(api.payload,instance=parameter, partial=True)
+        if not parameter.errors:
+            try:
+                param_service.update()
+                response = param_detail_schema.dump(parameter.data).data
+                return response, 202
+            except Exception as err:
+                message = 'There was an error saving. Message: '+type(err).__name__+' '+str(err)
+                raise ErrorResponse(message,500,api.payload)
+        return {'errors': org.errors}, 422
+
+    @api.doc('delete sensor parameter')
+    def delete(self, sensorId, id):
+        parameter = param_service.query().filter_by(sensor_id=sensorId, parameter_id=id).first()
+        if not parameter:
+            abort(404, 'Parameter Quality Check {} Not Found for Sensor {}'.format(id,sensorId))
+        
+        param_service.delete(parameter)
+        return {}, 204
