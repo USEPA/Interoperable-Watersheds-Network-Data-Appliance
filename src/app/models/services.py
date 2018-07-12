@@ -15,6 +15,8 @@ class Service(object):
     def objects(self):
         return self.model.query.all()
 
+    def query(self):
+        return session.query(self.model)
 
     def get(self, id):
         return self.model.query.get(id)
@@ -42,6 +44,7 @@ class Service(object):
 
 
 sensors_service = Service(sensors.Sensors,add_to_schedule,update,remove_from_schedule)
+sensor_parameters_service = Service(sensors.SensorParameters)
 parameter_service = Service(domains.Parameters)
 units_service = Service(domains.Units)
 medium_service = Service(domains.MediumTypes)
@@ -49,3 +52,4 @@ quality_check_operand_service = Service(domains.QualityCheckOperands)
 quality_check_action_service = Service(domains.QualityCheckActions)
 data_qualifier_service = Service(domains.DataQualifiers)
 organizations_service = Service(organizations.Organizations)
+org_qual_checks_service = Service(organizations.OrganizationParameterQualityChecks)
