@@ -4,7 +4,7 @@ from models.schemas import SensorSchema, SensorListSchema, SensorParameterSchema
 from ingest.scheduler import add_to_schedule
 from docs.sensors import  sensor_parameter_model, sensor_model
 from utils.exception import ErrorResponse
-
+from .auth import token_required
 service = services.sensors_service
 
 detail_schema = SensorSchema()
@@ -18,7 +18,8 @@ api.models[sensor_model.name] = sensor_model
 @api.response(422, 'Invalid Sensor Data')
 class SensorCollection(Resource):
 
-    @api.doc('list_sensors')
+    @api.doc('list_sensors',security='apikey')
+    @token_required
     def get(self):
         """Returns a list of sensors"""
         response = list_schema.dump(service.objects).data
