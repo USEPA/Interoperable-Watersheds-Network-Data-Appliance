@@ -16,11 +16,9 @@ api.models[sensor_model.name] = sensor_model
 
 @api.route('/')
 @api.response(422, 'Invalid Sensor Data')
-@api.response(401, 'Authorization Invalid')
 class SensorCollection(Resource):
 
     @api.doc('list_sensors',security='apikey')
-    @token_required
     def get(self):
         """Returns a list of sensors"""
         response = list_schema.dump(service.objects).data
