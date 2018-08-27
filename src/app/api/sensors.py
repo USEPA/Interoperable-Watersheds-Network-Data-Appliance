@@ -18,7 +18,7 @@ api.models[sensor_model.name] = sensor_model
 @api.response(422, 'Invalid Sensor Data')
 class SensorCollection(Resource):
 
-    @api.doc('list_sensors',security='apikey')
+    @api.doc('list_sensors')
     def get(self):
         """Returns a list of sensors"""
         response = list_schema.dump(service.objects).data
