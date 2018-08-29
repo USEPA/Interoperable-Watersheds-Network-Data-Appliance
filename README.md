@@ -12,3 +12,12 @@ The IWN data appliance is a collection of open source software components for ma
 * Containerization - All the components of the data appliance can be started using docker-compose up.
 
 ![System Diagram](ingest.png)
+
+## Installation
+* Modify configuration as needed:
+	* db/scripts/orgs.csv for organization details loaded into SOS application.
+	* sos/datasource.properties for database connection if not using included PostgreSQL container (such as AWS RDS).
+	* src/app/ingest/ingest.py as above.
+	* web/scripts/config.js for http link to deployed services API.
+* Run docker-compose up
+
