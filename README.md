@@ -15,7 +15,7 @@ The IWN data appliance is a collection of open source software components for ma
 
 ## Installation
 * Modify configuration as needed:
-	* db/scripts/orgs.csv for organization details loaded into SOS application.
+	* sos/configuration.csv for organization details loaded into SOS application. localhost should be changed to the deployment FQDN.
 	* sos/datasource.properties for database connection if not using included PostgreSQL container (such as AWS RDS).
 	* src/app/ingest/ingest.py as above.
 	* web/scripts/config.js for http link to deployed services API.
