@@ -163,7 +163,7 @@
 
             <!-- sensor form -->
             <div id="sensorModal" class="modal fade" tabindex="-1" role="dialog">
-                <form class="modal-dialog modal-lg" role="form" action="javascript:ingest.saveSensor();">
+                <form id="frmSensor" class="modal-dialog modal-lg" role="form" action="javascript:ingest.saveSensor();" novalidate="novalidate">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 id="sensorModalTitle" class="modal-title"></h5>
@@ -315,7 +315,7 @@
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="sensorTimestampColumn"><i class="fas fa-asterisk fa-xs"></i> Timestamp Data Column</label>
-                                                    <input id="sensorTimestampColumn" class="form-control" placeholder="Enter timestamp data column" required="required">
+                                                    <input id="sensorTimestampColumn" type="number" min="0" class="form-control" placeholder="Enter timestamp data column" required="required">
                                                     <div class="invalid-feedback">
                                                         Please enter the timestamp data column.
                                                     </div>
@@ -351,7 +351,7 @@
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label for="sensorParameterColumn"><i class="fas fa-asterisk fa-xs"></i> Data Column</label>
-                                                    <input id="sensorParameterColumn" class="form-control" placeholder="Enter the column number">
+                                                    <input id="sensorParameterColumn" type="number" min="0" class="form-control" placeholder="Enter the column number">
                                                 </div>
                                             </div>
                                             <div class="col-md-8 text-right" style="padding-top:32px">
@@ -364,10 +364,11 @@
                                                     <table id="sensorParametersTable" class="table table-striped" data-locale="en-us" data-search="true" data-id-field="parameter_id">
                                                         <thead>
                                                             <tr>
-                                                                <th class="text-info" data-sortable="false" data-field="sensor_id" data-visible="false">Parameter</th>
-                                                                <th class="text-info" data-sortable="true" data-field="parameter_id">Parameter</th>
-                                                                <th class="text-info" data-sortable="false" data-field="unit_id">Unit</th>
+                                                                <th class="text-info" data-sortable="false" data-field="sensor_id" data-visible="false">Sensor ID</th>
+                                                                <th class="text-info" data-sortable="true" data-field="parameter_name">Parameter</th>
+                                                                <th class="text-info" data-sortable="false" data-field="unit_name">Unit</th>
                                                                 <th class="text-info text-center" data-sortable="true" data-field="parameter_column_id">Data Column</th>
+                                                                <th class="text-info text-center link" data-sortable="false" data-field="parameter_id" data-formatter="ingest.paramDeleteFormatter">Delete</th>
                                                             </tr>
                                                         </thead>
                                                     </table>
@@ -380,8 +381,9 @@
                         </div>
                         <div class="modal-footer">
 
-                            <div class="col-md-6 text-info text-left">
-                                Fields marked with <i class="fas fa-asterisk fa-xs"></i> are required.
+                            <div class="col-md-6 text-left">
+                                <span class="text-info">Fields marked with <i class="fas fa-asterisk fa-xs"></i> are required.</span>
+                                <span id="sensorValidityWarning" class="text-danger"><br />Please ensure all required fields are completed on both tabs.</span>
                             </div>
                             <div class="col-md-6 text-right">
                                 <input id="sensorUid" type="hidden" />

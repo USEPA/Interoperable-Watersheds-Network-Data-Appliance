@@ -13,6 +13,7 @@
             failureTemplate: "<i class='fas fa-arrow-circle-down text-danger'></i>",
             sensorEditTemplate: "<a href='javascript:void(0)' onclick='ingest.showEditSensorModal([sensor_id]);'><i class='fas fa-edit'></i></a>",
             sensorDeleteTemplate: "<a href='javascript:void(0)' onclick='ingest.deleteSensor([sensor_id]);'><i class='fas fa-trash-alt'></i></a>",
+            paramDeleteTemplate: "<input name='grpDeleteParams' type='checkbox' value='[parameter_id]' />",
             qcEditTemplate: "<a href='javascript:void(0)' onclick='ingest.showEditQcModal([qc_id]);'><i class='fas fa-edit'></i></a>",
             qcDeleteTemplate: "<a href='javascript:void(0)' onclick='ingest.deleteQc([qc_id]);'><i class='fas fa-trash-alt'></i></a>"
         },
@@ -92,6 +93,7 @@
 
             //initialize title and sensor parameters table when sensor form is shown
             $("#sensorModal").on("show.bs.modal", function () {
+                $("#sensorValidityWarning").hide();
                 $("#sensorModalTabs a[href='#sensorInfoTabContent']").tab("show");
                 if ($("#sensorUid").val() == "") {
                     $("#sensorModalTitle").text(g.text.addSensor);
@@ -215,6 +217,17 @@
         var t = g.templates;
 
         var link = t.sensorDeleteTemplate.replace("\[sensor_id\]", value);
+        return link;
+    },
+    paramDeleteFormatter: function (value, row) {
+        //boostrap-table formatter for deleting row of params table
+        //creates a link to delete param
+
+        var me = ingest;
+        var g = me.globals;
+        var t = g.templates;
+
+        var link = t.paramDeleteTemplate.replace("\[parameter_id\]", value);
         return link;
     },
     dateFormatter: function (value) {
@@ -352,7 +365,9 @@
         var data = {};
         data.sensor_id = $("#sensorUid").val();
         data.parameter_id = $("#sensorParameter").val();
+        data.parameter_name = $("#sensorParameter :selected").text();
         data.unit_id = $("#sensorUnit").val();
+        data.unit_name = $("#sensorUnit :selected").text();
         data.parameter_column_id = $("#sensorParameterColumn").val();
         if (data.parameter_id == "") {
             alert(g.text.selectParameter);
@@ -400,63 +415,125 @@
         var g = me.globals;
         var s = g.services;
 
-        //get sensor data from form
-        var uid = $("#sensorUid").val();
-        
-        var data = {};
-        data.organization_id = g.variables.orgId;
-        data.org_sensor_id = $("#sensorId").val();
-        data.data_qualifier_id = $("#sensorQuality").val();
-        data.medium_type_id = $("#sensorMediumType").val();
-        data.short_name = $("#sensorNameShort").val();
-        data.long_name = $("#sensorNameLong").val();
-        data.latitude = $("#sensorLatitude").val();
-        data.longitude = $("#sensorLongitude").val();
-        data.altitude - $("#sensorAltitude").val();
-        data.timezone = $("#sensorTimeZone").val();
-        data.ingest_frequency = $("#sensorIngestFrequency").val();
-        data.data_url = $("#sensorUrl").val();
-        data.data_format = 0; //what is this???
-        data.timestamp_column_id = $("#sensorTimestampColumn").val();
-        data.qc_rules_apply = $("#sensorApplyQc").prop("checked");
-        data.active = true; //what is this???
-        data.parameters = $("#sensorParametersTable").bootstrapTable("getData");
+        //check form validity
+        $("#sensorValidityWarning").hide();
+        if ($("#frmSensor")[0].checkValidity()) {
 
+            //get sensor data from form
+            var uid = $("#sensorUid").val();
 
-        if (uid != "") {
-            //UID exists so call sensor update service
-            helper.callService(s.sensors + uid, data, "PUT", function (data) {
-                //alert user, hide modal, refresh sensors table data
-                alert(g.text.sensorSaved);
-                $("#sensorModal").modal("hide");
-                me.callSensorsService();
+            var data = {};
+            data.organization_id = g.variables.orgId;
+            data.org_sensor_id = $("#sensorId").val();
+            data.data_qualifier_id = $("#sensorQuality").val();
+            data.medium_type_id = $("#sensorMediumType").val();
+            data.short_name = $("#sensorNameShort").val();
+            data.long_name = $("#sensorNameLong").val();
+            data.latitude = $("#sensorLatitude").val();
+            data.longitude = $("#sensorLongitude").val();
+            data.altitude - $("#sensorAltitude").val();
+            data.timezone = $("#sensorTimeZone").val();
+            data.ingest_frequency = $("#sensorIngestFrequency").val();
+            data.data_url = $("#sensorUrl").val();
+            data.data_format = 0;
+            data.timestamp_column_id = $("#sensorTimestampColumn").val();
+            data.qc_rules_apply = $("#sensorApplyQc").prop("checked");
+            data.active = true;
+            data.parameters = $("#sensorParametersTable").bootstrapTable("getData");
+
+            //determine parameters to be deleted
+            var deleteParams = [];
+            $.each($("input[name='grpDeleteParams']:checked"), function () {
+                deleteParams.push($(this).val());
             });
-        }
-        else {
-            //new sensor
 
-            //*** temporary ***
-            data.parameters = [];
-            //*** end temporary ***
+            if (uid != "") {
+                //UID exists so call sensor update service
 
-            //call sensor create service
-            helper.callService(s.sensors, data, "POST", function (data) {
+                //remove existing parameters from parameters list
+                var newParams = [];
+                $.each(data.parameters, function () {
+                    var currentParam = this;
 
-                //*** temporary - add sensor ID to parameters data after saving sensor, then resave with parameters (not pretty!) ***
-                $("#sensorUid").val(data.sensor_id);
-                data.parameters = $("#sensorParametersTable").bootstrapTable("getData");
-                $.each(data.parameters, function (index, record) {
-                    record.sensor_id = data.sensor_id;
+                    //remove unnecessary fields
+                    delete currentParam.parameter_name;
+                    delete currentParam.unit_name;
+                    var addToDeleteList = false;
+                    if (currentParam.sensor_parameter_id) {
+                        delete currentParam.sensor_parameter_id;
+                        //if existing parameter, also need to add it to delete list so parameters are updated successfully due to bug in service
+                        //(*** service needs to be fixed so that deletion of existing parameters occurs before insert ***)
+                        addToDeleteList = true;
+                    }
+                    
+                    //only add parameter to new parameters list if not marked for deletion
+                    if (deleteParams.find(function (paramId) { return paramId == currentParam.parameter_id }) == null) {
+                        newParams.push(this);
+                        if (addToDeleteList) {
+                            deleteParams.push(this.parameter_id);
+                        }
+                    }
                 });
-                $("#sensorParametersTable").bootstrapTable("load", data.parameters);
-                me.saveSensor();
+                data.parameters = newParams;
+                //delete parameters if parameters were marked for deletion
+                if (deleteParams.length > 0) {
+                    $.each(deleteParams, function (index) {
+                        var deleteParam = this;
+                        helper.callService(s.sensors + uid + /parameters/ + deleteParam, "{}", "DELETE", function () {
+                            //if this is was the last parameter for deletion then continue with updating sensor
+                            if (index == deleteParams.length - 1) {
+                                helper.callService(s.sensors + uid, data, "PUT", function (data) {
+                                    //alert user, hide modal, refresh sensors table data
+                                    alert(g.text.sensorSaved);
+                                    $("#sensorModal").modal("hide");
+                                    me.callSensorsService();
+                                });
+                            }
+                        });
+                    });
+                }
+                else {
+                    //otherwise just update sensor
+                    helper.callService(s.sensors + uid, data, "PUT", function (data) {
+                        //alert user, hide modal, refresh sensors table data
+                        alert(g.text.sensorSaved);
+                        $("#sensorModal").modal("hide");
+                        me.callSensorsService();
+                    });
+                }
+            }
+            else {
+                //new sensor
+
+                //*** temporary ***
+                data.parameters = [];
                 //*** end temporary ***
 
-                //alert(g.text.sensorSaved);
-                //$("#sensorModal").modal("hide");
-                //reset
-                //me.callSensorsService();
-            });
+                //call sensor create service
+                helper.callService(s.sensors, data, "POST", function (data) {
+
+                    //*** temporary - add sensor ID to parameters data after saving sensor, then resave with parameters (not pretty!) ***
+                    $("#sensorUid").val(data.sensor_id);
+                    data.parameters = $("#sensorParametersTable").bootstrapTable("getData");
+                    var newParams = [];
+                    $.each(data.parameters, function (index) {
+                        var currentParam = this;
+                        //only add parameter to new parameters list if not marked for deletion
+                        if (deleteParams.find(function (paramId) { return paramId == currentParam.parameter_id }) == null) {
+                            currentParam.sensor_id = data.sensor_id;
+                            newParams.push(currentParam)
+                        }
+                    });
+                    data.parameters = newParams;
+                    $("#sensorParametersTable").bootstrapTable("load", data.parameters);
+                    me.saveSensor();
+                    //*** end temporary ***
+
+                });
+            }
+        }
+        else {
+            $("#sensorValidityWarning").show();
         }
     },
     deleteSensor: function (uid) {
