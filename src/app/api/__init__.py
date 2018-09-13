@@ -6,7 +6,14 @@ from .orgs import api as orgs
 from .units import api as units
 from flask import jsonify
 
-api = Api(version='0.1', title='Sensor Ingest API',default='sensors', description='A Restful API for scheduling ingests of remote data sensors')
+authorizations = {
+    'apikey' : {
+        'type' : 'apiKey',
+        'in' : 'header',
+        'name' : 'Authorization'
+    }
+}
+api = Api(version='0.1',authorizations=authorizations, title='Sensor Ingest API',default='sensors', description='A Restful API for scheduling ingests of remote data sensors')
 
 api.add_namespace(sensors)
 api.add_namespace(parameters)

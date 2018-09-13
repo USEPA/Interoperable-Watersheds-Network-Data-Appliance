@@ -23,12 +23,16 @@ class Sensors(db.Model):
     active = db.Column(db.Boolean)
     parameters = db.relationship("SensorParameters", lazy='joined', cascade="save-update, delete, delete-orphan")
 
+
 class SensorParameters(db.Model):
     sensor_parameter_id = db.Column(db.Integer, primary_key=True)
     sensor_id = db.Column(db.Integer, db.ForeignKey('sensors.sensor_id'))
     parameter_id = db.Column(db.Integer, db.ForeignKey('parameters.parameter_id'))
     unit_id = db.Column(db.Integer, db.ForeignKey('units.unit_id'), nullable=False)
     parameter_column_id = db.Column(db.Integer)
+
+    parameter_name = db.relationship('Parameters', lazy='joined')
+    unit_name = db.relationship('Units', lazy='joined')
 
     __tableargs__ = (db.UniqueConstraint('sensor_id','parameter_id'))
     

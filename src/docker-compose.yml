@@ -10,6 +10,7 @@ services:
       - PYTHONPATH=/app
     ports:
       - "5000:5000"
+      - "3000:3000"
   database:
     build: 
       context: ../db

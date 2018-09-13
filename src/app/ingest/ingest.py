@@ -578,7 +578,7 @@ def submit(filelist, parammeta, stationmeta, unique_offers, station_status):
         unique_station_sensor = get_unique_station_sensor(nfile,date_filter)
         #logging.debug('unique_station_sensor:{}'.format(unique_station_sensor))
         rolled_up_data = accumulate_data(unique_station_sensor,nfile,date_filter)
-        new_records - new_records + len(rolled_up_data)
+        new_records = new_records + len(rolled_up_data)
         if len(rolled_up_data) == 0:
             logging.debug('No NEW data to ingest')
         for k,v in rolled_up_data.items():
