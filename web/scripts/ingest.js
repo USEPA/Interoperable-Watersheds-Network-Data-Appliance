@@ -173,27 +173,6 @@
     loadQcTable: function(data) {
         var qcData = data.quality_checks;
 
-        //*** temporary ***
-        //add name fields from lookup data to QC data in order to display in summary table
-        $.each(data.quality_checks, function (index, record) {
-            var parameterId = record.parameter_id;
-            var parameterData = $.grep(lookup.parameters, function (record, index) {
-                return record.parameter_id == parameterId;
-            });
-            qcData[index].parameter_name = parameterData[0].parameter_name;
-            var actionId = record.quality_check_action_id;
-            var actionData = $.grep(lookup.domains.actions, function (record, index) {
-                return record.quality_check_action_id == actionId;
-            });
-            qcData[index].quality_check_action_name = actionData[0].quality_check_action_name;
-            var operandId = record.quality_check_operand_id;
-            var operandData = $.grep(lookup.domains.operands, function (record, index) {
-                return record.quality_check_operand_id == operandId;
-            });
-            qcData[index].quality_check_operand_name = operandData[0].quality_check_operand_name;
-        });
-        //*** end temporary ***
-
         //load QC data into table
         $("#qcTable").bootstrapTable("load", qcData);
     },
@@ -333,24 +312,26 @@
             $("#sensorTimestampColumn").val(data.timestamp_column_id);
             $("#sensorApplyQc").prop("checked", data.qc_rules_apply);
 
-            //*** temporary - sensor parameters should be handled through separate services ***
             var sensorParametersData = data.parameters;
-            //add name fields from lookup data to sensor parameter data in order to display in table
-            $.each(data.parameters, function (index, record) {
-                var parameterId = record.parameter_id;
-                var parameterData = $.grep(lookup.parameters, function (record, index) {
-                    return record.parameter_id == parameterId;
-                });
-                sensorParametersData[index].parameter_name = parameterData[0].parameter_name;
-                var unitId = record.unit_id;
-                var unitData = $.grep(lookup.units, function (record, index) {
-                    return record.unit_id == unitId;
-                });
-                sensorParametersData[index].unit_name = unitData[0].unit_name;
-            });
-            //load data into table
+            //add name fields from parameter data to sensor parameter data in order to display in table
+            //$.each(data.parameters, function (index, record) {
+            //    var parameterId = record.parameter_id;
+            //    var parameterData = $.grep(this.parameters, function (record, index) {
+            //        return record.parameter_id == parameterId;
+            //    });
+            //    if (parameterData != null && parameterData.length > 0) {
+            //        sensorParametersData[index].parameter_name = parameterData[0].parameter_name;
+
+            //    }
+            //    var unitId = record.unit_id;
+            //    var unitData = $.grep(this.units, function (record, index) {
+            //        return record.unit_id == unitId;
+            //    });
+            //    if (unitData != null && unitData.length > 0) {
+            //        sensorParametersData[index].unit_name = unitData[0].unit_name;
+            //    }
+            //});
             $("#sensorParametersTable").bootstrapTable({ data: sensorParametersData });
-            //*** end temporary ***
 
             //display sensor modal
             $("#sensorModal").modal("show");
@@ -461,8 +442,7 @@
                     var addToDeleteList = false;
                     if (currentParam.sensor_parameter_id) {
                         delete currentParam.sensor_parameter_id;
-                        //if existing parameter, also need to add it to delete list so parameters are updated successfully due to bug in service
-                        //(*** service needs to be fixed so that deletion of existing parameters occurs before insert ***)
+                        //if existing parameter, also need to add it to delete list so parameters are updated successfully (*service could be improved here*)
                         addToDeleteList = true;
                     }
                     
@@ -505,14 +485,12 @@
             else {
                 //new sensor
 
-                //*** temporary ***
                 data.parameters = [];
-                //*** end temporary ***
 
                 //call sensor create service
                 helper.callService(s.sensors, data, "POST", function (data) {
 
-                    //*** temporary - add sensor ID to parameters data after saving sensor, then resave with parameters (not pretty!) ***
+                    //add sensor ID to parameters data after saving sensor, then resave with parameters (*service could be improved here*)
                     $("#sensorUid").val(data.sensor_id);
                     data.parameters = $("#sensorParametersTable").bootstrapTable("getData");
                     var newParams = [];
@@ -527,7 +505,6 @@
                     data.parameters = newParams;
                     $("#sensorParametersTable").bootstrapTable("load", data.parameters);
                     me.saveSensor();
-                    //*** end temporary ***
 
                 });
             }
@@ -593,7 +570,7 @@
         data.quality_check_action_id = $("#qcAction").val();
         data.quality_check_action_name = $("#qcAction option:selected").text();
 
-        //*** temporary - QC should be handled through separate services ***
+        //*this is a workaround - ideally QC should be handled through separate services*
         if (uid != "") {
             //UID exists so
 
@@ -635,7 +612,7 @@
                 me.callOrgService(me.loadQcTable(data));
             });
         });
-        //*** end temporary ***
+        //*end workaround*
     },
     deleteQc: function (uid) {
         var me = ingest;
@@ -644,7 +621,7 @@
 
         if (confirm(g.text.confirm)) {
 
-            //*** temporary - QC should be handled through separate services ***
+            //*this is a workaround - ideally QC should be handled through separate services*
             //update QC table data to remove QC record and extraneous fields
             var qcData = $("#qcTable").bootstrapTable("getData");
             var newQcData = $.grep(qcData, function (record, index) {
@@ -668,7 +645,7 @@
                     me.callOrgService(me.loadQcTable(data));
                 });
             });
-            //*** end temporary ***
+            //*end workaround*
         }
     }
 };
