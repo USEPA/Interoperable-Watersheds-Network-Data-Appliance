@@ -313,24 +313,6 @@
             $("#sensorApplyQc").prop("checked", data.qc_rules_apply);
 
             var sensorParametersData = data.parameters;
-            //add name fields from parameter data to sensor parameter data in order to display in table
-            //$.each(data.parameters, function (index, record) {
-            //    var parameterId = record.parameter_id;
-            //    var parameterData = $.grep(this.parameters, function (record, index) {
-            //        return record.parameter_id == parameterId;
-            //    });
-            //    if (parameterData != null && parameterData.length > 0) {
-            //        sensorParametersData[index].parameter_name = parameterData[0].parameter_name;
-
-            //    }
-            //    var unitId = record.unit_id;
-            //    var unitData = $.grep(this.units, function (record, index) {
-            //        return record.unit_id == unitId;
-            //    });
-            //    if (unitData != null && unitData.length > 0) {
-            //        sensorParametersData[index].unit_name = unitData[0].unit_name;
-            //    }
-            //});
             $("#sensorParametersTable").bootstrapTable({ data: sensorParametersData });
 
             //display sensor modal
