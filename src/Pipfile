@@ -20,6 +20,7 @@ flask-logconfig = "*"
 "psycopg2-binary" = "*"
 ptvsd = "==3.0.0"
 gevent = "*"
+greenlet = "*"
 
 [dev-packages]
 "flake8" = "*"
