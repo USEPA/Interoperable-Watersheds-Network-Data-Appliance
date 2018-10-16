@@ -43,7 +43,7 @@ class OrganizationParameterQualityCheckSchema(ma.ModelSchema):
     class Meta:
         model = organizations.OrganizationParameterQualityChecks
         sqla_session = session
-        load_only = ('parameter_name','quality_check_operand_name','quality_check_action_name')
+        # load_only = ('parameter_name','quality_check_operand_name','quality_check_action_name')
 
     organization_id = field_for(organizations.Organizations, 'organization_id', dump_only=False)
     parameter_id = field_for(domains.Parameters, 'parameter_id', dump_only=False)
@@ -75,7 +75,7 @@ class SensorParameterSchema(ma.ModelSchema):
     class Meta:
         model = sensors.SensorParameters
         sqla_session = session
-        load_only=('parameter_name','unit_name')
+        # load_only=('parameter_name','unit_name')
 
     sensor_parameter_id = field_for(sensors.SensorParameters, 'sensor_parameter_id', dump_only=False)
     sensor_id = field_for(sensors.Sensors,'sensor_id', dump_only=False)
