@@ -90,7 +90,7 @@ class Sensor(Resource):
 param_service = services.sensor_parameters_service
 
 param_detail_schema = SensorParameterSchema()
-param_list_schema = SensorParameterSchema(many=True)
+parameter_list_schema = SensorParameterSchema(many=True)
 
 
 @api.route('/<int:sensorId>/parameters')
