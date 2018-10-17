@@ -3,7 +3,7 @@ services:
   api:
     build: ./src
     container_name: ingest_api
-    command : bash -c "cron && gunicorn --bind 0.0.0.0:8000 app"
+    command : bash -c "cron && gunicorn -k gevent --bind 0.0.0.0:8000 app"
     environment:
       - FLASK_ENV=production
       - PYTHONPATH=/app
@@ -30,7 +30,7 @@ services:
       - ./web:/usr/share/nginx/html
       - ./logs:/usr/share/nginx/html/logs
     ports:
-      - 80:80
+      - 8888:80
     container_name: ingest_web
 volumes:
   datavol:
