@@ -1,6 +1,6 @@
 ﻿var config = {
     //*** local ***
-    serviceUrl : "http://ingest_api:8000"
+    serviceUrl : "http://localhost:8000"
     //*** development ***
     //serviceUrl: "http://havasu.rtp.rti.org:8000/"
     //*** production ***

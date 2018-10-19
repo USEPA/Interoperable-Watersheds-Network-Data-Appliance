@@ -30,7 +30,7 @@ services:
       - ./web:/usr/share/nginx/html
       - ./logs:/usr/share/nginx/html/logs
     ports:
-      - 8888:80
+      - 80:80
     container_name: ingest_web
 volumes:
   datavol:
