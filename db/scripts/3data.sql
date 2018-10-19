@@ -34,7 +34,8 @@ INSERT INTO sos.parameters (parameter_id,parameter_name) VALUES
 ,(80040,'Phosphate as PO4')
 ,(79960,'Petroleum Hydrocarbons')
 ,(79980,'Total Suspended Solids')
-,(80050,'Discharge');
+,(80050,'Discharge')
+,(79154,'Biochemical Oxygen Demand');
 INSERT INTO sos.quality_check_actions (quality_check_action_name) VALUES ('Discard');
 INSERT INTO sos.quality_check_operands (quality_check_operand_name) VALUES ('='),('<'),('<='),('>'),('>=');
 INSERT INTO sos.data_qualifiers (data_qualifier_name) VALUES ('Raw'),('Preliminary'),('Final');
