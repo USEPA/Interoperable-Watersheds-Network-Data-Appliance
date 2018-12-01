@@ -1,0 +1,36 @@
+version: "3.6"
+services:
+  api:
+    build: ./src
+    container_name: ingest_api
+    command : bash -c "cron && gunicorn -k gevent --bind 0.0.0.0:8000 app"
+    environment:
+      - FLASK_ENV=production
+      - PYTHONPATH=/app
+    ports:
+      - 8000:8000
+    volumes:
+      - ./logs:/app/logs
+  database:
+    build: ./db
+    restart: always
+    ports:
+      - 5432:5432
+    volumes:
+      - datavol:/var/lib/postgresql/data
+    container_name: ingest_data
+  sos:
+    build: ./sos
+    ports:
+      - 8080:8080
+    container_name: ingest_sos
+  web:
+    image: nginx
+    volumes: 
+      - ./web:/usr/share/nginx/html
+      - ./logs:/usr/share/nginx/html/logs
+    ports:
+      - 80:80
+    container_name: ingest_web
+volumes:
+  datavol:
