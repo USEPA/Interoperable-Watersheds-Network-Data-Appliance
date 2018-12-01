@@ -1,0 +1,426 @@
+{
+  "qualifiers" : [
+    {
+      "data_qualifier_id": 1,
+      "data_qualifier_name": "Raw"
+    },
+    {
+      "data_qualifier_id": 2,
+      "data_qualifier_name": "Preliminary"
+    },
+    {
+      "data_qualifier_id": 3,
+      "data_qualifier_name": "Final"
+    }
+  ],
+  "actions" : [
+    {
+      "quality_check_action_id": 1,
+      "quality_check_action_name": "Discard"
+    }
+  ],
+  "operands" : [
+    {
+      "quality_check_operand_id": 1,
+      "quality_check_operand_name": "="
+    },
+    {
+      "quality_check_operand_id": 2,
+      "quality_check_operand_name": "<"
+    },
+    {
+      "quality_check_operand_id": 3,
+      "quality_check_operand_name": "<="
+    },
+    {
+      "quality_check_operand_id": 4,
+      "quality_check_operand_name": ">"
+    },
+    {
+      "quality_check_operand_id": 5,
+      "quality_check_operand_name": ">="
+    }
+  ],
+  "parameters" : [
+    {
+      "parameter_id": 79281,
+      "parameter_name": "Temperature, Water"
+    },
+    {
+      "parameter_id": 79261,
+      "parameter_name": "Conductivity"
+    },
+    {
+      "parameter_id": 79373,
+      "parameter_name": "Specific Conductance"
+    },
+    {
+      "parameter_id": 79345,
+      "parameter_name": "Salinity"
+    },
+    {
+      "parameter_id": 78426,
+      "parameter_name": "pH"
+    },
+    {
+      "parameter_id": 79933,
+      "parameter_name": "Oxidation Reduction Potential (ORP)"
+    },
+    {
+      "parameter_id": 79607,
+      "parameter_name": "Depth"
+    },
+    {
+      "parameter_id": 101627,
+      "parameter_name": "Dissolved Oxygen"
+    },
+    {
+      "parameter_id": 79586,
+      "parameter_name": "Dissolved Oxygen Saturation"
+    },
+    {
+      "parameter_id": 79196,
+      "parameter_name": "Turbidity"
+    },
+    {
+      "parameter_id": 42916,
+      "parameter_name": "Chlorophyll"
+    },
+    {
+      "parameter_id": 35904,
+      "parameter_name": "Inorganic Nitrogen (Nitrate and Nitrite)"
+    },
+    {
+      "parameter_id": 79246,
+      "parameter_name": "Temperature, air"
+    },
+    {
+      "parameter_id": 79912,
+      "parameter_name": "Precipitation"
+    },
+    {
+      "parameter_id": 79436,
+      "parameter_name": "Relative humidity"
+    },
+    {
+      "parameter_id": 79645,
+      "parameter_name": "Wind velocity"
+    },
+    {
+      "parameter_id": 79648,
+      "parameter_name": "Wind direction"
+    },
+    {
+      "parameter_id": 79443,
+      "parameter_name": "Barometric pressure"
+    },
+    {
+      "parameter_id": 78485,
+      "parameter_name": "Dew point"
+    },
+    {
+      "parameter_id": 78471,
+      "parameter_name": "Wind gust, peak"
+    },
+    {
+      "parameter_id": 79002,
+      "parameter_name": "Light, photosynthetic active radiation (PAR)"
+    },
+    {
+      "parameter_id": 79771,
+      "parameter_name": "Flow"
+    },
+    {
+      "parameter_id": 98309,
+      "parameter_name": "Height, gage"
+    },
+    {
+      "parameter_id": 79287,
+      "parameter_name": "Stream Velocity"
+    },
+    {
+      "parameter_id": 79749,
+      "parameter_name": "Flow, Total"
+    },
+    {
+      "parameter_id": 79940,
+      "parameter_name": "Nitrate as N"
+    },
+    {
+      "parameter_id": 79950,
+      "parameter_name": "Escherichia coli"
+    },
+    {
+      "parameter_id": 79990,
+      "parameter_name": "Reservoir storage"
+    },
+    {
+      "parameter_id": 80000,
+      "parameter_name": "Lake or reservoir water surface elevation"
+    },
+    {
+      "parameter_id": 80010,
+      "parameter_name": "Phosphate as P"
+    },
+    {
+      "parameter_id": 80020,
+      "parameter_name": "Colored dissolved organic matter (CDOM)"
+    },
+    {
+      "parameter_id": 79970,
+      "parameter_name": "Phycocyanin"
+    },
+    {
+      "parameter_id": 80040,
+      "parameter_name": "Phosphate as PO4"
+    },
+    {
+      "parameter_id": 79960,
+      "parameter_name": "Petroleum Hydrocarbons"
+    },
+    {
+      "parameter_id": 79980,
+      "parameter_name": "Total Suspended Solids"
+    },
+    {
+      "parameter_id": 80050,
+      "parameter_name": "Discharge"
+    }
+  ],
+  "mediums" : [
+    {
+      "medium_type_id": 1,
+      "medium_type_name": "River/Stream"
+    }
+  ],
+  "units" : [
+    {
+      "unit_id": 1,
+      "unit_name": "mg/L"
+    },
+    {
+      "unit_id": 2,
+      "unit_name": "MPN/100ML"
+    },
+    {
+      "unit_id": 3,
+      "unit_name": "mg-N/L"
+    },
+    {
+      "unit_id": 4,
+      "unit_name": "DFU"
+    }
+  ],
+  "organizations": [
+    {
+      "organization_id": "epa",
+      "parent_organization_id": "",
+      "name": "U.S. EPA",
+      "url": "www.epa.gov",
+      "contact_name": "Dwane Young",
+      "contact_email": "Young.Dwane@epa.gov",
+      "sos_url": "",
+      "quality_checks" :[
+      {
+        "org_parameter_quality_check_id": 1,
+        "organization_id": "epar10",
+        "parameter_id": 79950,
+        "quality_check_operand_id": 3,
+        "quality_check_action_id": 1,
+        "threshold": 0.1149228928
+      }]
+    },
+    {
+      "organization_id": "epar10",
+      "parent_organization_id": "epa",
+      "name": "U.S. EPA Region 10",
+      "url": "https://www.epa.gov/aboutepa/epa-region-10-pacific-northwest",
+      "contact_name": "Anne Dalrymple",
+      "contact_email": "dalrymple.anne@epa.gov",
+      "sos_url": "http://ingest_sos:8080/52n-sos-webapp/service",
+      "quality_checks" : [
+      {
+        "org_parameter_quality_check_id": 2,
+        "organization_id": "epa",
+        "parameter_id": 79940,
+        "quality_check_operand_id": 1,
+        "quality_check_action_id": 1,
+        "threshold": 0.759075136
+      },
+      {
+        "org_parameter_quality_check_id": 3,
+        "organization_id": "epa",
+        "parameter_id": 79443,
+        "quality_check_operand_id": 4,
+        "quality_check_action_id": 1,
+        "threshold": 0.536484032
+      },
+      {
+        "org_parameter_quality_check_id": 4,
+        "organization_id": "epa",
+        "parameter_id": 80020,
+        "quality_check_operand_id": 4,
+        "quality_check_action_id": 1,
+        "threshold": 0.736236416
+      }]
+    }
+  ],
+  "sensors": [
+    {
+      "sensor_id": 1,
+      "organization_id": "epar10",
+      "org_sensor_id": "213204",
+      "data_qualifier_id": 1,
+      "medium_type_id" : 1,
+      "short_name": "Nooksack@Ferndale",
+      "long_name": "Nooksack@Ferndale",
+      "latitude": 48.838672,
+      "longitude": -122.592769,
+      "altitude": 0,
+      "timezone": "(GMT-08:00) Pacific Time (US & Canada)",
+      "ingest_frequency": 10,
+      "ingest_status": "unknown",
+      "last_ingest": null,
+      "next_ingest": null,
+      "data_url": "http://cdn.zapstechnologies.com/region10/213204-nooksack_at_ferndale.csv",
+      "data_format": 1,
+      "timestamp_column_id": 2,
+      "qc_rules_apply": false,
+      "active": true,
+      "parameters": [
+        {
+          "sensor_parameter_id": 1,
+          "sensor_id": 1,
+          "parameter_id": 79950,
+          "unit_id": 1,
+          "parameter_column_id": 3
+        },
+        {
+          "sensor_parameter_id": 2,
+          "sensor_id": 1,
+          "parameter_id": 79940,
+          "unit_id": 2,
+          "parameter_column_id": 4
+        },
+        {
+          "sensor_parameter_id": 3,
+          "sensor_id": 1,
+          "parameter_id": 79960,
+          "unit_id": 3,
+          "parameter_column_id": 5
+        },
+        {
+          "sensor_parameter_id": 4,
+          "sensor_id": 1,
+          "parameter_id": 79980,
+          "unit_id": 4,
+          "parameter_column_id": 6
+        }
+      ]
+    },
+    {
+      "sensor_id": 2,
+      "organization_id": "epar10",
+      "org_sensor_id": "213205",
+      "data_qualifier_id": 1,
+      "medium_type_id" : 1,
+      "short_name": "Nooksack@Lynden",
+      "long_name": "Nooksack@Lynden",
+      "latitude": 48.936025,
+      "longitude": -122.4416861,
+      "altitude": 0,
+      "timezone": "(GMT-08:00) Pacific Time (US & Canada)",
+      "ingest_frequency": 10,
+      "ingest_status": "unknown",
+      "last_ingest": null,
+      "next_ingest": null,
+      "data_url": "http://cdn.zapstechnologies.com/region10/213205-nooksack_at_lynden.csv",
+      "data_format": 1,
+      "timestamp_column_id": 2,
+      "qc_rules_apply": false,
+      "active": true,
+      "parameters": [
+        {
+          "sensor_parameter_id": 5,
+          "sensor_id": 2,
+          "parameter_id": 79950,
+          "unit_id": 1,
+          "parameter_column_id": 3
+        },
+        {
+          "sensor_parameter_id": 6,
+          "sensor_id": 2,
+          "parameter_id": 79940,
+          "unit_id": 2,
+          "parameter_column_id": 4
+        },
+        {
+          "sensor_parameter_id": 7,
+          "sensor_id": 2,
+          "parameter_id": 79960,
+          "unit_id": 3,
+          "parameter_column_id": 5
+        },
+        {
+          "sensor_parameter_id": 8,
+          "sensor_id": 2,
+          "parameter_id": 79980,
+          "unit_id": 4,
+          "parameter_column_id": 6
+        }
+      ]
+    },
+    {
+      "sensor_id": 3,
+      "organization_id": "epar10",
+      "org_sensor_id": "213206",
+      "data_qualifier_id": 1,
+      "medium_type_id" : 1,
+      "short_name": "Fishtrap@Lynden",
+      "long_name": "Fishtrap@Lynden",
+      "latitude": 48.93538333,
+      "longitude": -122.4802361,
+      "altitude": 0,
+      "timezone": "(GMT-08:00) Pacific Time (US & Canada)",
+      "ingest_frequency": 10,
+      "ingest_status": "unknown",
+      "last_ingest": null,
+      "next_ingest": null,
+      "data_url": "http://cdn.zapstechnologies.com/region10/213206-fishtrap_at_lynden.csv",
+      "data_format": 1,
+      "timestamp_column_id": 2,
+      "qc_rules_apply": false,
+      "active": true,
+      "parameters": [
+        {
+          "sensor_parameter_id": 9,
+          "sensor_id": 3,
+          "parameter_id": 79950,
+          "unit_id": 1,
+          "parameter_column_id": 3
+        },
+        {
+          "sensor_parameter_id": 10,
+          "sensor_id": 3,
+          "parameter_id": 79940,
+          "unit_id": 2,
+          "parameter_column_id": 4
+        },
+        {
+          "sensor_parameter_id": 11,
+          "sensor_id": 3,
+          "parameter_id": 79960,
+          "unit_id": 3,
+          "parameter_column_id": 5
+        },
+        {
+          "sensor_parameter_id": 12,
+          "sensor_id": 3,
+          "parameter_id": 79980,
+          "unit_id": 4,
+          "parameter_column_id": 6
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+flask = "*"
+flask-restplus = "*"
+gunicorn = "*"
+python-dateutil = "*"
+"psycopg2" = "*"
+python-crontab = "*"
+flask-cors = "*"
+flask-sqlalchemy = "*"
+sqlalchemy = "*"
+records = "*"
+flask-marshmallow = "*"
+marshmallow-sqlalchemy = "*"
+flask-logconfig = "*"
+"psycopg2-binary" = "*"
+ptvsd = "==3.0.0"
+gevent = "*"
+greenlet = "*"
+
+[dev-packages]
+"flake8" = "*"
+pylint = "*"
+
+[requires]
+python_version = "3.6"
