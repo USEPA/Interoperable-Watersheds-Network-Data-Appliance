@@ -31,9 +31,8 @@
     <body>
         
         <div class="container">
-            
             <h1>Interoperable Watersheds Network</h1>
-            
+
             <!-- organization section -->
             <div class="card mt-5">
                 <div class="card-body">
@@ -160,6 +159,34 @@
                 </div>
             </div>
             <!-- /qc section -->
+            <!-- admin section -->
+            <div class="card mt-3 mb-5">
+                <div class="card-body" id="adminSection">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h3 class="card-title">Admin Section</h3>
+                        </div>
+                        <div class="col-md-6 text-right">
+                            <input type="button" class="btn btn-info" value="Add" data-toggle="modal" data-target="#adminModal" />
+                        </div>
+                    </div>
+                    <div class="table-responsive-md">
+                        <table id="adminTable" class="table table-striped" data-locale="en-us" data-search="false" data-id-field="id">
+                            <thead>
+                            <tr>
+                                <th class="text-info text-center link" data-sortable="false" data-field="id" data-formatter="ingest.adminEditFormatter"></th>
+                                <th class="text-info text-center link" data-sortable="false" data-field="id" data-formatter="ingest.adminDeleteFormatter"></th>
+                                <th class="text-info text-center" data-sortable="true" data-field="id">ID</th>
+                                <th class="text-info text-center" data-sortable="true" data-field="username">Username</th>
+                                <th class="text-info text-center" data-sortable="true" data-field="email">Email</th>
+
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- /admin section -->
 
             <!-- sensor form -->
             <div id="sensorModal" class="modal fade" tabindex="-1" role="dialog">
@@ -470,11 +497,91 @@
                         </div>
                     </div>
                 </form>
-
+                <div class="tooltip bs-tooltip-top" role="tooltip">
+                    <div class="arrow"></div>
+                    <div class="tooltip-inner">
+                        Some tooltip text!
+                    </div>
+                </div>
             </div>
             <!-- qc form -->
 
+            <!-- Admin form -->
+            <div id="adminModal" class="modal fade" tabindex="-1" role="dialog">
+                <form class="modal-dialog" role="form" action="javascript:ingest.saveAdmin();">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Admin Users</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label for="adminUsername"><i class="fas fa-asterisk fa-xs"></i> Username</label>
+                                            <input id="adminUsername" type="text" class="form-control" required="required"/>
+
+                                            <div class="invalid-feedback">
+                                                Please enter a username.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label for="adminEmail"><i class="fas fa-asterisk fa-xs"></i> Email</label>
+                                            <input id="adminEmail" type="text" class="form-control" required="required"/>
+
+                                            <div class="invalid-feedback">
+                                                Please select an operand.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label for="adminRole"><i class="fas fa-asterisk fa-xs"></i> Role</label>
+                                            <select id="adminRole" class="custom-select" required="required">
+                                                <option value="">Select User Role</option>
+                                                <option value="ADMIN_USER">Administrator</option>
+                                                <option value="STANDARD_USER">Standard User</option>
+                                            </select>
+                                            <div class="invalid-feedback">
+                                                Please select an role.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer flex-wrap pl-0 pr-0">
+                                    <div class="col-md-12 text-info text-left ml-0 mb-2">
+                                        Fields marked with <i class="fas fa-asterisk fa-xs"></i> are required.
+                                    </div>
+                                    <div class="col-md-12 text-right mr-0">
+                                        <input id="adminUid" type="hidden" />
+                                        <button type="submit" class="btn btn-info">Save changes</button>
+                                        <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <div class="tooltip bs-tooltip-top" role="tooltip">
+                    <div class="arrow"></div>
+                    <div class="tooltip-inner">
+                        Some tooltip text!
+                    </div>
+                </div>
+            </div>
+            <!-- Admin form -->
+
             <div id="loading" class="loading"><i class="fas fa-spinner fa-5x fa-pulse"></i></div>
+            <!-- Generated markup by the plugin -->
 
         </div>
         

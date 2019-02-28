@@ -5,6 +5,7 @@ from ingest.scheduler import add_to_schedule
 from docs.sensors import  sensor_parameter_model, sensor_model
 from utils.exception import ErrorResponse
 from .auth import token_required
+
 service = services.sensors_service
 
 detail_schema = SensorSchema()
@@ -18,12 +19,14 @@ api.models[sensor_model.name] = sensor_model
 @api.response(422, 'Invalid Sensor Data')
 class SensorCollection(Resource):
 
+    @token_required
     @api.doc('list_sensors')
     def get(self):
         """Returns a list of sensors"""
         response = list_schema.dump(service.objects).data
         return response, 200
 
+    @token_required
     @api.doc('create_sensor')
     @api.expect(sensor_model)
     def post(self):
@@ -46,6 +49,7 @@ class SensorCollection(Resource):
 @api.param('id', 'The Sensor Identifier')
 class Sensor(Resource):
 
+    @token_required
     @api.doc('get_sensor')
     def get(self, id):
         """ Fetch a sensor resource given its id"""
@@ -55,6 +59,7 @@ class Sensor(Resource):
         response = detail_schema.dump(sensor).data
         return response, 200
 
+    @token_required
     @api.doc('edit_sensor')
     @api.expect(sensor_model)
     def put(self, id):
@@ -74,6 +79,7 @@ class Sensor(Resource):
                 raise ErrorResponse(message,500,api.payload)
         return {'errors': sensor.errors}, 422
 
+    @token_required
     @api.doc('delete_sensor')
     def delete(self, id):
         """Deletes a sensor given its id"""
@@ -97,8 +103,8 @@ parameter_list_schema = SensorParameterSchema(many=True)
 @api.response(404, 'Sensor Not Found')
 @api.param('sensorId', 'The Sensor Identifier')
 class SensorParameterCollection(Resource):
-    
 
+    @token_required
     @api.doc('list sensor parameters by Sensor Identifier')
     def get(self, sensorId):
         "Lists a specific sensors parameters"
@@ -107,8 +113,8 @@ class SensorParameterCollection(Resource):
             abort(404,'No Parameters Found for Sensor {}'.format(id))
         response = parameter_list_schema.dump(parameters).data
         return response, 200
-    
 
+    @token_required
     @api.doc('create sensor parameter')
     @api.expect(sensor_parameter_model)
     def post(self, sensorId):
@@ -132,7 +138,8 @@ class SensorParameterCollection(Resource):
 @api.param('sensorId', 'Sensor Identifier')
 @api.param('id', 'Parameter  Identifier')
 class SensorParameter(Resource):
-    
+
+    @token_required
     @api.doc('get sensor parameter ')
     def get(self, sensorId, id):
         parameter = param_service.query().filter_by(sensor_id=sensorId, parameter_id=id).first()
@@ -140,7 +147,8 @@ class SensorParameter(Resource):
             abort(404, 'Parameter {} Not Found for Sensor {}'.format(id,sensorId))
         response = param_detail_schema.dump(parameter).data
         return response, 200
-    
+
+    @token_required
     @api.doc('update parameter quailty check')
     @api.expect(sensor_parameter_model)
     def put(self, sensorId, id):
@@ -159,6 +167,7 @@ class SensorParameter(Resource):
                 raise ErrorResponse(message,500,api.payload)
         return {'errors': org.errors}, 422
 
+    @token_required
     @api.doc('delete sensor parameter')
     def delete(self, sensorId, id):
         parameter = param_service.query().filter_by(sensor_id=sensorId, parameter_id=id).first()

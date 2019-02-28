@@ -3,6 +3,7 @@ from models import services, organizations, session
 from docs.organizations import quality_check_model, organization_model
 from models.schemas import OrganizationSchema, OrganizationParameterQualityCheckSchema
 from utils.exception import ErrorResponse
+from .auth import token_required
 
 service = services.organizations_service
 
@@ -14,13 +15,15 @@ api.models[organization_model.name] = organization_model
 
 @api.route('/')
 class OrganizationCollection(Resource):
-    
+
+    @token_required
     @api.doc('list_orgs')
     def get(self):
         """Returns a list of organizations"""
         response = list_schema.dump(service.objects).data
         return response, 200
 
+    @token_required
     @api.doc('create_org')
     @api.expect(organization_model)
     def post(self):
@@ -36,11 +39,13 @@ class OrganizationCollection(Resource):
                 raise ErrorResponse(message,500,api.payload)
         return { 'errors': org.errors }, 422
 
+
 @api.route('/<string:id>')
 @api.response(404, 'Organization Not Found')
 @api.param('id', 'The Organization Identifier')
 class Organization(Resource):
 
+    @token_required
     @api.doc('get_organization')
     def get(self, id):
         """ Fetch a organization resource given its id"""
@@ -50,6 +55,7 @@ class Organization(Resource):
         response = detail_schema.dump(org).data
         return response, 200
 
+    @token_required
     @api.doc('edit_organization')
     @api.expect(organization_model)
     def put(self, id):
@@ -69,6 +75,7 @@ class Organization(Resource):
                 raise ErrorResponse(message,500,api.payload)
         return {'errors': org.errors}, 422
 
+    @token_required
     @api.doc('delete_organization')
     def delete(self, id):
         """Deletes a organization given its id"""
@@ -88,7 +95,8 @@ qual_list_schema = OrganizationParameterQualityCheckSchema(many=True)
 @api.response(404, 'Organization Not Found')
 @api.param('orgId', 'The Organization Identifier')
 class ParameterQualityCheckCollection(Resource):
-    
+
+    @token_required
     @api.doc('list quality checks by Organization Identifier')
     def get(self, orgId):
         qualchecks = qual_check_service.query().filter_by(organization_id=orgId).all()
@@ -96,8 +104,8 @@ class ParameterQualityCheckCollection(Resource):
             abort(404,'No Parameter Quality Checks found for Organization {} '.format(orgId))
         response = qual_list_schema.dump(qualchecks).data
         return response, 200
-    
 
+    @token_required
     @api.doc('create org quality check')
     @api.expect(quality_check_model)
     def post(self, orgId):
@@ -121,7 +129,8 @@ class ParameterQualityCheckCollection(Resource):
 @api.param('orgId', 'Organization Identifier')
 @api.param('id', 'Parameter Quality check Identifier')
 class ParameterQualityCheck(Resource):
-    
+
+    @token_required
     @api.doc('get parameter quality check')
     def get(self, orgId, id):
         qc = qual_check_service.query().filter_by(organization_id=orgId, org_parameter_quality_check_id=id).first()
@@ -129,7 +138,8 @@ class ParameterQualityCheck(Resource):
             abort(404, 'Parameter Quality Check {} Not Found for Organization {}'.format(id,orgId))
         response = qual_detail_schema.dump(qc).data
         return response, 200
-    
+
+    @token_required
     @api.doc('update parameter quailty check')
     @api.expect(quality_check_model)
     def put(self, orgId, id):
@@ -148,6 +158,7 @@ class ParameterQualityCheck(Resource):
                 raise ErrorResponse(message,500,api.payload)
         return {'errors': org.errors}, 422
 
+    @token_required
     @api.doc('delete parameter quality check')
     def delete(self, orgId, id):
         qc = qual_check_service.query().filter_by(organization_id=orgId, org_parameter_quality_check_id=id).first()

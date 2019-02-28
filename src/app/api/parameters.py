@@ -3,6 +3,7 @@ from models import services, session
 from docs.domains import parameter_model
 from models.schemas import ParameterSchema
 from utils.exception import ErrorResponse
+from .auth import token_required
 
 detail_schema = ParameterSchema()
 list_schema = ParameterSchema(many=True)
@@ -16,12 +17,14 @@ api.models[parameter_model.name] = parameter_model
 @api.route('/')
 class ParameterCollection(Resource):
 
+    @token_required
     @api.doc('list_paramters')
     def get(self):
         """Returns a list of paramters"""
         response = list_schema.dump(service.objects).data
         return response, 200
 
+    @token_required
     @api.doc('create_Parameter')
     @api.expect(parameter_model)
     def post(self):
@@ -43,6 +46,7 @@ class ParameterCollection(Resource):
 @api.param('id', 'The Parameter Identifier')
 class Parameter(Resource):
 
+    @token_required
     @api.doc('get_Parameter')
     def get(self, id):
         """ Fetch a Parameter resource given its id"""
@@ -52,6 +56,7 @@ class Parameter(Resource):
         response = detail_schema.dump(parameter).data
         return response, 200
 
+    @token_required
     @api.doc('edit_Parameter')
     @api.expect(parameter_model)
     def put(self, id):
@@ -71,6 +76,7 @@ class Parameter(Resource):
                 raise ErrorResponse(message,500,api.payload)
         return {'errors': parameter.errors}, 422
 
+    @token_required
     @api.doc('delete_Parameter')
     def delete(self, id):
         """Deletes a Parameter given its id"""

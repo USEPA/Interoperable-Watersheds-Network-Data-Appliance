@@ -2,6 +2,8 @@ from flask_restplus import Namespace, Resource, fields, Model
 from models import services
 from models.schemas import DataQualifierSchema, QualityCheckActionSchema, QualityCheckOperandSchema, MediumTypeSchema
 from docs import domains
+from .auth import token_required
+
 qualifier_service = services.data_qualifier_service
 actions_service = services.quality_check_action_service
 operands_service = services.quality_check_operand_service
@@ -23,6 +25,7 @@ api.models[domains.domain_model.name] = domains.domain_model
 @api.route('/')
 class Domains(Resource):
 
+    @token_required
     @api.doc('list_domains')
     def get(self):
         domains = dict()

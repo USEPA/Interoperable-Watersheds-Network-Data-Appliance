@@ -1,6 +1,6 @@
 ﻿var helper = {
 
-    callService: function (url, data, verb, successFunction, options) {
+    callService: function (url, data, token, verb, successFunction, options) {
         //makes an AJAX call to a service, handles success and failure
 
         var defaults = {
@@ -37,6 +37,7 @@
             }
         }
 
+
         //make ajax call
         var promise = $.ajax({
             type: verb,
@@ -44,6 +45,9 @@
             data: data,
             contentType: "application/json; charset=utf-8",
             dataType: "json",
+            headers: {
+                "Authorization":"Bearer "+ token
+            },
             crossDomain: true
         });
 

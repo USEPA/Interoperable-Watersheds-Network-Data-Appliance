@@ -3,6 +3,7 @@ from models import services , session
 from models.schemas import UnitSchema
 from docs.domains import unit_model
 from utils.exception import ErrorResponse
+from .auth import token_required
 
 detail_schema = UnitSchema()
 list_schema = UnitSchema(many=True)

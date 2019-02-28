@@ -2,7 +2,10 @@
     globals: {
         //global variables
         variables: {
-            orgId: null
+            token: null,
+            orgId: null,
+            username: null,
+            isadmin: null
         },
         //html templates for bootstrap tables
         templates: {
@@ -15,7 +18,9 @@
             sensorDeleteTemplate: "<a href='javascript:void(0)' onclick='ingest.deleteSensor([sensor_id]);'><i class='fas fa-trash-alt'></i></a>",
             paramDeleteTemplate: "<input name='grpDeleteParams' type='checkbox' value='[parameter_id]' />",
             qcEditTemplate: "<a href='javascript:void(0)' onclick='ingest.showEditQcModal([qc_id]);'><i class='fas fa-edit'></i></a>",
-            qcDeleteTemplate: "<a href='javascript:void(0)' onclick='ingest.deleteQc([qc_id]);'><i class='fas fa-trash-alt'></i></a>"
+            qcDeleteTemplate: "<a href='javascript:void(0)' onclick='ingest.deleteQc([qc_id]);'><i class='fas fa-trash-alt'></i></a>",
+            adminEditTemplate: "<a href='javascript:void(0)' onclick='ingest.showEditAdminModal([admin_id]);'><i class='fas fa-edit'></i></a>",
+            adminDeleteTemplate: "<a href='javascript:void(0)' onclick='ingest.deleteAdmin([admin_id]);'><i class='fas fa-trash-alt'></i></a>"
         },
         //web services
         services: {
@@ -23,7 +28,9 @@
             sensors: config.serviceUrl + "sensors/",
             parameters: config.serviceUrl + "parameters/",
             units: config.serviceUrl + "units/",
-            domains: config.serviceUrl + "domains/"
+            domains: config.serviceUrl + "domains/",
+            users: config.authUrl + "users/",
+            user: config.authUrl + "user/"
         },
         //site text
         text: {
@@ -44,8 +51,31 @@
             addQc: "Add Quality Control",
             editQc: "Edit Quality Control",
             qcSaved: "Quality control saved!",
-            qcDeleted: "Quality control deleted!"
+            qcDeleted: "Quality control deleted!",
+            addAdmin: "Add User",
+            editAdmin: "Edit User",
+            adminSaved: "User saved!",
+            adminDeleted: "User deleted!"
         }
+    },
+    validToken: function (token) {
+        var me = ingest;
+        var base64Url = token.split('.')[1];
+        var base64 = base64Url.replace('-', '+').replace('_', '/');
+        var roles = JSON.parse(window.atob(base64)).authorities;
+
+        if(roles!=null)
+            var arrayLength = roles.length;
+            if(arrayLength>0){
+              me.globals.username = JSON.parse(window.atob(base64)).user_name;
+                for (var i = 0; i < arrayLength; i++) {
+                    //console.log(roles[i]);
+                    if(roles[i]=='ADMIN_USER'){
+                      me.globals.isAdmin=true;
+                    }
+                }
+            }
+        return me.globals.username!=null;
     },
     init: function () {
         //initialize page values and settings
@@ -56,77 +86,99 @@
 
         //get query string parameters
         var params = helper.getQueryStringParams();
+        g.variables.token = params["access_token"];
         g.variables.orgId = params["orgId"];
 
-        if (g.variables.orgId != null) {
-            //populate organization table and QC table
-            $("#qcTable").bootstrapTable();
-            me.callOrgService();
+        if (g.variables.token != null && this.validToken(g.variables.token)) {
 
-            //populate sensors table
-            $("#sensorsTable").bootstrapTable();
-            me.callSensorsService();
+            if (g.variables.orgId != null) {
+                //populate organization table and QC table
+                $("#qcTable").bootstrapTable();
+                me.callOrgService();
 
-            //call parameters service and populate dropdowns
-            helper.callService(s.parameters, "", "GET", function (data) {
-                ingest.populateSelect("sensorParameter", data, "parameter_name", "parameter_id", g.text.selectParameter);
-                ingest.populateSelect("qcParameter", data, "parameter_name", "parameter_id", g.text.selectParameter);
-            });
+                //populate sensors table
+                $("#sensorsTable").bootstrapTable();
+                me.callSensorsService();
 
-            //call units service and populate dropdown
-            helper.callService(s.units, "", "GET", function (data) {
-                ingest.populateSelect("sensorUnit", data, "unit_name", "unit_id", g.text.selectUnit);
-            });
+                //call parameters service and populate dropdowns
+                helper.callService(s.parameters, "", g.variables.token, "GET", function (data) {
+                    ingest.populateSelect("sensorParameter", data, "parameter_name", "parameter_id", g.text.selectParameter);
+                    ingest.populateSelect("qcParameter", data, "parameter_name", "parameter_id", g.text.selectParameter);
+                });
 
-            //call domains service and populate dropdowns
-            helper.callService(s.domains, "", "GET", function (data) {
-                ingest.populateSelect("sensorMediumType", data.medium_types, "medium_type_name", "medium_type_id", g.text.selectMediumType);
-                ingest.populateSelect("sensorQuality", data.qualifiers, "data_qualifier_name", "data_qualifier_id", g.text.selectDataQuality);
-                ingest.populateSelect("qcOperand", data.operands, "quality_check_operand_name", "quality_check_operand_id", g.text.selectOperand);
-                ingest.populateSelect("qcAction", data.actions, "quality_check_action_name", "quality_check_action_id", g.text.selectAction);
-            });
+                //call units service and populate dropdown
+                helper.callService(s.units, "", g.variables.token,"GET", function (data) {
+                    ingest.populateSelect("sensorUnit", data, "unit_name", "unit_id", g.text.selectUnit);
+                });
 
-            //button handler for adding parameter to sensor form
-            $("#btnAddSensorParameter").on("click", function () {
-                ingest.addSensorParameter();
-            });
+                //call domains service and populate dropdowns
+                helper.callService(s.domains, "", g.variables.token,"GET", function (data) {
+                    ingest.populateSelect("sensorMediumType", data.medium_types, "medium_type_name", "medium_type_id", g.text.selectMediumType);
+                    ingest.populateSelect("sensorQuality", data.qualifiers, "data_qualifier_name", "data_qualifier_id", g.text.selectDataQuality);
+                    ingest.populateSelect("qcOperand", data.operands, "quality_check_operand_name", "quality_check_operand_id", g.text.selectOperand);
+                    ingest.populateSelect("qcAction", data.actions, "quality_check_action_name", "quality_check_action_id", g.text.selectAction);
+                });
 
-            //initialize title and sensor parameters table when sensor form is shown
-            $("#sensorModal").on("show.bs.modal", function () {
-                $("#sensorValidityWarning").hide();
-                $("#sensorModalTabs a[href='#sensorInfoTabContent']").tab("show");
-                if ($("#sensorUid").val() == "") {
-                    $("#sensorModalTitle").text(g.text.addSensor);
-                    $("#sensorParametersTable").bootstrapTable();
+                //button handler for adding parameter to sensor form
+                $("#btnAddSensorParameter").on("click", function () {
+                    ingest.addSensorParameter();
+                });
+
+                //initialize title and sensor parameters table when sensor form is shown
+                $("#sensorModal").on("show.bs.modal", function () {
+                    $("#sensorValidityWarning").hide();
+                    $("#sensorModalTabs a[href='#sensorInfoTabContent']").tab("show");
+                    if ($("#sensorUid").val() == "") {
+                        $("#sensorModalTitle").text(g.text.addSensor);
+                        $("#sensorParametersTable").bootstrapTable();
+                    } else {
+                        $("#sensorModalTitle").text(g.text.editSensor);
+                    }
+                });
+
+                //initialize title when QC form is shown
+                $("#qcModal").on("show.bs.modal", function () {
+                    if ($("#qcUid").val() == "") {
+                        $("#qcModalTitle").text(g.text.addQc);
+                    } else {
+                        $("#qcModalTitle").text(g.text.editQc);
+                    }
+                });
+
+                //reset sensors form when form is hidden
+                $("#sensorModal").on("hidden.bs.modal", function () {
+                    ingest.resetSensorModal();
+                });
+
+                //reset QC form when form is hidden
+                $("#qcModal").on("hidden.bs.modal", function () {
+                    ingest.resetQcModal();
+                });
+
+                //reset Admin form when form is hidden
+                $("#adminModal").on("hidden.bs.modal", function () {
+                    ingest.resetAdminModal();
+                });
+                //admin section
+                $("#adminSection").hide();
+                if(g.isAdmin){
+                    $("#adminSection").show();
+                    $("#adminTable").bootstrapTable();
+                    me.callUserService();
+/*                    //call users service and populate dropdowns
+                    helper.callService(s.users, "", g.variables.token,"GET", function (data) {
+                        ingest.populateSelect("id", data.medium_types, "id", "medium_type_id", g.text.selectMediumType);
+                        ingest.populateSelect("username", data.qualifiers, "user_name", "data_qualifier_id", g.text.selectDataQuality);
+                        ingest.populateSelect("email", data.operands, "email", "quality_check_operand_id", g.text.selectOperand);
+                        ingest.populateSelect("roles", data.actions, "roles", "quality_check_action_id", g.text.selectAction);
+                    });*/
                 }
-                else {
-                    $("#sensorModalTitle").text(g.text.editSensor);
-                }
-            });
-
-            //initialize title when QC form is shown
-            $("#qcModal").on("show.bs.modal", function () {
-                if ($("#qcUid").val() == "") {
-                    $("#qcModalTitle").text(g.text.addQc);
-                }
-                else {
-                    $("#qcModalTitle").text(g.text.editQc);
-                }
-            });
-
-            //reset sensors form when form is hidden
-            $("#sensorModal").on("hidden.bs.modal", function () {
-                ingest.resetSensorModal();
-            });
-
-            //reset QC form when form is hidden
-            $("#qcModal").on("hidden.bs.modal", function () {
-                ingest.resetQcModal();
-            });
-        }
-        else {
-            //display alert when no organization ID found in query string
-            alert(g.text.orgNotFound);
+            } else {
+                //display alert when no organization ID found in query string
+                alert(g.text.orgNotFound);
+            }
+        }else{
+            window.location.href = config.authLogin;
         }
     },
     callOrgService(callback) {
@@ -135,7 +187,7 @@
         var s = g.services;
 
         //call org service and populate organization table and QC table
-        helper.callService(s.orgs + g.variables.orgId, "", "GET", function (data) {
+        helper.callService(s.orgs + g.variables.orgId, "", g.variables.token,"GET", function (data) {
             if (callback) {
                 callback(data);
             }
@@ -151,7 +203,7 @@
         var s = g.services;
 
         //call sensors service and populate sensors table
-        helper.callService(s.sensors, "", "GET", function (data) {
+        helper.callService(s.sensors, "", g.variables.token,"GET", function (data) {
             if (callback) {
                 callback(data);
             }
@@ -159,6 +211,26 @@
                 $("#sensorsTable").bootstrapTable("load", data);
             }
         });
+    },
+    callUserService(callback) {
+        var me = ingest;
+        var g = me.globals;
+        var s = g.services;
+
+        //call user service and populate user table
+        helper.callService(s.users, "", g.variables.token,"GET", function (data) {
+            if (callback) {
+                callback(data);
+            }
+            else {
+                me.loadUserTable(data);
+            }
+        });
+    },
+    loadUserTable: function (data) {
+        if(data && data.data){
+          $("#adminTable").bootstrapTable("load", data.data[0]);
+        }
     },
     loadOrgTable: function (data) {
         //load data into organizations table
@@ -275,6 +347,28 @@
         var t = g.templates;
 
         var link = t.qcDeleteTemplate.replace("\[qc_id\]", value);
+        return link;
+    },
+    adminEditFormatter: function (value, row) {
+        //boostrap-table formatter for editing row of QC table
+        //creates a link to launch edit QC form
+
+        var me = ingest;
+        var g = me.globals;
+        var t = g.templates;
+
+        var link = t.adminEditTemplate.replace("\[admin_id\]", value);
+        return link;
+    },
+    adminDeleteFormatter: function (value, row) {
+        //boostrap-table formatter for deleting row of QC table
+        //creates a link to delete QC
+
+        var me = ingest;
+        var g = me.globals;
+        var t = g.templates;
+
+        var link = t.adminDeleteTemplate.replace("\[admin_id\]", value);
         return link;
     },
     populateSelect: function (selectId, data, nameField, idField, placeholderText) {
@@ -629,7 +723,74 @@
             });
             //*end workaround*
         }
-    }
+    },
+    showEditAdminModal: function (uid) {
+        //Display Admin Model on Edit
+        var adminData = $("#adminTable").bootstrapTable("getData");
+        var rowData = $.grep(adminData, function (record, index) {
+            return record.id == uid;
+        });
+        $("#adminUid").val(uid);
+        //console.log(rowData);
+        $("#adminUsername").val(rowData[0].username);
+        $("#adminEmail").val(rowData[0].email);
+        $("#adminRole").val(rowData[0].role);
+        $("#adminModal").modal("show");
+    },
+    resetAdminModal: function () {
+        //reset QC form
+        $("#adminUid").val("");
+        $("#adminUsername").val("");
+        $("#adminRole").val("");
+        $("#adminEmail").val("");
+    },
+    saveAdmin: function () {
+
+        var me = ingest;
+        var g = me.globals;
+        var s = g.services;
+        //get QC data from form
+        var uid = $("#adminUid").val();
+
+        var data = {};
+        data.id = uid;
+        data.username = $("#adminUsername").val();
+        data.roles = [$("#adminRole option:selected").val()];
+        data.email = $("#adminEmail").val();
+
+        //update
+        if (uid) {
+
+            helper.callService(s.user+uid, data, g.variables.token,"post", function (data) {
+                //alert user, hide modal, refresh QC table data
+                alert(g.text.adminSaved);
+                $("#adminModal").modal("hide");
+                me.callUserService();
+            });
+        }else{
+            //insert
+            //data
+            helper.callService(s.user, data, g.variables.token,"post", function (data) {
+                //alert user, hide modal, refresh admin table data
+                alert(g.text.adminSaved);
+                $("#adminModal").modal("hide");
+                me.callUserService();
+            });
+        }
+    },
+    deleteAdmin: function (uid) {
+        var me = ingest;
+        var g = me.globals;
+        var s = g.services;
+        if (confirm(g.text.confirm)) {
+
+            helper.callService(s.user+uid, "", g.variables.token,"delete", function (data) {
+                alert(g.text.adminDeleted);
+                $("#adminModal").modal("hide");
+                me.callUserService();
+            });
+        }
+    },
 };
 
 $("document").ready(function () {
