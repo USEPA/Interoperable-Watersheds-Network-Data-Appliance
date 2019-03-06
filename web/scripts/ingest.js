@@ -58,25 +58,6 @@
             adminDeleted: "User deleted!"
         }
     },
-    validToken: function (token) {
-        var me = ingest;
-        var base64Url = token.split('.')[1];
-        var base64 = base64Url.replace('-', '+').replace('_', '/');
-        var roles = JSON.parse(window.atob(base64)).authorities;
-
-        if(roles!=null)
-            var arrayLength = roles.length;
-            if(arrayLength>0){
-              me.globals.username = JSON.parse(window.atob(base64)).user_name;
-                for (var i = 0; i < arrayLength; i++) {
-                    //console.log(roles[i]);
-                    if(roles[i]=='ADMIN_USER'){
-                      me.globals.isAdmin=true;
-                    }
-                }
-            }
-        return me.globals.username!=null;
-    },
     init: function () {
         //initialize page values and settings
 
@@ -88,6 +69,7 @@
         var params = helper.getQueryStringParams();
         g.variables.token = params["access_token"];
         g.variables.orgId = params["orgId"];
+
 
         if (g.variables.token != null && this.validToken(g.variables.token)) {
 
@@ -181,7 +163,7 @@
             window.location.href = config.authLogin;
         }
     },
-    callOrgService(callback) {
+    callOrgService: function(callback) {
         var me = ingest;
         var g = me.globals;
         var s = g.services;
@@ -197,7 +179,7 @@
             }
         });
     },
-    callSensorsService(callback) {
+    callSensorsService: function(callback) {
         var me = ingest;
         var g = me.globals;
         var s = g.services;
@@ -212,7 +194,7 @@
             }
         });
     },
-    callUserService(callback) {
+    callUserService: function(callback) {
         var me = ingest;
         var g = me.globals;
         var s = g.services;
@@ -790,6 +772,25 @@
                 me.callUserService();
             });
         }
+    },
+    validToken: function (token) {
+        var me = ingest;
+        var base64Url = token.split('.')[1];
+        var base64 = base64Url.replace('-', '+').replace('_', '/');
+        var roles = JSON.parse(window.atob(base64)).authorities;
+
+        if(roles!=null)
+            var arrayLength = roles.length;
+        if(arrayLength>0){
+            me.globals.username = JSON.parse(window.atob(base64)).user_name;
+            for (var i = 0; i < arrayLength; i++) {
+                //console.log(roles[i]);
+                if(roles[i]=='ADMIN_USER'){
+                    me.globals.isAdmin=true;
+                }
+            }
+        }
+        return me.globals.username!=null;
     },
 };
 
