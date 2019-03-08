@@ -371,7 +371,7 @@
         $("#sensorUid").val(uid);
 
         //call sensors service and populate form
-        helper.callService(s.sensors + uid, "", "GET", function (data) {
+        helper.callService(s.sensors + uid, "", g.variables.token, "GET", function (data) {
             $("#sensorId").val(data.org_sensor_id);
             $("#sensorId").prop("disabled", true);
             $("#sensorNameShort").val(data.short_name);
@@ -517,10 +517,10 @@
                 if (deleteParams.length > 0) {
                     $.each(deleteParams, function (index) {
                         var deleteParam = this;
-                        helper.callService(s.sensors + uid + /parameters/ + deleteParam, "{}", "DELETE", function () {
+                        helper.callService(s.sensors + uid + /parameters/ + deleteParam, "{}", g.variables.token,"DELETE", function () {
                             //if this is was the last parameter for deletion then continue with updating sensor
                             if (index == deleteParams.length - 1) {
-                                helper.callService(s.sensors + uid, data, "PUT", function (data) {
+                                helper.callService(s.sensors + uid, data, g.variables.token,"PUT", function (data) {
                                     //alert user, hide modal, refresh sensors table data
                                     alert(g.text.sensorSaved);
                                     $("#sensorModal").modal("hide");
@@ -532,7 +532,7 @@
                 }
                 else {
                     //otherwise just update sensor
-                    helper.callService(s.sensors + uid, data, "PUT", function (data) {
+                    helper.callService(s.sensors + uid, data, g.variables.token,"PUT", function (data) {
                         //alert user, hide modal, refresh sensors table data
                         alert(g.text.sensorSaved);
                         $("#sensorModal").modal("hide");
@@ -546,7 +546,7 @@
                 data.parameters = [];
 
                 //call sensor create service
-                helper.callService(s.sensors, data, "POST", function (data) {
+                helper.callService(s.sensors, data, g.variables.token,"POST", function (data) {
 
                     //add sensor ID to parameters data after saving sensor, then resave with parameters (*service could be improved here*)
                     $("#sensorUid").val(data.sensor_id);
@@ -578,7 +578,7 @@
 
         if (confirm(g.text.confirm)) {
             //call sensor delete service
-            helper.callService(s.sensors + uid, "", "DELETE", function (data) {
+            helper.callService(s.sensors + uid, "", g.variables.token,"DELETE", function (data) {
                 //alert user, hide modal, refresh sensors table data
                 alert(g.text.sensorDeleted);
                 $("#sensorModal").modal("hide");
@@ -663,7 +663,7 @@
             //add updated QC data to org data
             data.quality_checks = qcData;
             //call org update service to update org data with new QC data (not pretty!)
-            helper.callService(s.orgs + g.variables.orgId, data, "PUT", function (data) {
+            helper.callService(s.orgs + g.variables.orgId, data, g.variables.token,"PUT", function (data) {
                 //alert user, hide modal, refresh QC table data
                 alert(g.text.qcSaved);
                 $("#qcModal").modal("hide");
@@ -696,7 +696,7 @@
             me.callOrgService(function (data) {
                 data.quality_checks = newQcData;
                 //then call org update service to update QC data without the deleted record (ugly!)
-                helper.callService(s.orgs + g.variables.orgId, data, "PUT", function (data) {
+                helper.callService(s.orgs + g.variables.orgId, data, g.variables.token,"PUT", function (data) {
                     //alert user, hide modal, refresh QC table data
                     alert(g.text.qcDeleted);
                     $("#qcModal").modal("hide");

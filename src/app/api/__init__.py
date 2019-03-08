@@ -15,11 +15,11 @@ authorizations = {
 }
 api = Api(version='0.1',authorizations=authorizations, title='Sensor Ingest API',default='sensors', description='A Restful API for scheduling ingests of remote data sensors')
 
-api.add_namespace(sensors)
-api.add_namespace(parameters)
-api.add_namespace(orgs)
-api.add_namespace(domains)
-api.add_namespace(units)
+api.add_namespace(sensors, path='/api/sensors')
+api.add_namespace(parameters, path='/api/parameters')
+api.add_namespace(orgs, path='/api/orgs')
+api.add_namespace(domains, path='/api/domains')
+api.add_namespace(units, path='/api/units')
 
 
 @api.errorhandler

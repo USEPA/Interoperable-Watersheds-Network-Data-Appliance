@@ -9,7 +9,7 @@ service = services.organizations_service
 
 detail_schema = OrganizationSchema()
 list_schema = OrganizationSchema(many=True)
-api = Namespace('orgs', 'modify organizations')
+api = Namespace('api/orgs', 'modify organizations')
 api.models[quality_check_model.name] = quality_check_model
 api.models[organization_model.name] = organization_model
 
@@ -167,3 +167,11 @@ class ParameterQualityCheck(Resource):
         
         qual_check_service.delete(qc)
         return {}, 204
+
+@api.route('/healthcheck')
+class healthcheck(Resource):
+
+    def get(self):
+        """healthcheck"""
+        response = 'ok'
+        return response, 200
